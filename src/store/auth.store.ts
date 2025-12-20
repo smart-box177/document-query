@@ -17,8 +17,8 @@ interface AuthState {
   isLoading: boolean;
   error: string | null;
 
-  signin: (email: string, password: string) => Promise<void>;
-  signup: (data: SignupData) => Promise<void>;
+  signin: (email: string, password: string) => Promise<boolean>;
+  signup: (data: SignupData) => Promise<boolean>;
   verifyAccount: (userId: string) => Promise<void>;
   logout: () => void;
   setAuth: (user: User, accessToken: string, refreshToken: string) => void;
@@ -55,8 +55,10 @@ export const useAuthStore = create<AuthState>()(
             });
             localStorage.setItem("accessToken", data.data.accessToken);
             localStorage.setItem("refreshToken", data.data.refreshToken);
+            return true;
           } else {
             set({ error: data.message, isLoading: false });
+            return false;
           }
         } catch (err: unknown) {
           const error = err as { response?: { data?: { message?: string } } };
@@ -64,6 +66,7 @@ export const useAuthStore = create<AuthState>()(
             error: error.response?.data?.message || "Sign in failed",
             isLoading: false,
           });
+          return false;
         }
       },
 
@@ -73,8 +76,10 @@ export const useAuthStore = create<AuthState>()(
           const { data } = await api.post("/auth/signup", signupData);
           if (data.success) {
             set({ isLoading: false });
+            return true;
           } else {
             set({ error: data.message, isLoading: false });
+            return false;
           }
         } catch (err: unknown) {
           const error = err as { response?: { data?: { message?: string } } };
@@ -82,6 +87,7 @@ export const useAuthStore = create<AuthState>()(
             error: error.response?.data?.message || "Sign up failed",
             isLoading: false,
           });
+          return false;
         }
       },
 

@@ -52,13 +52,13 @@ export function SignupForm({
       return;
     }
 
-    await signup({
+    const success = await signup({
       username: formData.username,
       email: formData.email,
       password: formData.password,
     });
 
-    if (!error) {
+    if (success) {
       navigate("/auth/signin");
     }
   };
