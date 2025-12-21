@@ -197,16 +197,22 @@ const Search = () => {
                               </div>
                               <div className="flex flex-wrap gap-2">
                                 {contract.media.map((doc, idx) => (
-                                  <a
+                                  <button
                                     key={idx}
-                                    href={doc.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
+                                    onClick={() => {
+                                      const link = document.createElement('a');
+                                      link.href = doc.url;
+                                      link.download = doc.originalName || doc.filename;
+                                      link.target = '_blank';
+                                      document.body.appendChild(link);
+                                      link.click();
+                                      document.body.removeChild(link);
+                                    }}
                                     className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
                                   >
                                     <ExternalLink className="h-3 w-3" />
                                     {doc.originalName || doc.filename}
-                                  </a>
+                                  </button>
                                 ))}
                               </div>
                             </div>
