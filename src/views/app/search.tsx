@@ -124,7 +124,7 @@ const Search = () => {
             <SearchIcon className="absolute left-4 h-5 w-5 text-muted-foreground" />
             <Input
               type="text"
-              placeholder="Search documents, contracts, operators..."
+              placeholder="Search by month, year, operator, contractor, contract title, contract number..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="w-full h-12 pl-12 pr-12 text-base rounded-full border-2 focus-visible:ring-2 focus-visible:ring-primary"
