@@ -84,8 +84,14 @@ const AppLayout = () => {
     <div className="flex h-screen">
       <aside className="w-64 border-r bg-muted/30 flex flex-col">
         <div className="p-4 border-b">
-          <img src="/ncdmb.png" alt="logo" />
-          <h1 className="text-lg font-semibold">DocQuery</h1>
+          <div className="flex items-center gap-3">
+            <img
+              src="/ncdmb.png"
+              alt="logo"
+              className="h-10 w-10 object-contain"
+            />
+            <h1 className="text-lg font-semibold">DocQuery</h1>
+          </div>
         </div>
 
         <nav className="flex-1 p-2 space-y-1">
