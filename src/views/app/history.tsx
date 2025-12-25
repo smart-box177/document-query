@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Search,
   Clock,
@@ -7,6 +7,7 @@ import {
   Calendar,
   ArrowUpRight,
   Loader2,
+  RefreshCw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,61 +29,35 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-
-interface SearchHistoryItem {
-  id: string;
-  query: string;
-  resultsCount: number;
-  searchedAt: string;
-  tab: string;
-}
-
-// Mock data - replace with actual API call
-const mockHistory: SearchHistoryItem[] = [
-  {
-    id: "1",
-    query: "SEPLAT drilling contracts 2023",
-    resultsCount: 24,
-    searchedAt: "2024-12-25T10:30:00Z",
-    tab: "all",
-  },
-  {
-    id: "2",
-    query: "Offshore maintenance services",
-    resultsCount: 12,
-    searchedAt: "2024-12-25T09:15:00Z",
-    tab: "contracts",
-  },
-  {
-    id: "3",
-    query: "NNPC wireline agreements",
-    resultsCount: 8,
-    searchedAt: "2024-12-24T16:45:00Z",
-    tab: "documents",
-  },
-  {
-    id: "4",
-    query: "Environmental compliance contracts",
-    resultsCount: 31,
-    searchedAt: "2024-12-24T14:20:00Z",
-    tab: "all",
-  },
-  {
-    id: "5",
-    query: "Subsea installation services",
-    resultsCount: 5,
-    searchedAt: "2024-12-23T11:00:00Z",
-    tab: "contracts",
-  },
-];
+import { useHistoryStore } from "@/store/history.store";
 
 const History = () => {
-  const [history, setHistory] = useState<SearchHistoryItem[]>(mockHistory);
+  const {
+    history,
+    isLoading,
+    error,
+    fetchHistory,
+    deleteHistory,
+    clearAllHistory,
+    clearError,
+  } = useHistoryStore();
+
   const [filter, setFilter] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
   const [clearAllDialogOpen, setClearAllDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    fetchHistory();
+  }, [fetchHistory]);
+
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+      clearError();
+    }
+  }, [error, clearError]);
 
   const filteredHistory = history.filter((item) =>
     item.query.toLowerCase().includes(filter.toLowerCase())
@@ -110,54 +85,67 @@ const History = () => {
   };
 
   const handleDelete = async (id: string) => {
-    setIsLoading(true);
-    // Simulate API call - replace with actual API
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    setHistory((prev) => prev.filter((item) => item.id !== id));
-    setIsLoading(false);
+    setIsDeleting(true);
+    const success = await deleteHistory(id);
+    setIsDeleting(false);
     setDeleteDialogOpen(false);
     setItemToDelete(null);
-    toast.success("Search removed from history");
+    if (success) {
+      toast.success("Search removed from history");
+    }
   };
 
   const handleClearAll = async () => {
-    setIsLoading(true);
-    // Simulate API call - replace with actual API
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    setHistory([]);
-    setIsLoading(false);
+    setIsDeleting(true);
+    const success = await clearAllHistory();
+    setIsDeleting(false);
     setClearAllDialogOpen(false);
-    toast.success("Search history cleared");
+    if (success) {
+      toast.success("Search history cleared");
+    }
   };
 
   const handleSearchAgain = (query: string) => {
-    // Navigate to search with query
-    const searchUrl = `/app/search?q=${encodeURIComponent(query)}`;
-    window.open(searchUrl, "_self");
+    window.open(`/app?q=${encodeURIComponent(query)}`, "_self");
   };
 
-  const groupedHistory = filteredHistory.reduce((groups, item) => {
-    const date = new Date(item.searchedAt);
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
+  const groupedHistory = filteredHistory.reduce(
+    (groups, item) => {
+      const date = new Date(item.createdAt);
+      const today = new Date();
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
 
-    let key: string;
-    if (date.toDateString() === today.toDateString()) {
-      key = "Today";
-    } else if (date.toDateString() === yesterday.toDateString()) {
-      key = "Yesterday";
-    } else {
-      key = date.toLocaleDateString("en-US", {
-        month: "long",
-        day: "numeric",
-      });
-    }
+      let key: string;
+      if (date.toDateString() === today.toDateString()) {
+        key = "Today";
+      } else if (date.toDateString() === yesterday.toDateString()) {
+        key = "Yesterday";
+      } else {
+        key = date.toLocaleDateString("en-US", {
+          month: "long",
+          day: "numeric",
+        });
+      }
 
-    if (!groups[key]) groups[key] = [];
-    groups[key].push(item);
-    return groups;
-  }, {} as Record<string, SearchHistoryItem[]>);
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(item);
+      return groups;
+    },
+    {} as Record<string, typeof history>
+  );
+
+  // Loading state
+  if (isLoading && history.length === 0) {
+    return (
+      <div className="p-6 max-w-4xl mx-auto">
+        <div className="flex flex-col items-center justify-center py-20">
+          <Loader2 className="h-10 w-10 animate-spin text-muted-foreground mb-4" />
+          <p className="text-muted-foreground">Loading history...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-6">
@@ -168,17 +156,30 @@ const History = () => {
             View and manage your recent searches
           </p>
         </div>
-        {history.length > 0 && (
+        <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setClearAllDialogOpen(true)}
+            onClick={() => fetchHistory()}
             disabled={isLoading}
           >
-            <Trash2 className="h-4 w-4 mr-2" />
-            Clear All
+            <RefreshCw
+              className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`}
+            />
+            Refresh
           </Button>
-        )}
+          {history.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setClearAllDialogOpen(true)}
+              disabled={isLoading}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Clear All
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Filter */}
@@ -203,7 +204,7 @@ const History = () => {
             <p className="text-muted-foreground mb-4">
               Your search history will appear here
             </p>
-            <Button onClick={() => window.open("/app/search", "_self")}>
+            <Button onClick={() => window.open("/app", "_self")}>
               <Search className="h-4 w-4 mr-2" />
               Start Searching
             </Button>
@@ -234,7 +235,7 @@ const History = () => {
             <CardContent className="p-0 divide-y">
               {items.map((item) => (
                 <div
-                  key={item.id}
+                  key={item._id}
                   className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors group"
                 >
                   <div
@@ -246,7 +247,7 @@ const History = () => {
                       <p className="font-medium truncate">{item.query}</p>
                       <p className="text-sm text-muted-foreground">
                         {item.resultsCount} results • {item.tab} •{" "}
-                        {formatDate(item.searchedAt)}
+                        {formatDate(item.createdAt)}
                       </p>
                     </div>
                   </div>
@@ -275,7 +276,7 @@ const History = () => {
                         <DropdownMenuItem
                           className="text-destructive"
                           onClick={() => {
-                            setItemToDelete(item.id);
+                            setItemToDelete(item._id);
                             setDeleteDialogOpen(true);
                           }}
                         >
@@ -303,12 +304,12 @@ const History = () => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => itemToDelete && handleDelete(itemToDelete)}
-              disabled={isLoading}
+              disabled={isDeleting}
             >
-              {isLoading ? (
+              {isDeleting ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 "Remove"
@@ -332,13 +333,13 @@ const History = () => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleClearAll}
-              disabled={isLoading}
+              disabled={isDeleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {isLoading ? (
+              {isDeleting ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 "Clear All"

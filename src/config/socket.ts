@@ -16,8 +16,14 @@ class SocketClient {
 
   public connect(): Socket {
     if (!this.socket) {
+      // Get auth token from localStorage
+      const token = localStorage.getItem("accessToken");
+
       this.socket = io(API_URL, {
         withCredentials: true,
+        auth: {
+          token: token || undefined,
+        },
       });
 
       this.socket.on("connect", () => {
@@ -40,6 +46,12 @@ class SocketClient {
       this.socket.disconnect();
       this.socket = null;
     }
+  }
+
+  // Reconnect with fresh token (call after login)
+  public reconnect(): Socket {
+    this.disconnect();
+    return this.connect();
   }
 }
 
