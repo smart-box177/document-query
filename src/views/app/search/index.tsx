@@ -6,6 +6,7 @@ import {
   TrendingUp,
   Loader2,
   FileText,
+  X,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -25,12 +26,15 @@ const trendingSearches = [
   "Pipeline maintenance 2024",
 ];
 
+type SearchTab = "all" | "ai-mode" | "documents" | "contracts";
+
 const Search = () => {
   const [query, setQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [results, setResults] = useState<SearchResult[]>([]);
   const [searchStatus, setSearchStatus] = useState("");
   const [hasSearched, setHasSearched] = useState(false);
+  const [activeTab, setActiveTab] = useState<SearchTab>("all");
 
   useEffect(() => {
     const socket = getSocket();
@@ -93,9 +97,131 @@ const Search = () => {
     setQuery(suggestion);
   };
 
+  const handleClearSearch = () => {
+    setQuery("");
+    setHasSearched(false);
+    setResults([]);
+    setSearchStatus("");
+  };
+
+  const tabs: { id: SearchTab; label: string }[] = [
+    { id: "all", label: "All" },
+    { id: "ai-mode", label: "AI Mode" },
+    { id: "documents", label: "Documents" },
+    { id: "contracts", label: "Contracts" },
+  ];
+
+  // Results view - search bar at top left with tabs
+  if (hasSearched) {
+    return (
+      <div className="min-h-[calc(100vh-3.5rem)]">
+        {/* Top search bar */}
+        <div className="border-b bg-background sticky top-0 z-10">
+          <div className="px-6 py-4">
+            <form onSubmit={handleSearch} className="flex items-center gap-4">
+              <h1
+                className="text-xl font-bold cursor-pointer"
+                onClick={handleClearSearch}
+              >
+                DocQuery
+              </h1>
+              <div className="relative flex items-center max-w-xl flex-1">
+                <SearchIcon className="absolute left-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="text"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  className="w-full h-10 pl-10 pr-20 rounded-full border-2"
+                  disabled={isSearching}
+                />
+                <div className="absolute right-2 flex items-center gap-1">
+                  {query && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7"
+                      onClick={() => setQuery("")}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7"
+                  >
+                    <Mic className="h-4 w-4 text-muted-foreground" />
+                  </Button>
+                  <Button
+                    type="submit"
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7"
+                    disabled={isSearching}
+                  >
+                    <SearchIcon className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          {/* Tabs */}
+          <div className="px-6 flex items-center gap-6">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`pb-3 text-sm font-medium border-b-2 transition-colors ${
+                  activeTab === tab.id
+                    ? "border-primary text-primary"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Results content */}
+        <div className="px-6 py-4">
+          {/* Search Status */}
+          {searchStatus && (
+            <p className="text-sm text-muted-foreground mb-4">{searchStatus}</p>
+          )}
+
+          {/* Loading state */}
+          {isSearching && (
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span>Searching...</span>
+            </div>
+          )}
+
+          {/* Results Table */}
+          {results.length > 0 && (
+            <SearchTable columns={searchColumns} data={results} />
+          )}
+
+          {/* No Results */}
+          {!isSearching && results.length === 0 && (
+            <div className="text-center py-12">
+              <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">No NCCC contracts found</p>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Initial centered search view
   return (
     <div className="flex flex-col items-center min-h-[calc(100vh-3.5rem)] px-4 py-8">
-      <div className="w-full max-w-7xl space-y-6">
+      <div className="w-full max-w-6xl space-y-6">
         {/* Logo/Title */}
         <div className="text-center space-y-2">
           <h1 className="text-4xl font-bold tracking-tight">DocQuery</h1>
@@ -142,73 +268,48 @@ const Search = () => {
           </div>
         </form>
 
-        {/* Search Status */}
-        {searchStatus && (
-          <p className="text-center text-sm text-muted-foreground">
-            {searchStatus}
-          </p>
-        )}
-
-        {/* Search Results Table */}
-        {hasSearched && results.length > 0 && (
-          <div className="space-y-4">
-            <h2 className="text-lg font-semibold">NCCC Search Results</h2>
-            <SearchTable columns={searchColumns} data={results} />
-          </div>
-        )}
-
-        {/* No Results */}
-        {hasSearched && !isSearching && results.length === 0 && (
-          <div className="text-center py-8">
-            <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">No NCCC contracts found</p>
-          </div>
-        )}
-
-        {/* Suggestions - only show when not searched */}
-        {!hasSearched && (
-          <div className="grid md:grid-cols-2 gap-6 pt-4 max-w-3xl mx-auto">
-            {/* Recent Searches */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                <Clock className="h-4 w-4" />
-                Recent Searches
-              </div>
-              <ul className="space-y-2">
-                {recentSearches.map((item, index) => (
-                  <li key={index}>
-                    <button
-                      onClick={() => handleSuggestionClick(item)}
-                      className="text-sm text-left w-full px-3 py-2 rounded-md hover:bg-muted transition-colors"
-                    >
-                      {item}
-                    </button>
-                  </li>
-                ))}
-              </ul>
+        {/* Suggestions */}
+        <div className="grid md:grid-cols-2 gap-6 pt-4 max-w-3xl mx-auto">
+          {/* Recent Searches */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+              <Clock className="h-4 w-4" />
+              Recent Searches
             </div>
-
-            {/* Trending Searches */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                <TrendingUp className="h-4 w-4" />
-                Trending Searches
-              </div>
-              <ul className="space-y-2">
-                {trendingSearches.map((item, index) => (
-                  <li key={index}>
-                    <button
-                      onClick={() => handleSuggestionClick(item)}
-                      className="text-sm text-left w-full px-3 py-2 rounded-md hover:bg-muted transition-colors"
-                    >
-                      {item}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            <ul className="space-y-2">
+              {recentSearches.map((item, index) => (
+                <li key={index}>
+                  <button
+                    onClick={() => handleSuggestionClick(item)}
+                    className="text-sm text-left w-full px-3 py-2 rounded-md hover:bg-muted transition-colors"
+                  >
+                    {item}
+                  </button>
+                </li>
+              ))}
+            </ul>
           </div>
-        )}
+
+          {/* Trending Searches */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+              <TrendingUp className="h-4 w-4" />
+              Trending Searches
+            </div>
+            <ul className="space-y-2">
+              {trendingSearches.map((item, index) => (
+                <li key={index}>
+                  <button
+                    onClick={() => handleSuggestionClick(item)}
+                    className="text-sm text-left w-full px-3 py-2 rounded-md hover:bg-muted transition-colors"
+                  >
+                    {item}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   );
