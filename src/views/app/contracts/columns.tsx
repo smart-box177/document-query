@@ -97,7 +97,9 @@ export const columns: ColumnDef<IContract>[] = [
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => {
-      const status = row.getValue("status") as string;
+      const status = row.getValue("status") as string | undefined;
+      if (!status) return <span className="text-muted-foreground">—</span>;
+
       const colorMap = {
         active: "text-green-600 bg-green-100",
         completed: "text-blue-600 bg-blue-100",

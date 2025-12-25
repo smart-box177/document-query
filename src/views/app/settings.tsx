@@ -375,7 +375,7 @@ const Settings = () => {
                       <span className="text-sm">Dark</span>
                     </button>
                     <button className="p-4 border rounded-lg hover:border-primary transition-colors text-center space-y-2">
-                      <div className="h-12 w-full bg-gradient-to-r from-white to-zinc-900 border rounded" />
+                      <div className="h-12 w-full bg-linear-to-r from-white to-zinc-900 border rounded" />
                       <span className="text-sm">System</span>
                     </button>
                   </div>
