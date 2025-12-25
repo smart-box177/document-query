@@ -95,7 +95,7 @@ const Search = () => {
 
   return (
     <div className="flex flex-col items-center min-h-[calc(100vh-3.5rem)] px-4 py-8">
-      <div className="w-full max-w-6xl space-y-6">
+      <div className="w-full max-w-7xl space-y-6">
         {/* Logo/Title */}
         <div className="text-center space-y-2">
           <h1 className="text-4xl font-bold tracking-tight">DocQuery</h1>
