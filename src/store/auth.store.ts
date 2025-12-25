@@ -1,7 +1,47 @@
 import { create } from "zustand";
 import { api } from "@/config/axios";
-import { type IAuthUser } from "@/interface/user";
 import { API_URL } from "@/constants";
+import { type IAuthUser } from "@/interface/user";
+
+// Storage keys
+const STORAGE_KEYS = {
+  ACCESS_TOKEN: "accessToken",
+  REFRESH_TOKEN: "refreshToken",
+  USER: "user",
+} as const;
+
+// Storage helpers
+const storage = {
+  setTokens: (accessToken: string, refreshToken: string | null) => {
+    localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, accessToken);
+    if (refreshToken) {
+      localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, refreshToken);
+    }
+  },
+  setUser: (user: IAuthUser) => {
+    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
+  },
+  getAccessToken: (): string | null => {
+    return localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+  },
+  getRefreshToken: (): string | null => {
+    return localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
+  },
+  getUser: (): IAuthUser | null => {
+    const userStr = localStorage.getItem(STORAGE_KEYS.USER);
+    if (!userStr) return null;
+    try {
+      return JSON.parse(userStr) as IAuthUser;
+    } catch {
+      return null;
+    }
+  },
+  clear: () => {
+    localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
+    localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
+    localStorage.removeItem(STORAGE_KEYS.USER);
+  },
+};
 
 interface AuthState {
   user: IAuthUser | null;
@@ -41,15 +81,15 @@ export const useAuthStore = create<AuthState>()((set) => ({
     try {
       const { data } = await api.post("/auth/signin", { email, password });
       if (data.success) {
+        const { user, accessToken, refreshToken } = data.data;
+        storage.setTokens(accessToken, refreshToken);
+        storage.setUser(user);
         set({
-          user: data.data.user,
-          accessToken: data.data.accessToken,
-          refreshToken: data.data?.refreshToken,
+          user,
+          accessToken,
+          refreshToken,
           isLoading: false,
         });
-        localStorage.setItem("accessToken", data.data.accessToken);
-        localStorage.setItem("refreshToken", data.data.refreshToken);
-        localStorage.setItem("user", JSON.stringify(data.data.user));
         return true;
       } else {
         set({ error: data.message, isLoading: false });
@@ -95,15 +135,15 @@ export const useAuthStore = create<AuthState>()((set) => ({
       const data = await response.json();
 
       if (data.success) {
+        const { user, accessToken, refreshToken } = data.data;
+        storage.setTokens(accessToken, refreshToken);
+        storage.setUser(user);
         set({
-          user: data.data.user,
-          accessToken: data.data.accessToken,
-          refreshToken: data.data.refreshToken,
+          user,
+          accessToken,
+          refreshToken,
           isLoading: false,
         });
-        localStorage.setItem("accessToken", data.data.accessToken);
-        localStorage.setItem("refreshToken", data.data.refreshToken);
-        localStorage.setItem("user", JSON.stringify(data.data.user));
         return true;
       } else {
         set({
@@ -141,91 +181,50 @@ export const useAuthStore = create<AuthState>()((set) => ({
   },
 
   logout: () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("user");
+    storage.clear();
     set({ user: null, accessToken: null, refreshToken: null });
   },
 
   setAuth: (user, accessToken, refreshToken) => {
-    localStorage.setItem("accessToken", accessToken);
-    localStorage.setItem("refreshToken", refreshToken);
-    localStorage.setItem("user", JSON.stringify(user));
+    storage.setTokens(accessToken, refreshToken);
+    storage.setUser(user);
     set({ user, accessToken, refreshToken });
   },
 
   fetchMe: async () => {
-    const accessToken = localStorage.getItem("accessToken");
-    if (!accessToken) {
-      console.log("no access token");
-      return false;
-    }
-    
-    set({ isLoading: true });
+    const accessToken = storage.getAccessToken();
+    if (!accessToken) return false;
+
     try {
       const { data } = await api.get("/auth/me");
       if (data.success) {
         const user = data.data.user;
-        console.log("request sent");
-        localStorage.setItem("user", JSON.stringify(user));
+        storage.setUser(user);
         set({
           user,
           accessToken,
-          refreshToken: localStorage.getItem("refreshToken"),
-          isLoading: false,
+          refreshToken: storage.getRefreshToken(),
         });
         return true;
-      } else {
-        // Token invalid, clear storage
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
-        localStorage.removeItem("user");
-        set({
-          user: null,
-          accessToken: null,
-          refreshToken: null,
-          isLoading: false,
-        });
-        return false;
       }
+      // Don't clear storage on failure - keep existing data
+      return false;
     } catch {
-      // Token invalid or expired, clear storage
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      localStorage.removeItem("user");
-      set({
-        user: null,
-        accessToken: null,
-        refreshToken: null,
-        isLoading: false,
-      });
+      // Don't clear storage on network error - keep existing data
       return false;
     }
   },
 
   initializeFromStorage: async () => {
-    const accessToken = localStorage.getItem("accessToken");
-    const refreshToken = localStorage.getItem("refreshToken");
-    const userStr = localStorage.getItem("user");
+    const accessToken = storage.getAccessToken();
+    const refreshToken = storage.getRefreshToken();
+    const user = storage.getUser();
 
-    if (accessToken && userStr) {
-      try {
-        const user = JSON.parse(userStr) as IAuthUser;
-        set({ user, accessToken, refreshToken });
+    if (accessToken && user) {
+      set({ user, accessToken, refreshToken });
 
-        // Optionally fetch fresh user data in background (don't block)
-        useAuthStore
-          .getState()
-          .fetchMe()
-          .catch(() => {
-            // Silent fail - user data from storage is still valid
-          });
-      } catch {
-        // Invalid stored data, clear everything
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
-        localStorage.removeItem("user");
-      }
+      // Fetch fresh user data in background (optional, don't block)
+      useAuthStore.getState().fetchMe();
     }
   },
 
