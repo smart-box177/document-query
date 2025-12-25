@@ -38,7 +38,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { to: "/app", icon: Search, label: "Search NCCC" },
-  { to: "/app/query", icon: MessageSquareText, label: "Query" },
+  { to: "/app/query", icon: MessageSquareText, label: "NCCC Contracts" },
   { to: "/app/documents", icon: FileText, label: "Documents" },
   { to: "/app/history", icon: History, label: "History" },
   { to: "/app/bookmarks", icon: Bookmark, label: "Bookmarks" },
