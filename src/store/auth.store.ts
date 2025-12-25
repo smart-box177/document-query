@@ -14,10 +14,11 @@ interface AuthState {
   signup: (data: SignupData) => Promise<boolean>;
   googleSignin: (code: string) => Promise<boolean>;
   verifyAccount: (userId: string) => Promise<void>;
+  fetchMe: () => Promise<boolean>;
   logout: () => void;
   setAuth: (user: IAuthUser, accessToken: string, refreshToken: string) => void;
   clearError: () => void;
-  initializeFromStorage: () => void;
+  initializeFromStorage: () => Promise<void>;
 }
 
 interface SignupData {
@@ -105,7 +106,10 @@ export const useAuthStore = create<AuthState>()((set) => ({
         localStorage.setItem("user", JSON.stringify(data.data.user));
         return true;
       } else {
-        set({ error: data.message || "Authentication failed", isLoading: false });
+        set({
+          error: data.message || "Authentication failed",
+          isLoading: false,
+        });
         return false;
       }
     } catch (err: unknown) {
@@ -150,17 +154,74 @@ export const useAuthStore = create<AuthState>()((set) => ({
     set({ user, accessToken, refreshToken });
   },
 
-  initializeFromStorage: () => {
+  fetchMe: async () => {
+    const accessToken = localStorage.getItem("accessToken");
+    if (!accessToken) {
+      console.log("no access token");
+      return false;
+    }
+    
+    set({ isLoading: true });
+    try {
+      const { data } = await api.get("/auth/me");
+      if (data.success) {
+        const user = data.data.user;
+        console.log("request sent");
+        localStorage.setItem("user", JSON.stringify(user));
+        set({
+          user,
+          accessToken,
+          refreshToken: localStorage.getItem("refreshToken"),
+          isLoading: false,
+        });
+        return true;
+      } else {
+        // Token invalid, clear storage
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("user");
+        set({
+          user: null,
+          accessToken: null,
+          refreshToken: null,
+          isLoading: false,
+        });
+        return false;
+      }
+    } catch {
+      // Token invalid or expired, clear storage
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("user");
+      set({
+        user: null,
+        accessToken: null,
+        refreshToken: null,
+        isLoading: false,
+      });
+      return false;
+    }
+  },
+
+  initializeFromStorage: async () => {
     const accessToken = localStorage.getItem("accessToken");
     const refreshToken = localStorage.getItem("refreshToken");
     const userStr = localStorage.getItem("user");
-    
+
     if (accessToken && userStr) {
       try {
         const user = JSON.parse(userStr) as IAuthUser;
         set({ user, accessToken, refreshToken });
+
+        // Optionally fetch fresh user data in background (don't block)
+        useAuthStore
+          .getState()
+          .fetchMe()
+          .catch(() => {
+            // Silent fail - user data from storage is still valid
+          });
       } catch {
-        // Invalid user data, clear storage
+        // Invalid stored data, clear everything
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
         localStorage.removeItem("user");
