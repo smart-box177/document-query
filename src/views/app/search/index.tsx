@@ -27,7 +27,7 @@ type SearchTab = "all" | "ai-mode" | "documents" | "contracts";
 
 const Search = () => {
   const { recentSearches, user } = useAuthStore();
-  const { fetchUserArchive, userArchive } = useArchiveStore();
+  const { fetchUserArchive } = useArchiveStore();
   const { fetchBookmarks } = useBookmarkStore();
   const [query, setQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
@@ -43,12 +43,6 @@ const Search = () => {
       fetchBookmarks();
     }
   }, [user, fetchUserArchive, fetchBookmarks]);
-
-  // Filter out archived contracts from results on the frontend
-  const filteredResults = results.filter((contract) => {
-    const archivedIds = userArchive.map((a) => a.id);
-    return !archivedIds.includes(contract._id);
-  });
 
   useEffect(() => {
     const socket = getSocket();
@@ -226,12 +220,12 @@ const Search = () => {
           )}
 
           {/* Results Table */}
-          {filteredResults.length > 0 && (
-            <SearchTable columns={searchColumns} data={filteredResults} />
+          {results.length > 0 && (
+            <SearchTable columns={searchColumns} data={results} />
           )}
 
           {/* No Results */}
-          {!isSearching && filteredResults.length === 0 && (
+          {!isSearching && results.length === 0 && (
             <div className="text-center py-12">
               <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
               <p className="text-muted-foreground">No NCCC contracts found</p>
