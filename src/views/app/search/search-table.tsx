@@ -41,6 +41,7 @@ import {
   ChevronDown,
   Copy,
   Bookmark,
+  BookmarkCheck,
   Archive,
   ExternalLink,
   Download,
@@ -50,6 +51,7 @@ import {
 import { useState } from "react";
 import { toast } from "sonner";
 import type { SearchResult } from "./search-columns";
+import { useBookmarkStore } from "@/store/bookmark.store";
 
 interface SearchTableProps<TData extends SearchResult, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -64,6 +66,8 @@ export function SearchTable<TData extends SearchResult, TValue>({
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
+
+  const { addBookmark, removeBookmark, isBookmarked } = useBookmarkStore();
 
   const table = useReactTable({
     data,
@@ -95,9 +99,19 @@ export function SearchTable<TData extends SearchResult, TValue>({
     toast.success("Contract number copied to clipboard");
   };
 
-  const handleBookmark = (contract: SearchResult) => {
-    // TODO: Implement bookmark API call
-    toast.success(`Bookmarked: ${contract.contractTitle}`);
+  const handleBookmark = async (contract: SearchResult) => {
+    const bookmarked = isBookmarked(contract._id);
+    if (bookmarked) {
+      const success = await removeBookmark(contract._id);
+      if (success) {
+        toast.success(`Removed bookmark: ${contract.contractTitle}`);
+      }
+    } else {
+      const success = await addBookmark(contract._id);
+      if (success) {
+        toast.success(`Bookmarked: ${contract.contractTitle}`);
+      }
+    }
   };
 
   const handleArchive = (contract: SearchResult) => {
@@ -182,6 +196,7 @@ export function SearchTable<TData extends SearchResult, TValue>({
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => {
                 const contract = row.original;
+                const bookmarked = isBookmarked(contract._id);
                 return (
                   <ContextMenu key={row.id}>
                     <ContextMenuTrigger asChild>
@@ -224,8 +239,17 @@ export function SearchTable<TData extends SearchResult, TValue>({
                       </ContextMenuItem>
                       <ContextMenuSeparator />
                       <ContextMenuItem onClick={() => handleBookmark(contract)}>
-                        <Bookmark className="mr-2 h-4 w-4" />
-                        Bookmark
+                        {bookmarked ? (
+                          <>
+                            <BookmarkCheck className="mr-2 h-4 w-4 text-primary" />
+                            Remove Bookmark
+                          </>
+                        ) : (
+                          <>
+                            <Bookmark className="mr-2 h-4 w-4" />
+                            Bookmark
+                          </>
+                        )}
                         <ContextMenuShortcut>⌘B</ContextMenuShortcut>
                       </ContextMenuItem>
                       <ContextMenuItem onClick={() => handleArchive(contract)}>
