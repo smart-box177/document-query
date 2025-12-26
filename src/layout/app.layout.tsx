@@ -227,7 +227,14 @@ const AppLayout = () => {
             <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center gap-3 outline-none">
                 <div className="text-right">
-                  <p className="text-sm font-medium">{user?.username}</p>
+                  <div className="flex items-center justify-end gap-2">
+                    <p className="text-sm font-medium">{user?.username}</p>
+                    {user?.role === "admin" && (
+                      <span className="px-1.5 py-0.5 text-[10px] font-medium bg-primary text-primary-foreground rounded">
+                        Admin
+                      </span>
+                    )}
+                  </div>
                   <p className="text-xs text-muted-foreground">{user?.email}</p>
                 </div>
                 <Avatar className="h-9 w-9">
@@ -240,6 +247,15 @@ const AppLayout = () => {
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                {user?.role === "admin" && (
+                  <>
+                    <DropdownMenuItem onClick={() => navigate("/admin")}>
+                      <Shield className="mr-2 h-4 w-4" />
+                      Admin Panel
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                  </>
+                )}
                 <DropdownMenuItem onClick={() => navigate("/app/settings")}>
                   <Settings className="mr-2 h-4 w-4" />
                   Settings
