@@ -14,6 +14,8 @@ import { getSocket } from "@/config/socket";
 import { SearchTable } from "./search-table";
 import { searchColumns, type SearchResult } from "./search-columns";
 import { useAuthStore } from "@/store/auth.store";
+import { useArchiveStore } from "@/store/archive.store";
+import { useBookmarkStore } from "@/store/bookmark.store";
 
 const trendingSearches = [
   "Environmental compliance contracts",
@@ -24,13 +26,29 @@ const trendingSearches = [
 type SearchTab = "all" | "ai-mode" | "documents" | "contracts";
 
 const Search = () => {
-  const { recentSearches } = useAuthStore();
+  const { recentSearches, user } = useAuthStore();
+  const { fetchUserArchive, userArchive } = useArchiveStore();
+  const { fetchBookmarks } = useBookmarkStore();
   const [query, setQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [results, setResults] = useState<SearchResult[]>([]);
   const [searchStatus, setSearchStatus] = useState("");
   const [hasSearched, setHasSearched] = useState(false);
   const [activeTab, setActiveTab] = useState<SearchTab>("all");
+
+  // Fetch user's archive and bookmarks on mount for context menu state
+  useEffect(() => {
+    if (user) {
+      fetchUserArchive();
+      fetchBookmarks();
+    }
+  }, [user, fetchUserArchive, fetchBookmarks]);
+
+  // Filter out archived contracts from results on the frontend
+  const filteredResults = results.filter((contract) => {
+    const archivedIds = userArchive.map((a) => a.id);
+    return !archivedIds.includes(contract._id);
+  });
 
   useEffect(() => {
     const socket = getSocket();
@@ -208,12 +226,12 @@ const Search = () => {
           )}
 
           {/* Results Table */}
-          {results.length > 0 && (
-            <SearchTable columns={searchColumns} data={results} />
+          {filteredResults.length > 0 && (
+            <SearchTable columns={searchColumns} data={filteredResults} />
           )}
 
           {/* No Results */}
-          {!isSearching && results.length === 0 && (
+          {!isSearching && filteredResults.length === 0 && (
             <div className="text-center py-12">
               <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
               <p className="text-muted-foreground">No NCCC contracts found</p>
