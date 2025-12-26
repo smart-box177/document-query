@@ -18,6 +18,9 @@ import {
   Shield,
   ChevronRight,
   Archive,
+  ExternalLink,
+  Trash2,
+  Copy,
 } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -30,6 +33,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
+import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
@@ -38,7 +48,8 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { useAuthStore } from "@/store/auth.store";
-import { useBookmarkStore } from "@/store/bookmark.store";
+import { useBookmarkStore, type BookmarkedContract } from "@/store/bookmark.store";
+import { toast } from "sonner";
 
 interface NavItem {
   to: string;
@@ -70,7 +81,7 @@ const AppLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuthStore();
-  const { bookmarks, fetchBookmarks } = useBookmarkStore();
+  const { bookmarks, fetchBookmarks, removeBookmark } = useBookmarkStore();
 
   useEffect(() => {
     fetchBookmarks();
@@ -97,6 +108,23 @@ const AppLayout = () => {
       href: "/" + paths.slice(0, index + 1).join("/"),
       isLast: index === paths.length - 1,
     }));
+  };
+
+  const handleRemoveBookmark = async (bookmark: BookmarkedContract) => {
+    const success = await removeBookmark(bookmark.id);
+    if (success) {
+      toast.success(`Removed: ${bookmark.contractTitle}`);
+    }
+  };
+
+  const handleCopyLink = (bookmark: BookmarkedContract) => {
+    const url = `${window.location.origin}/app/contracts/${bookmark.id}`;
+    navigator.clipboard.writeText(url);
+    toast.success("Link copied to clipboard");
+  };
+
+  const handleOpenInNewTab = (bookmark: BookmarkedContract) => {
+    window.open(`/app/contracts/${bookmark.id}`, "_blank");
   };
 
   const breadcrumbs = getBreadcrumbs();
@@ -235,15 +263,42 @@ const AppLayout = () => {
               <>
                 <div className="flex items-center gap-1 overflow-hidden">
                   {bookmarks.slice(0, 6).map((bookmark) => (
-                    <Link
-                      key={bookmark.id}
-                      to={`/app/contracts/${bookmark.id}`}
-                      className="flex items-center gap-1.5 px-2 py-1 text-xs rounded hover:bg-muted transition-colors truncate max-w-[140px]"
-                      title={bookmark.contractTitle}
-                    >
-                      <FileText className="h-3 w-3 shrink-0 text-muted-foreground" />
-                      <span className="truncate">{bookmark.contractTitle}</span>
-                    </Link>
+                    <ContextMenu key={bookmark.id}>
+                      <ContextMenuTrigger asChild>
+                        <Link
+                          to={`/app/contracts/${bookmark.id}`}
+                          className="flex items-center gap-1.5 px-2 py-1 text-xs rounded hover:bg-muted transition-colors truncate max-w-[140px]"
+                          title={bookmark.contractTitle}
+                        >
+                          <FileText className="h-3 w-3 shrink-0 text-muted-foreground" />
+                          <span className="truncate">
+                            {bookmark.contractTitle}
+                          </span>
+                        </Link>
+                      </ContextMenuTrigger>
+                      <ContextMenuContent className="w-48">
+                        <ContextMenuItem
+                          onClick={() => handleOpenInNewTab(bookmark)}
+                        >
+                          <ExternalLink className="mr-2 h-4 w-4" />
+                          Open in New Tab
+                        </ContextMenuItem>
+                        <ContextMenuItem
+                          onClick={() => handleCopyLink(bookmark)}
+                        >
+                          <Copy className="mr-2 h-4 w-4" />
+                          Copy Link
+                        </ContextMenuItem>
+                        <ContextMenuSeparator />
+                        <ContextMenuItem
+                          variant="destructive"
+                          onClick={() => handleRemoveBookmark(bookmark)}
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Remove Bookmark
+                        </ContextMenuItem>
+                      </ContextMenuContent>
+                    </ContextMenu>
                   ))}
                 </div>
                 <Link
