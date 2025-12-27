@@ -123,7 +123,7 @@ const Search = () => {
                 className="text-xl font-bold cursor-pointer"
                 onClick={handleClearSearch}
               >
-                DocQuery
+                NCCC Portal
               </h1>
               <div className="relative flex items-center max-w-xl flex-1">
                 <SearchIcon className="absolute left-3 h-4 w-4 text-muted-foreground" />
@@ -224,7 +224,7 @@ const Search = () => {
       <div className="w-full max-w-6xl space-y-6">
         {/* Logo/Title */}
         <div className="text-center space-y-2">
-          <h1 className="text-4xl font-bold tracking-tight">DocQuery</h1>
+          <h1 className="text-4xl font-bold tracking-tight">NCCC Portal</h1>
           <p className="text-muted-foreground">
             Search NCCC contracts, documents, and more
           </p>
@@ -260,7 +260,7 @@ const Search = () => {
 
           {/* Search Buttons */}
           <div className="flex justify-center gap-3 mt-6">
-            <Button type="submit" variant="secondary" disabled={isSearching}>
+            <Button type="submit" variant="default" disabled={isSearching}>
               {isSearching ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
