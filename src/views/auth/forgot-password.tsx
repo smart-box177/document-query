@@ -18,8 +18,12 @@ import { Input } from "@/components/ui/input"
 
 const ForgotPassword = ({ className, ...props }: React.ComponentProps<"div">) => {
   return (
-    <div className="flex items-center justify-center w-screen min-h-screen">
-      <div className={cn("flex flex-col w-[550px] gap-6", className)} {...props}>
+    <div
+      className="flex items-center justify-center w-screen min-h-screen bg-cover bg-center bg-no-repeat"
+      style={{ backgroundImage: "url('/auth.jpeg')" }}
+    >
+      <div className="absolute inset-0 bg-background/10 backdrop-blur-sm" />
+      <div className={cn("relative z-10 flex flex-col w-137.5 gap-6", className)} {...props}>
         <Card>
           <CardHeader className="text-center">
             <CardTitle>Reset your password</CardTitle>
