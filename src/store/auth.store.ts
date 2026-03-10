@@ -78,6 +78,8 @@ interface AuthState {
   signup: (data: SignupData) => Promise<boolean>;
   googleSignin: (code: string) => Promise<boolean>;
   verifyAccount: (userId: string) => Promise<void>;
+  forgotPassword: (email: string) => Promise<boolean>;
+  resetPassword: (token: string, password: string) => Promise<boolean>;
   fetchMe: () => Promise<boolean>;
   logout: () => void;
   setAuth: (user: IAuthUser, accessToken: string, refreshToken: string) => void;
@@ -251,6 +253,48 @@ export const useAuthStore = create<AuthState>()((set) => ({
       }
       return false;
     } catch {
+      return false;
+    }
+  },
+
+  forgotPassword: async (email) => {
+    set({ isLoading: true, error: null });
+    try {
+      const { data } = await api.post("/auth/forgot-password", { email });
+      if (data.success) {
+        set({ isLoading: false });
+        return true;
+      } else {
+        set({ error: data.message, isLoading: false });
+        return false;
+      }
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      set({
+        error: error.response?.data?.message || "Failed to send reset link",
+        isLoading: false,
+      });
+      return false;
+    }
+  },
+
+  resetPassword: async (token, password) => {
+    set({ isLoading: true, error: null });
+    try {
+      const { data } = await api.post("/auth/reset-password", { token, password });
+      if (data.success) {
+        set({ isLoading: false });
+        return true;
+      } else {
+        set({ error: data.message, isLoading: false });
+        return false;
+      }
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      set({
+        error: error.response?.data?.message || "Failed to reset password",
+        isLoading: false,
+      });
       return false;
     }
   },

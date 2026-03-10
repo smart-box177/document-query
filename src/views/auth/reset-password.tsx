@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { Link, useNavigate, useSearchParams } from "react-router-dom"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -19,22 +19,36 @@ import { Input } from "@/components/ui/input"
 import { useAuthStore } from "@/store/auth.store"
 import { toast } from "sonner"
 
-const ForgotPassword = ({ className, ...props }: React.ComponentProps<"div">) => {
-  const [email, setEmail] = useState("")
+const ResetPassword = ({ className, ...props }: React.ComponentProps<"div">) => {
+  const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const { forgotPassword } = useAuthStore()
+  const { resetPassword } = useAuthStore()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+
+  const token = searchParams.get("token")
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (!token) {
+      toast.error("Invalid or missing reset token")
+      return
+    }
+    
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match")
+      return
+    }
+    
     setIsLoading(true)
     
-    const success = await forgotPassword(email)
+    const success = await resetPassword(token, password)
     
     if (success) {
-      toast.success("Password reset link sent to your email")
-      setEmail("")
-      navigate("/auth/reset-password")
+      toast.success("Password reset successful, you can now sign in")
+      navigate("/auth/signin")
     }
     
     setIsLoading(false)
@@ -51,26 +65,37 @@ const ForgotPassword = ({ className, ...props }: React.ComponentProps<"div">) =>
           <CardHeader className="text-center">
             <CardTitle>Reset your password</CardTitle>
             <CardDescription>
-              Enter your email address and we'll send you a link to reset your password
+              Enter your new password
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit}>
               <FieldGroup>
                 <Field>
-                  <FieldLabel htmlFor="email">Email</FieldLabel>
+                  <FieldLabel htmlFor="password">New Password</FieldLabel>
                   <Input
-                    id="email"
-                    type="email"
-                    placeholder="m@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    id="password"
+                    type="password"
+                    placeholder="Enter new password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="confirmPassword">Confirm New Password</FieldLabel>
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    placeholder="Confirm new password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
                     required
                   />
                 </Field>
                 <Field>
                   <Button type="submit" disabled={isLoading}>
-                    {isLoading ? "Sending..." : "Send Reset Link"}
+                    {isLoading ? "Resetting..." : "Reset Password"}
                   </Button>
                   <FieldDescription className="text-center">
                     Remember your password?{" "}
@@ -88,4 +113,4 @@ const ForgotPassword = ({ className, ...props }: React.ComponentProps<"div">) =>
   )
 }
 
-export default ForgotPassword
+export default ResetPassword
