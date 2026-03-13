@@ -1,7 +1,8 @@
-import Contracts from "@/views/app/contracts";
-import Dashboard from "@/views/app/admin/dashboard";
 import Users from "@/views/app/admin/users";
+import Contracts from "@/views/app/contracts";
 import Settings from "@/views/app/admin/settings";
+import Dashboard from "@/views/app/admin/dashboard";
+import ApplicationReviewQueue from "@/views/app/application-review-queue";
 
 export const adminRoutes = [
   {
@@ -15,6 +16,10 @@ export const adminRoutes = [
   {
     path: "contracts",
     element: <Contracts />,
+  },
+  {
+    path: "review-queue",
+    element: <ApplicationReviewQueue />,
   },
   {
     path: "users",
