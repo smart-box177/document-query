@@ -1,45 +1,46 @@
 import { useEffect } from "react";
 import {
+  Link,
   Outlet,
   NavLink,
-  useNavigate,
   useLocation,
-  Link,
+  useNavigate,
 } from "react-router-dom";
 import {
-  Search,
-  FileText,
-  History,
-  Bookmark,
-  Settings,
-  LogOut,
-  Home,
-  MessageSquareText,
-  Shield,
-  ChevronRight,
-  Archive,
-  ExternalLink,
-  Trash2,
   Copy,
+  File,
+  Home,
+  LogOut,
+  Shield,
+  Trash2,
+  Search,
+  History,
+  Archive,
+  Settings,
+  Bookmark,
   HomeIcon,
+  FileText,
   AppWindow,
+  ChevronRight,
+  ExternalLink,
+  MessageSquareText,
 } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
-  DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
+  DropdownMenuContent,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import {
   ContextMenu,
-  ContextMenuContent,
   ContextMenuItem,
-  ContextMenuSeparator,
   ContextMenuTrigger,
+  ContextMenuContent,
+  ContextMenuSeparator,
 } from "@/components/ui/context-menu";
 import {
   Breadcrumb,
@@ -50,7 +51,10 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { useAuthStore } from "@/store/auth.store";
-import { useBookmarkStore, type BookmarkedContract } from "@/store/bookmark.store";
+import {
+  useBookmarkStore,
+  type BookmarkedContract,
+} from "@/store/bookmark.store";
 import { toast } from "sonner";
 
 interface NavItem {
@@ -64,6 +68,7 @@ const navItems: NavItem[] = [
   { to: "/app/nccc-portal", icon: Search, label: "Search NCCC" },
   { to: "/app/new-application", icon: AppWindow, label: "NCCC Application" },
   { to: "/app/query", icon: MessageSquareText, label: "NCCC Contracts" },
+  { to: "/app/compliance-reports", icon: File, label: "Compliance Reports" },
   { to: "/app/archive", icon: Archive, label: "Archive" },
   { to: "/app/history", icon: History, label: "History" },
   { to: "/app/bookmarks", icon: Bookmark, label: "Bookmarks" },
@@ -74,6 +79,7 @@ const routeLabels: Record<string, string> = {
   app: "Dashboard",
   ncccPortal: "nccc-portal",
   newApplication: "nccc-application",
+  complianceReports: "compliance-reports",
   contracts: "Contracts",
   query: "Query",
   documents: "Documents",
@@ -289,7 +295,7 @@ const AppLayout = () => {
                       <ContextMenuTrigger asChild>
                         <Link
                           to={`/app/contracts/${bookmark.id}`}
-                          className="flex items-center gap-1.5 px-2 py-1 text-xs rounded hover:bg-muted transition-colors truncate max-w-[140px]"
+                          className="flex items-center gap-1.5 px-2 py-1 text-xs rounded hover:bg-muted transition-colors truncate max-w-35"
                           title={bookmark.contractTitle}
                         >
                           <FileText className="h-3 w-3 shrink-0 text-muted-foreground" />
