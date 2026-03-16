@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState } from "react";
 import {
   Stepper,
   StepperNav,
@@ -10,50 +10,116 @@ import {
   StepperPanel,
   StepperContent,
   StepperDescription,
-} from '@/components/reui/stepper'
+  // StepperDescription,
+} from "@/components/reui/stepper";
+import { FileTextIcon, GraduationCapIcon, ListIcon } from "lucide-react";
+import { Badge } from "@/components/reui/badge";
 
 const NewApplicationSubmission = () => {
-  const [activeStep, setActiveStep] = useState(1)
+  const [activeStep, setActiveStep] = useState(1);
 
   const steps = [
-    { id: 1, title: 'Summary', description: 'Section A' },
-    { id: 2, title: 'Agreed Nigerian Content Scope Breakdown', description: 'Section B' },
-    { id: 3, title: 'TRAINING, GAP CLOSURE INITIATIVES AND RESEARCH & DEVELOPMENT', description: 'Section C' },
-  ]
+    {
+      id: 1,
+      title: "Summary",
+      description: "Section A",
+      icon: <FileTextIcon className="size-4" />,
+    },
+    {
+      id: 2,
+      title: "Agreed Nigerian Content Scope Breakdown",
+      description: "Section B",
+      icon: <ListIcon className="size-4" />,
+    },
+    {
+      id: 3,
+      title: "TRAINING, GAP CLOSURE INITIATIVES AND RESEARCH & DEVELOPMENT",
+      description: "Section C",
+      icon: <GraduationCapIcon className="size-4" />,
+    },
+  ];
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <h1 className="text-3xl font-bold mb-8">NCCC New Application Submission</h1>
-      
-      <Stepper value={activeStep} onValueChange={setActiveStep} className="mb-12">
-        <StepperNav className="mb-8">
+    <div className="container mx-auto pt-2 px-4 overflow-y-hidden">
+      <h1 className="text-xl font-bold mb-8">
+        NCCC New Application Submission
+      </h1>
+
+      <Stepper
+        value={activeStep}
+        onValueChange={setActiveStep}
+        className="mb-3"
+      >
+        <StepperNav className="gap-3">
           {steps.map((step, index) => (
-            <StepperItem key={step.id} step={step.id}>
-              <StepperTrigger>
-                <StepperIndicator>{step.id}</StepperIndicator>
-                <div className="flex flex-col">
-                  <StepperTitle className='uppercase'>{step.title}</StepperTitle>
-                  <StepperDescription className='uppercase'>{step.description}</StepperDescription>
+            <StepperItem
+              key={index}
+              step={index + 1}
+              className="relative flex-1 items-start"
+            >
+              <StepperTrigger
+                className="flex grow flex-col items-start justify-center gap-2.5"
+                asChild
+              >
+                <StepperIndicator className="data-[state=inactive]:border-border data-[state=inactive]:text-muted-foreground data-[state=completed]:bg-success size-8 border-2 data-[state=completed]:text-white data-[state=inactive]:bg-transparent">
+                  {step.icon}
+                </StepperIndicator>
+                <div className="flex flex-col items-start gap-1 pb-4">
+                  <StepperTitle className="group-data-[state=inactive]/step:text-muted-foreground uppercase text-start text-base font-semibold">
+                    {step.description}
+                  </StepperTitle>
+                  <StepperDescription className="text-xs">
+                    {step.title}
+                  </StepperDescription>
+                  <div>
+                    <Badge
+                      size="sm"
+                      variant="primary-light"
+                      className="hidden group-data-[state=active]/step:inline-flex"
+                    >
+                      In Progress
+                    </Badge>
+                    <Badge
+                      variant="success-light"
+                      size="sm"
+                      className="hidden group-data-[state=completed]/step:inline-flex"
+                    >
+                      Completed
+                    </Badge>
+                    <Badge
+                      variant="secondary"
+                      size="sm"
+                      className="text-muted-foreground hidden group-data-[state=inactive]/step:inline-flex"
+                    >
+                      Pending
+                    </Badge>
+                  </div>
                 </div>
               </StepperTrigger>
-              {index < steps.length - 1 && <StepperSeparator />}
+
+              {steps.length > index + 1 && (
+                <StepperSeparator className="group-data-[state=completed]/step:bg-success absolute inset-x-0 start-9 top-4 m-0 group-data-[orientation=horizontal]/stepper-nav:w-[calc(100%-2rem)] group-data-[orientation=horizontal]/stepper-nav:flex-none" />
+              )}
             </StepperItem>
           ))}
         </StepperNav>
 
-        <StepperPanel>
-          {steps.map((step) => (
-            <StepperContent key={step.id} value={step.id} className="bg-white rounded-lg shadow-md p-6">
+        <StepperPanel className="text-sm">
+          {steps.map((step, index) => (
+            <StepperContent
+              key={index}
+              value={index + 1}
+              className="bg-white rounded-lg shadow-md p-6"
+            >
               <div className="mb-6">
                 <h2 className="text-2xl font-semibold mb-2">{step.title}</h2>
                 <p className="text-muted-foreground">{step.description}</p>
               </div>
-              
+
               {/* Empty section body - will be updated later */}
               <div className="min-h-[400px] flex items-center justify-center text-muted-foreground">
                 <p>This section will be populated with form content.</p>
               </div>
-              
               <div className="flex justify-between mt-8">
                 <button
                   onClick={() => setActiveStep(Math.max(1, activeStep - 1))}
@@ -75,7 +141,7 @@ const NewApplicationSubmission = () => {
         </StepperPanel>
       </Stepper>
     </div>
-  )
-}
+  );
+};
 
-export default NewApplicationSubmission
+export default NewApplicationSubmission;
