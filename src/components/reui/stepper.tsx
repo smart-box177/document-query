@@ -1,9 +1,12 @@
+/* eslint-disable react-refresh/only-export-components */
+/* eslint-disable react-hooks/refs */
+/* eslint-disable react-hooks/preserve-manual-memoization */
 import {
   Children,
   createContext,
-  HTMLAttributes,
+  type HTMLAttributes,
   isValidElement,
-  ReactElement,
+  type ReactElement,
   useCallback,
   useContext,
   useEffect,
