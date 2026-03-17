@@ -1,10 +1,39 @@
-import React from 'react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 const SectionC = () => {
     return (
-        <div className="p-4">
-            <h1 className="text-2xl font-bold mb-4">Section C</h1>
-            <p className="text-muted-foreground">This is section C</p>
+        <div className="flex flex-col gap-6 py-4">
+            <div className="mb-2">
+                <p className="text-sm text-muted-foreground mt-1">Please fill out sections C1 through C3 below.</p>
+            </div>
+
+            <Tabs defaultValue="c1" className="w-full relative">
+                <TabsList className="grid w-full grid-cols-3 mb-4 gap-1 h-auto bg-muted/50 p-1 rounded-xl">
+                    <TabsTrigger className="py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary font-medium" value="c1">Section C1</TabsTrigger>
+                    <TabsTrigger className="py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary font-medium" value="c2">Section C2</TabsTrigger>
+                    <TabsTrigger className="py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary font-medium" value="c3">Section C3</TabsTrigger>
+                </TabsList>
+
+                <div className="mt-4 p-6 border border-border/50 rounded-xl bg-card shadow-sm min-h-[300px]">
+                    <TabsContent value="c1" className="m-0 focus-visible:outline-none">
+                        <div className="flex items-center justify-center p-8 text-muted-foreground bg-muted/20 rounded-lg border border-dashed border-border">
+                            <p>Content for C1 goes here...</p>
+                        </div>
+                    </TabsContent>
+
+                    <TabsContent value="c2" className="m-0 focus-visible:outline-none">
+                        <div className="flex items-center justify-center p-8 text-muted-foreground bg-muted/20 rounded-lg border border-dashed border-border">
+                            <p>Content for C2 goes here...</p>
+                        </div>
+                    </TabsContent>
+
+                    <TabsContent value="c3" className="m-0 focus-visible:outline-none">
+                        <div className="flex items-center justify-center p-8 text-muted-foreground bg-muted/20 rounded-lg border border-dashed border-border">
+                            <p>Content for C3 goes here...</p>
+                        </div>
+                    </TabsContent>
+                </div>
+            </Tabs>
         </div>
     )
 }
