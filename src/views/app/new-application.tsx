@@ -121,13 +121,13 @@ const NewApplicationSubmission = () => {
               </div>
 
               {/* Section body */}
-              <div className="min-h-[400px] w-full">
+              <div className="h-[calc(100vh-520px)] min-h-[400px] w-full overflow-y-auto overflow-x-hidden custom-scrollbar">
                 {step.id === 1 && <SectionA />}
                 {step.id === 2 && <SectionB />}
                 {step.id === 3 && <SectionC />}
               </div>
 
-              <div className="flex justify-between mt-8">
+              <div className="flex justify-between mt-6 pt-4 border-t">
                 <button
                   onClick={() => setActiveStep(Math.max(1, activeStep - 1))}
                   disabled={activeStep === 1}
