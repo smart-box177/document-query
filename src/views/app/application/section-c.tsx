@@ -4,7 +4,7 @@ const SectionC = () => {
     return (
         <div className="p-4">
             <h1 className="text-2xl font-bold mb-4">Section C</h1>
-            <p className="text-gray-700">This is section C</p>
+            <p className="text-muted-foreground">This is section C</p>
         </div>
     )
 }

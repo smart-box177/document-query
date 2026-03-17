@@ -45,7 +45,7 @@ const NewApplicationSubmission = () => {
 
   return (
     <div className="container mx-auto pt-2 px-4 overflow-y-hidden">
-      <h1 className="text-xl font-bold mb-8">
+      <h1 className="text-xl font-bold my-2">
         NCCC New Application Submission
       </h1>
 
@@ -113,11 +113,10 @@ const NewApplicationSubmission = () => {
             <StepperContent
               key={index}
               value={index + 1}
-              className="bg-white rounded-lg shadow-md p-6"
+              className="bg-card text-card-foreground border border-border/50 rounded-lg shadow-md p-6"
             >
               <div className="mb-6">
                 <h2 className="text-2xl font-semibold mb-2">{step.title}</h2>
-                <p className="text-muted-foreground">{step.description}</p>
               </div>
 
               {/* Section body */}
