@@ -92,6 +92,24 @@ const SectionA = () => {
                         <li>We understand that NCDMB's endorsement of the NCCC does not preclude it from further exercising any of additional statutory responsibilities as may arise from new circumstances not provided for in the NCCC; nor does the endorsement discharge the operator, its contractors, sub contractors and vendors from their continuing obligation to ensure strict compliance with the provisions of the NOGICD Act.</li>
                         <li>Operator shall ensure that the process of putting in place, the award and execution of this contract in compliance with all relevant Sections of the NOGICD Act, 2010 pertaining to host community content and catchment area as well as the latest revisions of NCDMB Community Content Guidelines to the industry.</li>
                     </ol>
+
+                    <Separator className="my-6" />
+
+                    <div className="space-y-6">
+                        <Label className="font-semibold text-sm">Signature of Operator authorised Representative (Contract Manager/Contract Holder):</Label>
+                        <div className="border-2 border-dashed border-border rounded-lg p-8 flex flex-col items-center justify-center text-muted-foreground bg-background hover:bg-muted/50 transition-colors cursor-pointer group">
+                            <div className="text-center">
+                                <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">Click to Sign digitally</p>
+                                <p className="text-xs mt-1">or drag and drop a signature file</p>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+                            <FloatingInput label="Name" className="bg-background" />
+                            <FloatingInput label="Designation" className="bg-background" />
+                            <FloatingInput label="Date" type="date" className="bg-background" />
+                        </div>
+                    </div>
                 </div>
 
                 <div className="space-y-4 bg-muted/30 p-4 rounded-lg border border-border/50 shadow-sm">
@@ -103,6 +121,25 @@ const SectionA = () => {
                         <li>We undertake that all our Sub-contractors and Sub-vendors shall be contractually bound to this NCCC, and report Nigerian Content Information to the Operator and the Board.</li>
                         <li>We understand that NCDMB's endorsement of the NCCC does not preclude it from further exercising any of additional statutory responsibilities as may arise from new circumstances not provided for in the NCCC; nor does the endorsement discharge the service provider, its sub contractors and vendors from their continuing obligation to ensure strict compliance with the provisions of the NOGICD Act.</li>
                     </ol>
+
+                    <Separator className="my-6" />
+
+                    <div className="space-y-6">
+                        <p className="text-destructive text-xs italic font-medium -mt-2 mb-4">*Signing of the Declaration (on the right) by Service Provider is at the sole discretion of the Operator</p>
+                        <Label className="font-semibold text-sm">Signature of Service Provider, if applicable (MD to sign):</Label>
+                        <div className="border-2 border-dashed border-border rounded-lg p-8 flex flex-col items-center justify-center text-muted-foreground bg-background hover:bg-muted/50 transition-colors cursor-pointer group">
+                            <div className="text-center">
+                                <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">Click to Sign digitally</p>
+                                <p className="text-xs mt-1">or drag and drop a signature file</p>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+                            <FloatingInput label="Name" className="bg-background" />
+                            <FloatingInput label="Designation" className="bg-background" />
+                            <FloatingInput label="Date" type="date" className="bg-background" />
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
