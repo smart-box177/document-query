@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Stepper,
   StepperNav,
@@ -10,7 +10,6 @@ import {
   StepperPanel,
   StepperContent,
   StepperDescription,
-  // StepperDescription,
 } from "@/components/reui/stepper";
 import { FileTextIcon, GraduationCapIcon, ListIcon } from "lucide-react";
 import { Badge } from "@/components/reui/badge";
