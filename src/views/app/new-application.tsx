@@ -15,6 +15,10 @@ import {
 import { FileTextIcon, GraduationCapIcon, ListIcon } from "lucide-react";
 import { Badge } from "@/components/reui/badge";
 
+import SectionA from "./application/section-a";
+import SectionB from "./application/section-b";
+import SectionC from "./application/section-c";
+
 const NewApplicationSubmission = () => {
   const [activeStep, setActiveStep] = useState(1);
 
@@ -116,10 +120,13 @@ const NewApplicationSubmission = () => {
                 <p className="text-muted-foreground">{step.description}</p>
               </div>
 
-              {/* Empty section body - will be updated later */}
-              <div className="min-h-[400px] flex items-center justify-center text-muted-foreground">
-                <p>This section will be populated with form content.</p>
+              {/* Section body */}
+              <div className="min-h-[400px] w-full">
+                {step.id === 1 && <SectionA />}
+                {step.id === 2 && <SectionB />}
+                {step.id === 3 && <SectionC />}
               </div>
+
               <div className="flex justify-between mt-8">
                 <button
                   onClick={() => setActiveStep(Math.max(1, activeStep - 1))}
