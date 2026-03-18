@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/incompatible-library */
 "use client";
 
@@ -36,11 +37,13 @@ import React from "react";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  meta?: any;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  meta,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -67,6 +70,7 @@ export function DataTable<TData, TValue>({
       columnVisibility,
       rowSelection,
     },
+    meta,
   });
 
   return (
@@ -108,10 +112,10 @@ export function DataTable<TData, TValue>({
         </DropdownMenu>
       </div>
       <div className="overflow-hidden rounded-md border">
-        <Table>
+        <Table className="border-collapse">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className="">
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead key={header.id}>

@@ -1,4 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import SectionB10 from './b1-0'
 
 const SectionB1 = () => {
     return (
@@ -14,9 +15,7 @@ const SectionB1 = () => {
 
                 <div className="mt-4 p-6 border border-border/50 rounded-xl bg-card shadow-sm min-h-[300px]">
                     <TabsContent value="b1-0" className="m-0 focus-visible:outline-none">
-                        <div className="flex items-center justify-center p-8 text-muted-foreground bg-muted/20 rounded-lg border border-dashed border-border">
-                            <p>Content for B1.0 goes here...</p>
-                        </div>
+                        <SectionB10 />
                     </TabsContent>
 
                     <TabsContent value="b1-1" className="m-0 focus-visible:outline-none">
