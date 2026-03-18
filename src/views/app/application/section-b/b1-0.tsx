@@ -164,115 +164,125 @@ const SectionB10 = () => {
                             <DrawerTitle>Add New Personnel Record</DrawerTitle>
                         </DrawerHeader>
                         <div className="p-4 space-y-6">
-                            {/* Personnel Information */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                <FloatingInput
-                                    label="Job Position"
-                                    value={newRecord.jobPosition}
-                                    onChange={(e) => setNewRecord({ ...newRecord, jobPosition: e.target.value })}
-                                />
-                                <FloatingInput
-                                    label="Name and Address of Company"
-                                    value={newRecord.companyName}
-                                    onChange={(e) => setNewRecord({ ...newRecord, companyName: e.target.value })}
-                                />
-                                <FloatingInput
-                                    label="Total Number of Personnel"
-                                    type="number"
-                                    value={newRecord.totalPersonnel}
-                                    onChange={(e) => setNewRecord({ ...newRecord, totalPersonnel: e.target.value })}
-                                />
-                            </div>
+                             {/* Personnel Information */}
+                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                 <FloatingInput
+                                     label="Job Position"
+                                     value={newRecord.jobPosition}
+                                     onChange={(e) => setNewRecord({ ...newRecord, jobPosition: e.target.value })}
+                                 />
+                                 <FloatingInput
+                                     label="Name and Address of Company"
+                                     value={newRecord.companyName}
+                                     onChange={(e) => setNewRecord({ ...newRecord, companyName: e.target.value })}
+                                 />
+                                 <FloatingInput
+                                     label="Total Number of Personnel"
+                                     type="number"
+                                     value={newRecord.totalPersonnel}
+                                     onChange={(e) => setNewRecord({ ...newRecord, totalPersonnel: e.target.value })}
+                                 />
+                             </div>
 
-                            {/* Nationality and Manhours */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                                <div className="space-y-4">
-                                    <h6 className="font-medium text-sm text-muted-foreground">NATIONALITY</h6>
-                                    <FloatingInput
-                                        label="Nigerian"
-                                        type="number"
-                                        value={newRecord.nigerianNationality}
-                                        onChange={(e) => setNewRecord({ ...newRecord, nigerianNationality: e.target.value })}
-                                    />
-                                    <FloatingInput
-                                        label="Foreign"
-                                        type="number"
-                                        value={newRecord.foreignNationality}
-                                        onChange={(e) => setNewRecord({ ...newRecord, foreignNationality: e.target.value })}
-                                    />
-                                </div>
+                             {/* Nationality */}
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                 <FloatingInput
+                                     label="Nigerian"
+                                     type="number"
+                                     value={newRecord.nigerianNationality}
+                                     onChange={(e) => setNewRecord({ ...newRecord, nigerianNationality: e.target.value })}
+                                 />
+                                 <FloatingInput
+                                     label="Foreign"
+                                     type="number"
+                                     value={newRecord.foreignNationality}
+                                     onChange={(e) => setNewRecord({ ...newRecord, foreignNationality: e.target.value })}
+                                 />
+                             </div>
 
-                                <div className="space-y-4">
-                                    <h6 className="font-medium text-sm text-muted-foreground">IN-COUNTRY (MANHOURS)</h6>
-                                    <FloatingInput
-                                        label="Nigerian"
-                                        type="number"
-                                        value={newRecord.inCountryNigerian}
-                                        onChange={(e) => setNewRecord({ ...newRecord, inCountryNigerian: e.target.value })}
-                                    />
-                                    <FloatingInput
-                                        label="Expat"
-                                        type="number"
-                                        value={newRecord.inCountryExpat}
-                                        onChange={(e) => setNewRecord({ ...newRecord, inCountryExpat: e.target.value })}
-                                    />
-                                </div>
+                             {/* Work Scope Domiciliation (Manhours) */}
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                 <div className="space-y-4">
+                                     <h6 className="font-medium text-sm text-muted-foreground">IN-COUNTRY (MANHOURS)</h6>
+                                     <FloatingInput
+                                         label="Nigerian"
+                                         type="number"
+                                         value={newRecord.inCountryNigerian}
+                                         onChange={(e) => setNewRecord({ ...newRecord, inCountryNigerian: e.target.value })}
+                                     />
+                                     <FloatingInput
+                                         label="Expat"
+                                         type="number"
+                                         value={newRecord.inCountryExpat}
+                                         onChange={(e) => setNewRecord({ ...newRecord, inCountryExpat: e.target.value })}
+                                     />
+                                 </div>
+                                 <div className="space-y-4">
+                                     <h6 className="font-medium text-sm text-muted-foreground">OUT-COUNTRY (MANHOURS)</h6>
+                                     <FloatingInput
+                                         label="Nigerians"
+                                         type="number"
+                                         value={newRecord.outCountryNigerian}
+                                         onChange={(e) => setNewRecord({ ...newRecord, outCountryNigerian: e.target.value })}
+                                     />
+                                     <FloatingInput
+                                         label="Expat"
+                                         type="number"
+                                         value={newRecord.outCountryExpat}
+                                         onChange={(e) => setNewRecord({ ...newRecord, outCountryExpat: e.target.value })}
+                                     />
+                                 </div>
+                             </div>
 
-                                <div className="space-y-4">
-                                    <h6 className="font-medium text-sm text-muted-foreground">OUT-COUNTRY (MANHOURS)</h6>
-                                    <FloatingInput
-                                        label="Nigerians"
-                                        type="number"
-                                        value={newRecord.outCountryNigerian}
-                                        onChange={(e) => setNewRecord({ ...newRecord, outCountryNigerian: e.target.value })}
-                                    />
-                                    <FloatingInput
-                                        label="Expat"
-                                        type="number"
-                                        value={newRecord.outCountryExpat}
-                                        onChange={(e) => setNewRecord({ ...newRecord, outCountryExpat: e.target.value })}
-                                    />
-                                </div>
+                             {/* NC% (Manhours) */}
+                             <div className="space-y-4">
+                                 <FloatingInput
+                                     label="NC% (manhours)"
+                                     type="number"
+                                     step="0.01"
+                                     value={newRecord.ncManhours}
+                                     onChange={(e) => setNewRecord({ ...newRecord, ncManhours: e.target.value })}
+                                 />
+                             </div>
 
-                                <div className="space-y-4">
-                                    <h6 className="font-medium text-sm text-muted-foreground">SPEND INFORMATION</h6>
-                                    <FloatingInput
-                                        label="NC% (manhours)"
-                                        type="number"
-                                        step="0.01"
-                                        value={newRecord.ncManhours}
-                                        onChange={(e) => setNewRecord({ ...newRecord, ncManhours: e.target.value })}
-                                    />
-                                    <FloatingInput
-                                        label="NC Spend Value (FUSD)"
-                                        type="number"
-                                        step="0.01"
-                                        value={newRecord.ncSpendValue}
-                                        onChange={(e) => setNewRecord({ ...newRecord, ncSpendValue: e.target.value })}
-                                    />
-                                    <FloatingInput
-                                        label="Foreign Spend Value (FUSD)"
-                                        type="number"
-                                        step="0.01"
-                                        value={newRecord.foreignSpendValue}
-                                        onChange={(e) => setNewRecord({ ...newRecord, foreignSpendValue: e.target.value })}
-                                    />
-                                    <FloatingInput
-                                        label="Total Spend Value (FUSD)"
-                                        type="number"
-                                        step="0.01"
-                                        value={newRecord.totalSpendValue}
-                                        onChange={(e) => setNewRecord({ ...newRecord, totalSpendValue: e.target.value })}
-                                    />
-                                    <FloatingInput
-                                        label="NC% (spend)"
-                                        type="number"
-                                        step="0.01"
-                                        value={newRecord.ncSpendPercent}
-                                        onChange={(e) => setNewRecord({ ...newRecord, ncSpendPercent: e.target.value })}
-                                    />
-                                </div>
-                            </div>
+                              {/* FUSD */}
+                              <div className="space-y-4">
+                                  <h6 className="font-medium text-sm text-muted-foreground">FUSD</h6>
+                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                      <FloatingInput
+                                          label="NC Spend Value (FUSD)"
+                                          type="number"
+                                          step="0.01"
+                                          value={newRecord.ncSpendValue}
+                                          onChange={(e) => setNewRecord({ ...newRecord, ncSpendValue: e.target.value })}
+                                      />
+                                      <FloatingInput
+                                          label="Foreign Spend Value (FUSD)"
+                                          type="number"
+                                          step="0.01"
+                                          value={newRecord.foreignSpendValue}
+                                          onChange={(e) => setNewRecord({ ...newRecord, foreignSpendValue: e.target.value })}
+                                      />
+                                      <FloatingInput
+                                          label="Total Spend Value (FUSD)"
+                                          type="number"
+                                          step="0.01"
+                                          value={newRecord.totalSpendValue}
+                                          onChange={(e) => setNewRecord({ ...newRecord, totalSpendValue: e.target.value })}
+                                      />
+                                  </div>
+                              </div>
+
+                             {/* NC% (Spend) */}
+                             <div className="space-y-4">
+                                 <FloatingInput
+                                     label="NC% (spend)"
+                                     type="number"
+                                     step="0.01"
+                                     value={newRecord.ncSpendPercent}
+                                     onChange={(e) => setNewRecord({ ...newRecord, ncSpendPercent: e.target.value })}
+                                 />
+                             </div>
                         </div>
                         <DrawerFooter>
                             <DrawerClose asChild>
