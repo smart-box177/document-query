@@ -1,5 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import SectionB10 from './b1-0'
+import SectionB10 from './section-b1/b1-0'
 
 const SectionB1 = () => {
     return (
