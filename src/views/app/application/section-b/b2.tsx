@@ -272,7 +272,7 @@ const SectionB2 = () => {
 
             {/* Table */}
             <div className="overflow-x-auto rounded-xl border border-border/60 shadow-sm">
-                <Table className="text-xs" style={{ minWidth: 1200 }}>
+                <Table className="text-xs w-full" style={{ minWidth: 1100 }}>
                     <TableHeader>
                         <TableRow className="bg-muted/60 text-muted-foreground">
                             {/* S/N */}
@@ -293,7 +293,7 @@ const SectionB2 = () => {
                             </TableHead>
                             {/* UoM */}
                             <TableHead rowSpan={3} className="w-20 text-center border border-border/50 px-2 py-2 font-semibold">
-                                UoM <br />(Tonnes/Numbers of Items/Length, etc.)
+                                UoM <br />(Tonnes/Numbers of <br/> Items/Length, etc.)
                             </TableHead>
                             {/* Procurement Domiciliation */}
                             <TableHead colSpan={3} className="text-center border border-border/50 px-2 py-2 font-semibold">
@@ -316,10 +316,10 @@ const SectionB2 = () => {
                         <TableRow className="bg-muted/40 text-muted-foreground">
                             {/* Vendor sub-columns */}
                             <TableHead className="text-center border border-border/50 px-2 py-1 font-medium">
-                                NAME & ADDRESS OF IN-COUNTRY VENDOR
+                                NAME & ADDRESS OF <br/> IN-COUNTRY VENDOR
                             </TableHead>
                             <TableHead className="text-center border border-border/50 px-2 py-1 font-medium">
-                                NAME & ADDRESS OF OUT-COUNTRY MANUFACTURER/OEM
+                                NAME & ADDRESS OF OUT <br/>COUNTRY <br/> MANUFACTURER/OEM
                             </TableHead>
                             {/* Procurement domiciliation sub-columns */}
                             <TableHead className="text-center border border-border/50 px-2 py-1 font-medium">

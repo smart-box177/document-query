@@ -362,13 +362,6 @@ const SectionB10 = () => {
                             >
                                 NC% (Spend)
                             </th>
-                            {/* Actions */}
-                            <th
-                                rowSpan={3}
-                                className="border border-border/50 px-2 py-2 text-center font-semibold w-10"
-                            >
-                                &nbsp;
-                            </th>
                         </tr>
 
                         <tr className="bg-muted/40 text-muted-foreground">
