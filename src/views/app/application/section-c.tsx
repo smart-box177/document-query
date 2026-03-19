@@ -1,4 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import SectionC1 from './section-c/c1'
 
 const SectionC = () => {
     return (
@@ -14,11 +15,9 @@ const SectionC = () => {
                     <TabsTrigger className="py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary font-medium" value="c3">Section C3</TabsTrigger>
                 </TabsList>
 
-                <div className="mt-4 p-6 border border-border/50 rounded-xl bg-card shadow-sm min-h-[300px]">
+                <div className="mt-4 p-6 border border-border/50 rounded-xl bg-card shadow-sm min-h-75">
                     <TabsContent value="c1" className="m-0 focus-visible:outline-none">
-                        <div className="flex items-center justify-center p-8 text-muted-foreground bg-muted/20 rounded-lg border border-dashed border-border">
-                            <p>Content for C1 goes here...</p>
-                        </div>
+                        <SectionC1 />
                     </TabsContent>
 
                     <TabsContent value="c2" className="m-0 focus-visible:outline-none">

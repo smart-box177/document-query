@@ -70,7 +70,7 @@ const SectionA = () => {
                 {/* Sub-contractor */}
                 <div className="flex flex-col gap-2 relative">
                     <FloatingInput label="Sub-Contractor(s)" />
-                    <p className="text-[10px] text-muted-foreground leading-tight px-1 absolute -bottom-10 left-0 w-[200%] max-w-[500px]">
+                    <p className="text-[10px] text-muted-foreground leading-tight px-1 absolute -bottom-10 left-0 w-[200%] max-w-125">
                         In line with the statutory requirement of the NOGICD Act 2010, Tenderer shall deduct 1% NCDF for every subcontract to be issued on this contract and remit same to NCDMB. Failure to remit the said 1% NCDF shall be in non-compliance with the requirement of the NOGICD Act and be liable for sanctions.
                     </p>
                 </div>
