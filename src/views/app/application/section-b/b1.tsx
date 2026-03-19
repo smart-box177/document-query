@@ -15,7 +15,7 @@ const SectionB1 = () => {
                     <TabsTrigger className="py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary font-medium" value="b1-2">B1.2</TabsTrigger>
                 </TabsList>
 
-                <div className="mt-4 p-5 border border-border/50 rounded-xl bg-card shadow-sm min-h-[300px]">
+                <div className="mt-4 p-5 border border-border/50 rounded-xl bg-card shadow-sm min-h-75">
                     <TabsContent value="b1-0" className="m-0 focus-visible:outline-none">
                         <SectionB10 />
                     </TabsContent>
