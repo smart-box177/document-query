@@ -9,13 +9,13 @@ import SectionB6 from './section-b/b6'
 
 const SectionB = () => {
     return (
-        <div className="flex flex-col gap-6 py-4">
-            <div className="mb-2">
-                <p className="text-sm text-muted-foreground mt-1">Please fill out sections B1 through B6 below.</p>
+        <div className="flex flex-col gap-6 py-1">
+            <div className="">
+                <p className="text-sm text-muted-foreground">Please fill out sections B1 through B6 below.</p>
             </div>
 
             <Tabs defaultValue="b1" className="w-full relative">
-                <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 mb-4 gap-1 h-auto bg-muted/50 p-1 rounded-xl">
+                <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 mb-1 gap-1 h-auto bg-muted/50 p-1 rounded-xl">
                     <TabsTrigger className="py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary font-medium" value="b1">Section B1</TabsTrigger>
                     <TabsTrigger className="py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary font-medium" value="b2">Section B2</TabsTrigger>
                     <TabsTrigger className="py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary font-medium" value="b3">Section B3</TabsTrigger>
@@ -24,7 +24,7 @@ const SectionB = () => {
                     <TabsTrigger className="py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary font-medium" value="b6">Section B6</TabsTrigger>
                 </TabsList>
 
-                <div className="mt-4 p-6 border border-border/50 rounded-xl bg-card shadow-sm min-h-[300px]">
+                <div className="mt-4 p-5 border border-border/50 rounded-xl bg-card shadow-sm min-h-[300px]">
                     <TabsContent value="b1" className="m-0 focus-visible:outline-none">
                         <SectionB1 />
                     </TabsContent>

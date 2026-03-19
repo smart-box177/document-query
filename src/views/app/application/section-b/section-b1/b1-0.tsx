@@ -137,7 +137,7 @@ const SectionB10 = () => {
             : '—'
 
     return (
-        <div className="flex flex-col gap-4 py-4">
+        <div className="flex flex-col gap-4 py-2">
             {/* Header */}
             <div className="flex justify-between items-center">
                 <div>
