@@ -7,6 +7,7 @@ import {
     TableHeader,
     TableRow
 } from '@/components/ui/table'
+import { useApplicationFormStore } from '@/store/application-form.store'
 
 interface HCDTrainingRecord {
     id: string
@@ -45,11 +46,21 @@ const CellInput = ({
 )
 
 const SectionC1 = () => {
-    const [records, setRecords] = useState<HCDTrainingRecord[]>([emptyRecord()])
+    const { formData, updateSectionC } = useApplicationFormStore()
+    const [records, setRecords] = useState<HCDTrainingRecord[]>(
+        formData.sectionC?.c1 ? [formData.sectionC.c1] : [emptyRecord()]
+    )
+
+    const updateRecords = (newRecords: HCDTrainingRecord[]) => {
+        setRecords(newRecords)
+        updateSectionC({
+            c1: newRecords[0]
+        })
+    }
 
     const update = (id: string, field: keyof HCDTrainingRecord, value: string) => {
-        setRecords((prev) =>
-            prev.map((r) => (r.id === id ? { ...r, [field]: value } : r))
+        updateRecords(
+            records.map((r) => (r.id === id ? { ...r, [field]: value } : r))
         )
     }
 
