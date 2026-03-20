@@ -21,6 +21,7 @@ import SectionC from "./application/section-c";
 const NewApplicationSubmission = () => {
   const [activeStep, setActiveStep] = useState(1);
   const [activeBTab, setActiveBTab] = useState("b1");
+  const [activeB1SubTab, setActiveB1SubTab] = useState("b1-0");
   const [activeCTab, setActiveCTab] = useState("c1");
 
   const steps = [
@@ -50,9 +51,23 @@ const NewApplicationSubmission = () => {
   const handleNext = () => {
     if (activeStep === 2) {
       // Section B sub-tabs
+      if (activeBTab === "b1") {
+        // B1 sub-tabs
+        const b1SubTabs = ["b1-0", "b1-1", "b1-2"];
+        const currentB1Index = b1SubTabs.indexOf(activeB1SubTab);
+        if (currentB1Index < b1SubTabs.length - 1) {
+          setActiveB1SubTab(b1SubTabs[currentB1Index + 1]);
+          return;
+        }
+      }
+      // Main B tabs
       const currentBIndex = bTabs.indexOf(activeBTab);
       if (currentBIndex < bTabs.length - 1) {
         setActiveBTab(bTabs[currentBIndex + 1]);
+        // Reset B1 sub-tab to first when moving to a new B tab
+        if (bTabs[currentBIndex + 1] === "b1") {
+          setActiveB1SubTab("b1-0");
+        }
         return;
       }
     } else if (activeStep === 3) {
@@ -70,9 +85,23 @@ const NewApplicationSubmission = () => {
   const handlePrevious = () => {
     if (activeStep === 2) {
       // Section B sub-tabs
+      if (activeBTab === "b1") {
+        // B1 sub-tabs
+        const b1SubTabs = ["b1-0", "b1-1", "b1-2"];
+        const currentB1Index = b1SubTabs.indexOf(activeB1SubTab);
+        if (currentB1Index > 0) {
+          setActiveB1SubTab(b1SubTabs[currentB1Index - 1]);
+          return;
+        }
+      }
+      // Main B tabs
       const currentBIndex = bTabs.indexOf(activeBTab);
       if (currentBIndex > 0) {
         setActiveBTab(bTabs[currentBIndex - 1]);
+        // Reset B1 sub-tab to first when moving to B1 tab
+        if (bTabs[currentBIndex - 1] === "b1") {
+          setActiveB1SubTab("b1-0");
+        }
         return;
       }
     } else if (activeStep === 3) {
@@ -85,9 +114,10 @@ const NewApplicationSubmission = () => {
     }
     // Move to previous main step
     setActiveStep(Math.max(1, activeStep - 1));
-    // Reset sub-tab to first when moving to a new step
+    // Reset sub-tabs to first when moving to a new step
     if (activeStep === 3) {
       setActiveBTab("b1");
+      setActiveB1SubTab("b1-0");
     }
   };
 
@@ -173,7 +203,9 @@ const NewApplicationSubmission = () => {
                 {step.id === 2 && (
                   <SectionB 
                     activeTab={activeBTab} 
+                    activeB1SubTab={activeB1SubTab}
                     onTabChange={setActiveBTab}
+                    onB1SubTabChange={setActiveB1SubTab}
                   />
                 )}
                 {step.id === 3 && (

@@ -9,10 +9,17 @@ import SectionB6 from './section-b/b6'
 
 interface SectionBProps {
   activeTab?: string;
+  activeB1SubTab?: string;
   onTabChange?: (value: string) => void;
+  onB1SubTabChange?: (value: string) => void;
 }
 
-const SectionB = ({ activeTab = "b1", onTabChange }: SectionBProps) => {
+const SectionB = ({ 
+  activeTab = "b1", 
+  activeB1SubTab = "b1-0", 
+  onTabChange, 
+  onB1SubTabChange 
+}: SectionBProps) => {
     return (
         <div className="flex flex-col gap-6 py-1">
             <div className="">
@@ -36,7 +43,10 @@ const SectionB = ({ activeTab = "b1", onTabChange }: SectionBProps) => {
 
                 <div className="mt-4 p-5 border border-border/50 rounded-xl bg-card shadow-sm min-h-75">
                     <TabsContent value="b1" className="m-0 focus-visible:outline-none">
-                        <SectionB1 />
+                        <SectionB1 
+                            activeTab={activeB1SubTab} 
+                            onTabChange={onB1SubTabChange}
+                        />
                     </TabsContent>
 
                     <TabsContent value="b2" className="m-0 focus-visible:outline-none">

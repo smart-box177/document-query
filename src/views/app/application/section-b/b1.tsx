@@ -3,12 +3,22 @@ import SectionB10 from './section-b1/b1-0'
 import SectionB11 from './section-b1/b1-1'
 import SectionB12 from './section-b1/b1-2'
 
-const SectionB1 = () => {
+interface SectionB1Props {
+  activeTab?: string;
+  onTabChange?: (value: string) => void;
+}
+
+const SectionB1 = ({ activeTab = "b1-0", onTabChange }: SectionB1Props) => {
     return (
         <div className="space-y-4 m-0">
             <h3 className="text-lg font-semibold border-b pb-2">Part B1</h3>
             
-            <Tabs defaultValue="b1-0" className="w-full relative">
+            <Tabs 
+                defaultValue="b1-0" 
+                value={activeTab} 
+                onValueChange={onTabChange}
+                className="w-full relative"
+            >
                 <TabsList className="grid w-full grid-cols-3 mb-1 gap-1 h-auto bg-muted/50 p-1 rounded-xl">
                     <TabsTrigger className="py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary font-medium" value="b1-0">B1.0</TabsTrigger>
                     <TabsTrigger className="py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary font-medium" value="b1-1">B1.1</TabsTrigger>
