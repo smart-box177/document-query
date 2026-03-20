@@ -15,6 +15,7 @@ import { FileTextIcon, GraduationCapIcon, ListIcon } from "lucide-react";
 import { Badge } from "@/components/reui/badge";
 import { useApplicationStore } from "@/store/application.store";
 import type { IApplication } from "@/interface/application";
+import { toast } from "sonner";
 
 import SectionA from "./application/section-a";
 import SectionB from "./application/section-b";
@@ -222,22 +223,33 @@ const NewApplicationSubmission = () => {
     const formData = getFormData();
     const success = await createApplication(formData);
     if (success) {
+      toast.success("Application created successfully");
       // Move to next step
       setActiveStep(2);
+    } else if (error) {
+      toast.error(error);
     }
   };
 
   const handleSaveAsDraft = async () => {
     const formData = getFormData();
-    await saveAsDraft(formData, currentApplication?.id);
+    const success = await saveAsDraft(formData, currentApplication?.id);
+    if (success) {
+      toast.success("Application saved as draft");
+    } else if (error) {
+      toast.error(error);
+    }
   };
 
   const handleSubmit = async () => {
     const formData = getFormData();
     const success = await saveAndSubmit(formData, currentApplication?.id);
     if (success) {
+      toast.success("Application submitted successfully");
       // Show success message and redirect
       console.log("Application submitted successfully");
+    } else if (error) {
+      toast.error(error);
     }
   };
 
