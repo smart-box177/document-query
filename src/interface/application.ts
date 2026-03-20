@@ -2,31 +2,77 @@
 export interface IApplication {
   id?: string;
   contractId?: string;
-  status?: "draft" | "submitted" | "reviewing" | "approved" | "rejected";
+  status?: "DRAFT" | "SUBMITTED" | "REVIWING" | "APPROVED" | "REJECTED";
   createdAt?: Date;
   updatedAt?: Date;
-  
-  // Section A: General Information
+
   sectionA: ISectionA;
-  
-  // Section B: Local Content Components
   sectionB: ISectionB;
-  
-  // Section C: Capacity Development & R&D
   sectionC: ISectionC;
-  
-  // Additional fields
+
   notes?: string;
   attachments?: string[];
 }
 
-// Section A: General Information
+// enums/currency.ts
+export const Currency = {
+  FUSD: "FUSD",
+  NGN: "NGN",
+  USD: "USD",
+} as const;
+
+export type Currency = (typeof Currency)[keyof typeof Currency];
+
+export const ContractType = {
+  CALL_OUT: "CALL-OUT",
+  NON_CALL_OUT: "NON-CALL-OUT",
+} as const;
+
+export type ContractType = (typeof ContractType)[keyof typeof ContractType];
+
 export interface ISectionA {
-  contractType: "call-out" | "non-call-out";
-  currency: "FUSD" | "NGN" | "USD";
-  refNo: string;
-  dateRefIncPlanApproval: string;
+  contractType: ContractType | null;
+  currency: Currency | null;
+
+  // Main grid fields
+  referenceNumber: string;
+  dateAndRefIncPlanApproval: string;
   totalContractValue: string;
+
+  operatorOrProjectPromoter: string;
+  dateAndRefNCDMBTechEvaluation: string;
+  totalNCValue: string;
+
+  contractProjectTitle: string;
+  dateAndRefNCDMBCommEvaluation: string;
+  onePercentNCDF: string;
+
+  contractProjectNumber: string;
+  commencementDate: string;
+  ncdmbHcdTrainingBudgetPercent: string;
+
+  bidCommencementDate: string;
+  contractCompletionDate: string;
+  mainContractor: string;
+
+  singleSourceApprovalDateAndRef: string;
+  contractDuration: string;
+
+  subContractors: string; // usually comma-separated or multiline
+  totalNCPercentSpend: string;
+  totalNCPercentManhours: string;
+
+  // Operator Declaration
+  operatorSignature?: File | string | null; // or string (base64 / url) depending on your signature handling
+  operatorName: string;
+  operatorDesignation: string;
+  operatorDate: string; // ISO date string or empty
+
+  // Service Provider Declaration (optional)
+  serviceProviderSignature?: File | null;
+  serviceProviderName?: string;
+  serviceProviderDesignation?: string;
+  serviceProviderDate?: string;
 }
 
 // Section B: Local Content Components
@@ -43,10 +89,10 @@ export interface ISectionB {
 export interface ISectionB1 {
   // B1.0: General Equipment
   generalEquipment: IEquipmentRecord[];
-  
+
   // B1.1: Equipment/Machinery
   equipmentMachinery: IEquipmentRecord[];
-  
+
   // B1.2: Materials
   materials: IMaterialRecord[];
 }
