@@ -14,7 +14,7 @@ import {
 import { FileTextIcon, GraduationCapIcon, ListIcon } from "lucide-react";
 import { Badge } from "@/components/reui/badge";
 import { useApplicationStore } from "@/store/application.store";
-import type { IApplication } from "@/interface/application";
+import { useApplicationFormStore } from "@/store/application-form.store";
 import { toast } from "sonner";
 
 import SectionA from "./application/section-a";
@@ -36,195 +36,12 @@ const NewApplicationSubmission = () => {
     error,
   } = useApplicationStore();
 
-  // Mock function to get form data (in real scenario, this would collect data from all sections)
-  const getFormData = (): Partial<IApplication> => {
-    // This is a mock implementation - in real app, you would collect data from all sections
-    return {
-      sectionA: {
-        contractType: "CALL-OUT",
-        currency: "USD",
-        referenceNumber: "REF-2024-001",
-        totalContractValue: "1000000",
-        operatorOrProjectPromoter: "Example Operator",
-        contractProjectTitle: "Example Project",
-        mainContractor: "Example Contractor",
-        operatorName: "John Doe",
-        operatorDesignation: "Contract Manager",
-        operatorDate: new Date().toISOString().split("T")[0],
-        dateAndRefIncPlanApproval: "",
-        dateAndRefNCDMBTechEvaluation: "",
-        totalNCValue: "",
-        dateAndRefNCDMBCommEvaluation: "",
-        onePercentNCDF: "",
-        contractProjectNumber: "",
-        commencementDate: "",
-        ncdmbHcdTrainingBudgetPercent: "",
-        bidCommencementDate: "",
-        contractCompletionDate: "",
-        singleSourceApprovalDateAndRef: "",
-        contractDuration: "",
-        subContractors: "",
-        totalNCPercentSpend: "",
-        totalNCPercentManhours: "",
-      },
-      sectionB: {
-        b1: {
-          b1_0: {
-            id: "1",
-            jobPosition: "",
-            companyName: "",
-            totalPersonnel: "",
-            nigerianNationality: "",
-            foreignNationality: "",
-            inCountryNigerian: "",
-            inCountryExpat: "",
-            outCountryNigerian: "",
-            outCountryExpat: "",
-            ncManhours: "",
-            ncSpendValue: "",
-            foreignSpendValue: "",
-            totalSpendValue: "",
-            ncSpendPercent: "",
-          },
-          b1_1: {
-            id: "2",
-            jobPosition: "",
-            companyName: "",
-            totalPersonnel: "",
-            nigerianNationality: "",
-            foreignNationality: "",
-            inCountryNigerian: "",
-            inCountryExpat: "",
-            outCountryNigerian: "",
-            outCountryExpat: "",
-            ncManhours: "",
-            ncSpendValue: "",
-            foreignSpendValue: "",
-            totalSpendValue: "",
-            ncSpendPercent: "",
-          },
-          b1_2: {
-            id: "3",
-            jobPosition: "",
-            companyName: "",
-            totalPersonnel: "",
-            nigerianNationality: "",
-            foreignNationality: "",
-            inCountryNigerian: "",
-            inCountryExpat: "",
-            outCountryNigerian: "",
-            outCountryExpat: "",
-            ncManhours: "",
-            ncSpendValue: "",
-            foreignSpendValue: "",
-            totalSpendValue: "",
-            ncSpendPercent: "",
-          },
-        },
-        b2: {
-          id: "1",
-          procurementItem: "",
-          manufacturedInCountry: "",
-          inCountryVendor: "",
-          outCountryVendor: "",
-          uom: "",
-          procuredInCountry: "",
-          procuredOutCountry: "",
-          ncPercent: "",
-          ncValue: "",
-          foreignValue: "",
-          totalValue: "",
-          ncSpendPercent: "",
-        },
-        b3: {
-          id: "1",
-          equipmentName: "",
-          availableInCountry: "",
-          inCountryOwner: "",
-          outCountryOwner: "",
-          nigerianOwnership: "",
-          foreignOwnership: "",
-          ncPercent: "",
-          ncValue: "",
-          foreignValue: "",
-          totalValue: "",
-          ncSpendPercent: "",
-        },
-        b4: {
-          id: "1",
-          itemName: "",
-          inCountryFabricationYard: "",
-          outCountryFabricationYard: "",
-          uom: "",
-          fabricatedInCountry: "",
-          fabricatedOutCountry: "",
-          ncPercentTonage: "",
-          ncValue: "",
-          foreignValue: "",
-          totalValue: "",
-          ncSpendPercent: "",
-        },
-        b5: {
-          id: "1",
-          itemName: "",
-          inCountryVendor: "",
-          outCountryVendor: "",
-          uom: "",
-          executedInCountry: "",
-          executedOutCountry: "",
-          ncPercent: "",
-          ncValue: "",
-          foreignValue: "",
-          totalValue: "",
-          ncSpendPercent: "",
-        },
-        b6: {
-          id: "1",
-          itemName: "",
-          inCountryFirm: "",
-          outCountryFirm: "",
-          uom: "",
-          executedInCountry: "",
-          executedOutCountry: "",
-          ncPercent: "",
-          ncValue: "",
-          foreignValue: "",
-          totalValue: "",
-          ncSpendPercent: "",
-        },
-      },
-      sectionC: {
-        c1: { id: "1", trainingScope: "", hcdPercentage: "" },
-        c2: {
-          id: "1",
-          scopeDetails: "",
-          projectLocation: "",
-          activityDuration: "",
-          numberOfPersonnel: "",
-          primaryActivity: "",
-          outcome: "",
-          costOfActivity: "",
-        },
-        c3: {
-          id: "1",
-          typeOfResearch: "",
-          projectLocation: "",
-          activityDuration: "",
-          numberOfResearcher: "",
-          typeOfResearcher: "",
-          briefScopeOfWork: "",
-          costOfActivity: "",
-        },
-      },
-    };
-  };
+  const { formData } = useApplicationFormStore();
 
   const handleCreateApplication = async () => {
-    const formData = getFormData();
     const success = await createApplication(formData);
     if (success) {
       toast.success("Application created successfully");
-      // Move to next step
       setActiveStep(2);
     } else if (error) {
       toast.error(error);
@@ -232,7 +49,6 @@ const NewApplicationSubmission = () => {
   };
 
   const handleSaveAsDraft = async () => {
-    const formData = getFormData();
     const success = await saveAsDraft(formData, currentApplication?.id);
     if (success) {
       toast.success("Application saved as draft");
@@ -242,12 +58,9 @@ const NewApplicationSubmission = () => {
   };
 
   const handleSubmit = async () => {
-    const formData = getFormData();
     const success = await saveAndSubmit(formData, currentApplication?.id);
     if (success) {
       toast.success("Application submitted successfully");
-      // Show success message and redirect
-      console.log("Application submitted successfully");
     } else if (error) {
       toast.error(error);
     }

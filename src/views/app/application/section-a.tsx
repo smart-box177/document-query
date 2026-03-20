@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { FloatingInput } from '@/components/ui/floating-input'
 import {
     Select,
@@ -8,8 +9,20 @@ import {
 } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
+import { useState } from 'react'
+import type { ISectionA } from '@/interface/application'
+import { useApplicationFormStore } from '@/store/application-form.store'
 
 const SectionA = () => {
+    const { formData, updateSectionA } = useApplicationFormStore()
+    const [localData, setLocalData] = useState<ISectionA>(formData.sectionA!)
+
+    const handleChange = (field: keyof ISectionA, value: any) => {
+        const updatedData = { ...localData, [field]: value }
+        setLocalData(updatedData)
+        updateSectionA(updatedData)
+    }
+
     return (
         <div className="flex flex-col gap-8 py-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-end">
@@ -17,26 +30,32 @@ const SectionA = () => {
                 <div className="flex gap-4 col-span-1 md:col-span-2 space-x-2">
                     <div className="flex-1 space-y-2">
                         <Label className="text-xs text-muted-foreground ml-1">Contract Type</Label>
-                        <Select>
+                        <Select
+                            value={localData.contractType || ''}
+                            onValueChange={(value) => handleChange('contractType', value)}
+                        >
                             <SelectTrigger className="h-12">
                                 <SelectValue placeholder="Select Contract Type" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="call-out">CALL-OUT</SelectItem>
-                                <SelectItem value="non-call-out">NON CALL-OUT</SelectItem>
+                                <SelectItem value="CALL-OUT">CALL-OUT</SelectItem>
+                                <SelectItem value="NON-CALL-OUT">NON CALL-OUT</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
                     <div className="flex-1 space-y-2">
                         <Label className="text-xs text-muted-foreground ml-1">Currency</Label>
-                        <Select>
+                        <Select
+                            value={localData.currency || ''}
+                            onValueChange={(value) => handleChange('currency', value)}
+                        >
                             <SelectTrigger className="h-12">
                                 <SelectValue placeholder="Select Currency" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="fusd">FUSD</SelectItem>
-                                <SelectItem value="ngn">NGN</SelectItem>
-                                <SelectItem value="usd">USD</SelectItem>
+                                <SelectItem value="FUSD">FUSD</SelectItem>
+                                <SelectItem value="NGN">NGN</SelectItem>
+                                <SelectItem value="USD">USD</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -44,39 +63,121 @@ const SectionA = () => {
                 <div className="hidden lg:block"></div>
 
                 {/* Grid Fields */}
-                <FloatingInput label="Ref. No." />
-                <FloatingInput label="Date and Ref Inc Plan Approval" />
-                <FloatingInput label="Total Contract Value" />
+                <FloatingInput
+                    label="Ref. No."
+                    value={localData.referenceNumber}
+                    onChange={(e) => handleChange('referenceNumber', e.target.value)}
+                />
+                <FloatingInput
+                    label="Date and Ref Inc Plan Approval"
+                    value={localData.dateAndRefIncPlanApproval}
+                    onChange={(e) => handleChange('dateAndRefIncPlanApproval', e.target.value)}
+                />
+                <FloatingInput
+                    label="Total Contract Value"
+                    value={localData.totalContractValue}
+                    onChange={(e) => handleChange('totalContractValue', e.target.value)}
+                />
 
-                <FloatingInput label="Name of Operator / Project Promoter" />
-                <FloatingInput label="Date of and Ref (NCDMB Tech Evaluation Rpt)" />
-                <FloatingInput label="Total NC Value" />
+                <FloatingInput
+                    label="Name of Operator / Project Promoter"
+                    value={localData.operatorOrProjectPromoter}
+                    onChange={(e) => handleChange('operatorOrProjectPromoter', e.target.value)}
+                />
+                <FloatingInput
+                    label="Date of and Ref (NCDMB Tech Evaluation Rpt)"
+                    value={localData.dateAndRefNCDMBTechEvaluation}
+                    onChange={(e) => handleChange('dateAndRefNCDMBTechEvaluation', e.target.value)}
+                />
+                <FloatingInput
+                    label="Total NC Value"
+                    value={localData.totalNCValue}
+                    onChange={(e) => handleChange('totalNCValue', e.target.value)}
+                />
 
-                <FloatingInput label="Contract / Project Title" />
-                <FloatingInput label="Date of and Ref (NCDMB Comm Evaluation Rpt)" />
-                <FloatingInput label="1% NCDF: Being the sum of one percent of contract awarded" />
+                <FloatingInput
+                    label="Contract / Project Title"
+                    value={localData.contractProjectTitle}
+                    onChange={(e) => handleChange('contractProjectTitle', e.target.value)}
+                />
+                <FloatingInput
+                    label="Date of and Ref (NCDMB Comm Evaluation Rpt)"
+                    value={localData.dateAndRefNCDMBCommEvaluation}
+                    onChange={(e) => handleChange('dateAndRefNCDMBCommEvaluation', e.target.value)}
+                />
+                <FloatingInput
+                    label="1% NCDF: Being the sum of one percent of contract awarded"
+                    value={localData.onePercentNCDF}
+                    onChange={(e) => handleChange('onePercentNCDF', e.target.value)}
+                />
 
-                <FloatingInput label="Contract / Project Number" />
-                <FloatingInput label="Date of Commencement of Contract" />
-                <FloatingInput label="NCDMB HCD Training Budget (% of TCV)" />
+                <FloatingInput
+                    label="Contract / Project Number"
+                    value={localData.contractProjectNumber}
+                    onChange={(e) => handleChange('contractProjectNumber', e.target.value)}
+                />
+                <FloatingInput
+                    label="Date of Commencement of Contract"
+                    value={localData.commencementDate}
+                    onChange={(e) => handleChange('commencementDate', e.target.value)}
+                />
+                <FloatingInput
+                    label="NCDMB HCD Training Budget (% of TCV)"
+                    value={localData.ncdmbHcdTrainingBudgetPercent}
+                    onChange={(e) => handleChange('ncdmbHcdTrainingBudgetPercent', e.target.value)}
+                />
 
-                <FloatingInput label="Date of Commencement of Bid" />
-                <FloatingInput label="Date of Completion of Contract" />
-                <FloatingInput label="Main Contractor" />
+                <FloatingInput
+                    label="Date of Commencement of Bid"
+                    value={localData.bidCommencementDate}
+                    onChange={(e) => handleChange('bidCommencementDate', e.target.value)}
+                />
+                <FloatingInput
+                    label="Date of Completion of Contract"
+                    value={localData.contractCompletionDate}
+                    onChange={(e) => handleChange('contractCompletionDate', e.target.value)}
+                />
+                <FloatingInput
+                    label="Main Contractor"
+                    value={localData.mainContractor}
+                    onChange={(e) => handleChange('mainContractor', e.target.value)}
+                />
 
-                <FloatingInput label="Date and Ref (Single Source/ Selective Approval) - Not Applicable" />
-                <FloatingInput label="Duration of Contract" />
+                <FloatingInput
+                    label="Date and Ref (Single Source/ Selective Approval) - Not Applicable"
+                    value={localData.singleSourceApprovalDateAndRef}
+                    onChange={(e) => handleChange('singleSourceApprovalDateAndRef', e.target.value)}
+                />
+                <FloatingInput
+                    label="Duration of Contract"
+                    value={localData.contractDuration}
+                    onChange={(e) => handleChange('contractDuration', e.target.value)}
+                />
 
                 {/* Sub-contractor */}
                 <div className="flex flex-col gap-2 relative">
-                    <FloatingInput label="Sub-Contractor(s)" />
+                    <FloatingInput
+                        label="Sub-Contractor(s)"
+                        value={localData.subContractors}
+                        onChange={(e) => handleChange('subContractors', e.target.value)}
+                    />
                     <p className="text-[10px] text-muted-foreground leading-tight px-1 absolute -bottom-10 left-0 w-[200%] max-w-125">
                         In line with the statutory requirement of the NOGICD Act 2010, Tenderer shall deduct 1% NCDF for every subcontract to be issued on this contract and remit same to NCDMB. Failure to remit the said 1% NCDF shall be in non-compliance with the requirement of the NOGICD Act and be liable for sanctions.
                     </p>
                 </div>
 
-                <FloatingInput label="Total NC% (Spend)" className="mt-8" />
-                <FloatingInput label="Total NC% (Manhours)" className="mt-8" />
+                <FloatingInput
+                    label="Total NC% (Spend)"
+                    className="mt-8"
+                    value={localData.totalNCPercentSpend}
+                    onChange={(e) => handleChange('totalNCPercentSpend', e.target.value)}
+                />
+                <FloatingInput
+                    label="Total NC% (Manhours)"
+                    className="mt-8"
+                    value={localData.totalNCPercentManhours}
+                    onChange={(e) => handleChange('totalNCPercentManhours', e.target.value)}
+                />
             </div>
 
             <Separator className="my-8" />
@@ -105,9 +206,25 @@ const SectionA = () => {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
-                            <FloatingInput label="Name" className="bg-background" />
-                            <FloatingInput label="Designation" className="bg-background" />
-                            <FloatingInput label="Date" type="date" className="bg-background" />
+                            <FloatingInput
+                                label="Name"
+                                className="bg-background"
+                                value={localData.operatorName}
+                                onChange={(e) => handleChange('operatorName', e.target.value)}
+                            />
+                            <FloatingInput
+                                label="Designation"
+                                className="bg-background"
+                                value={localData.operatorDesignation}
+                                onChange={(e) => handleChange('operatorDesignation', e.target.value)}
+                            />
+                            <FloatingInput
+                                label="Date"
+                                type="date"
+                                className="bg-background"
+                                value={localData.operatorDate}
+                                onChange={(e) => handleChange('operatorDate', e.target.value)}
+                            />
                         </div>
                     </div>
                 </div>
@@ -135,9 +252,25 @@ const SectionA = () => {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
-                            <FloatingInput label="Name" className="bg-background" />
-                            <FloatingInput label="Designation" className="bg-background" />
-                            <FloatingInput label="Date" type="date" className="bg-background" />
+                            <FloatingInput
+                                label="Name"
+                                className="bg-background"
+                                value={localData.serviceProviderName || ''}
+                                onChange={(e) => handleChange('serviceProviderName', e.target.value)}
+                            />
+                            <FloatingInput
+                                label="Designation"
+                                className="bg-background"
+                                value={localData.serviceProviderDesignation || ''}
+                                onChange={(e) => handleChange('serviceProviderDesignation', e.target.value)}
+                            />
+                            <FloatingInput
+                                label="Date"
+                                type="date"
+                                className="bg-background"
+                                value={localData.serviceProviderDate || ''}
+                                onChange={(e) => handleChange('serviceProviderDate', e.target.value)}
+                            />
                         </div>
                     </div>
                 </div>
