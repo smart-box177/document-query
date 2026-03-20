@@ -198,7 +198,7 @@ const NewApplicationSubmission = () => {
               </div>
 
               {/* Section body */}
-              <div className="h-[calc(100vh-520px)] min-h-[400px] w-full overflow-y-auto overflow-x-hidden custom-scrollbar">
+              <div className="h-[calc(100vh-520px)] min-h-100 w-full overflow-y-auto overflow-x-hidden custom-scrollbar">
                 {step.id === 1 && <SectionA />}
                 {step.id === 2 && (
                   <SectionB 
@@ -229,11 +229,6 @@ const NewApplicationSubmission = () => {
                     className="px-4 py-2 rounded-md border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Save as Draft
-                  </button>
-                  <button
-                    className="px-4 py-2 rounded-md border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:cursor-not-allowed px-6"
-                  >
-                    Save
                   </button>
                   <button
                     onClick={handleNext}

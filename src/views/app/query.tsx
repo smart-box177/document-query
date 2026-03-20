@@ -1,10 +1,18 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, FileText, RefreshCw, Filter } from "lucide-react";
+import { Loader2, FileText, RefreshCw, Filter, MoreHorizontalIcon } from "lucide-react";
 import { columns as contractColumns } from "./contracts/columns";
 import { DataTable } from "./contracts/data-table";
 import { useContractStore } from "@/store/contract.store";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 // Dummy application data
 interface Application {
@@ -81,6 +89,28 @@ const Query = () => {
   // Table columns for applications
   const applicationColumns = [
     {
+      id: "select",
+      header: ({ table }: { table: any }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value: any) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }: { row: any }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value: any) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
       header: "Contract ID",
       accessorKey: "contractId",
     },
@@ -118,6 +148,26 @@ const Query = () => {
     {
       header: "Reviewed By",
       accessorKey: "reviewedBy",
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: () => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm">
+             <MoreHorizontalIcon/>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem>View Details</DropdownMenuItem>
+            <DropdownMenuItem>Edit</DropdownMenuItem>
+            <DropdownMenuItem>Delete</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
+      enableSorting: false,
+      enableHiding: false,
     },
   ];
 
