@@ -11,6 +11,7 @@ import {
     DrawerClose
 } from '@/components/ui/drawer'
 import { FloatingInput } from '@/components/ui/floating-input'
+import { useApplicationFormStore } from '@/store/application-form.store'
 
 interface PersonnelRecord {
     id: string
@@ -81,19 +82,33 @@ const CellInput = ({
 )
 
 const SectionB11 = () => {
-    const [records, setRecords] = useState<PersonnelRecord[]>([])
+    const { formData, updateSectionB } = useApplicationFormStore()
+    const [records, setRecords] = useState<PersonnelRecord[]>(
+        formData.sectionB?.b1?.b1_1 ? [formData.sectionB.b1.b1_1] : []
+    )
     const [open, setOpen] = useState(false)
     const [newRecord, setNewRecord] = useState<Omit<PersonnelRecord, 'id'>>(emptyRecord())
 
-    const addRecord = () => setRecords((prev) => [...prev, emptyRecord()])
+    // Update store when records change
+    const updateRecords = (newRecords: PersonnelRecord[]) => {
+        setRecords(newRecords)
+        updateSectionB({
+            b1: {
+                ...formData.sectionB?.b1,
+                b1_1: newRecords[0]
+            }
+        })
+    }
+
+    const addRecord = () => updateRecords([...records, emptyRecord()])
 
     const removeRecord = (id: string) => {
-        if (records.length > 1) setRecords((prev) => prev.filter((r) => r.id !== id))
+        if (records.length > 1) updateRecords(records.filter((r) => r.id !== id))
     }
 
     const update = (id: string, field: keyof PersonnelRecord, value: string) => {
-        setRecords((prev) =>
-            prev.map((r) => (r.id === id ? { ...r, [field]: value } : r))
+        updateRecords(
+            records.map((r) => (r.id === id ? { ...r, [field]: value } : r))
         )
     }
 
@@ -102,7 +117,7 @@ const SectionB11 = () => {
             ...newRecord,
             id: Date.now().toString()
         }
-        setRecords([...records, record])
+        updateRecords([...records, record])
         setNewRecord(emptyRecord())
         setOpen(false)
     }
