@@ -13,6 +13,8 @@ import {
 } from "@/components/reui/stepper";
 import { FileTextIcon, GraduationCapIcon, ListIcon } from "lucide-react";
 import { Badge } from "@/components/reui/badge";
+import { useApplicationStore } from "@/store/application.store";
+import type { IApplication } from "@/interface/application";
 
 import SectionA from "./application/section-a";
 import SectionB from "./application/section-b";
@@ -23,6 +25,221 @@ const NewApplicationSubmission = () => {
   const [activeBTab, setActiveBTab] = useState("b1");
   const [activeB1SubTab, setActiveB1SubTab] = useState("b1-0");
   const [activeCTab, setActiveCTab] = useState("c1");
+
+  const {
+    createApplication,
+    saveAsDraft,
+    saveAndSubmit,
+    currentApplication,
+    isLoading,
+    error,
+  } = useApplicationStore();
+
+  // Mock function to get form data (in real scenario, this would collect data from all sections)
+  const getFormData = (): Partial<IApplication> => {
+    // This is a mock implementation - in real app, you would collect data from all sections
+    return {
+      sectionA: {
+        contractType: "CALL-OUT",
+        currency: "USD",
+        referenceNumber: "REF-2024-001",
+        totalContractValue: "1000000",
+        operatorOrProjectPromoter: "Example Operator",
+        contractProjectTitle: "Example Project",
+        mainContractor: "Example Contractor",
+        operatorName: "John Doe",
+        operatorDesignation: "Contract Manager",
+        operatorDate: new Date().toISOString().split("T")[0],
+        dateAndRefIncPlanApproval: "",
+        dateAndRefNCDMBTechEvaluation: "",
+        totalNCValue: "",
+        dateAndRefNCDMBCommEvaluation: "",
+        onePercentNCDF: "",
+        contractProjectNumber: "",
+        commencementDate: "",
+        ncdmbHcdTrainingBudgetPercent: "",
+        bidCommencementDate: "",
+        contractCompletionDate: "",
+        singleSourceApprovalDateAndRef: "",
+        contractDuration: "",
+        subContractors: "",
+        totalNCPercentSpend: "",
+        totalNCPercentManhours: "",
+      },
+      sectionB: {
+        b1: {
+          b1_0: {
+            id: "1",
+            jobPosition: "",
+            companyName: "",
+            totalPersonnel: "",
+            nigerianNationality: "",
+            foreignNationality: "",
+            inCountryNigerian: "",
+            inCountryExpat: "",
+            outCountryNigerian: "",
+            outCountryExpat: "",
+            ncManhours: "",
+            ncSpendValue: "",
+            foreignSpendValue: "",
+            totalSpendValue: "",
+            ncSpendPercent: "",
+          },
+          b1_1: {
+            id: "2",
+            jobPosition: "",
+            companyName: "",
+            totalPersonnel: "",
+            nigerianNationality: "",
+            foreignNationality: "",
+            inCountryNigerian: "",
+            inCountryExpat: "",
+            outCountryNigerian: "",
+            outCountryExpat: "",
+            ncManhours: "",
+            ncSpendValue: "",
+            foreignSpendValue: "",
+            totalSpendValue: "",
+            ncSpendPercent: "",
+          },
+          b1_2: {
+            id: "3",
+            jobPosition: "",
+            companyName: "",
+            totalPersonnel: "",
+            nigerianNationality: "",
+            foreignNationality: "",
+            inCountryNigerian: "",
+            inCountryExpat: "",
+            outCountryNigerian: "",
+            outCountryExpat: "",
+            ncManhours: "",
+            ncSpendValue: "",
+            foreignSpendValue: "",
+            totalSpendValue: "",
+            ncSpendPercent: "",
+          },
+        },
+        b2: {
+          id: "1",
+          procurementItem: "",
+          manufacturedInCountry: "",
+          inCountryVendor: "",
+          outCountryVendor: "",
+          uom: "",
+          procuredInCountry: "",
+          procuredOutCountry: "",
+          ncPercent: "",
+          ncValue: "",
+          foreignValue: "",
+          totalValue: "",
+          ncSpendPercent: "",
+        },
+        b3: {
+          id: "1",
+          equipmentName: "",
+          availableInCountry: "",
+          inCountryOwner: "",
+          outCountryOwner: "",
+          nigerianOwnership: "",
+          foreignOwnership: "",
+          ncPercent: "",
+          ncValue: "",
+          foreignValue: "",
+          totalValue: "",
+          ncSpendPercent: "",
+        },
+        b4: {
+          id: "1",
+          itemName: "",
+          inCountryFabricationYard: "",
+          outCountryFabricationYard: "",
+          uom: "",
+          fabricatedInCountry: "",
+          fabricatedOutCountry: "",
+          ncPercentTonage: "",
+          ncValue: "",
+          foreignValue: "",
+          totalValue: "",
+          ncSpendPercent: "",
+        },
+        b5: {
+          id: "1",
+          itemName: "",
+          inCountryVendor: "",
+          outCountryVendor: "",
+          uom: "",
+          executedInCountry: "",
+          executedOutCountry: "",
+          ncPercent: "",
+          ncValue: "",
+          foreignValue: "",
+          totalValue: "",
+          ncSpendPercent: "",
+        },
+        b6: {
+          id: "1",
+          itemName: "",
+          inCountryFirm: "",
+          outCountryFirm: "",
+          uom: "",
+          executedInCountry: "",
+          executedOutCountry: "",
+          ncPercent: "",
+          ncValue: "",
+          foreignValue: "",
+          totalValue: "",
+          ncSpendPercent: "",
+        },
+      },
+      sectionC: {
+        c1: { id: "1", trainingScope: "", hcdPercentage: "" },
+        c2: {
+          id: "1",
+          scopeDetails: "",
+          projectLocation: "",
+          activityDuration: "",
+          numberOfPersonnel: "",
+          primaryActivity: "",
+          outcome: "",
+          costOfActivity: "",
+        },
+        c3: {
+          id: "1",
+          typeOfResearch: "",
+          projectLocation: "",
+          activityDuration: "",
+          numberOfResearcher: "",
+          typeOfResearcher: "",
+          briefScopeOfWork: "",
+          costOfActivity: "",
+        },
+      },
+    };
+  };
+
+  const handleCreateApplication = async () => {
+    const formData = getFormData();
+    const success = await createApplication(formData);
+    if (success) {
+      // Move to next step
+      setActiveStep(2);
+    }
+  };
+
+  const handleSaveAsDraft = async () => {
+    const formData = getFormData();
+    await saveAsDraft(formData, currentApplication?.id);
+  };
+
+  const handleSubmit = async () => {
+    const formData = getFormData();
+    const success = await saveAndSubmit(formData, currentApplication?.id);
+    if (success) {
+      // Show success message and redirect
+      console.log("Application submitted successfully");
+    }
+  };
 
   const steps = [
     {
@@ -201,16 +418,16 @@ const NewApplicationSubmission = () => {
               <div className="h-[calc(100vh-520px)] min-h-100 w-full overflow-y-auto overflow-x-hidden custom-scrollbar">
                 {step.id === 1 && <SectionA />}
                 {step.id === 2 && (
-                  <SectionB 
-                    activeTab={activeBTab} 
+                  <SectionB
+                    activeTab={activeBTab}
                     activeB1SubTab={activeB1SubTab}
                     onTabChange={setActiveBTab}
                     onB1SubTabChange={setActiveB1SubTab}
                   />
                 )}
                 {step.id === 3 && (
-                  <SectionC 
-                    activeTab={activeCTab} 
+                  <SectionC
+                    activeTab={activeCTab}
                     onTabChange={setActiveCTab}
                   />
                 )}
@@ -219,26 +436,48 @@ const NewApplicationSubmission = () => {
               <div className="flex justify-between mt-6 pt-4 border-t">
                 <button
                   onClick={handlePrevious}
-                  disabled={activeStep === 1 && activeBTab === "b1" && activeCTab === "c1"}
+                  disabled={
+                    activeStep === 1 &&
+                    activeBTab === "b1" &&
+                    activeCTab === "c1"
+                  }
                   className="px-4 py-2 rounded-md border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Previous
                 </button>
                 <div className="flex items-center gap-3">
                   <button
+                    onClick={handleSaveAsDraft}
+                    disabled={isLoading}
                     className="px-4 py-2 rounded-md border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Save as Draft
                   </button>
                   <button
-                    onClick={handleNext}
-                    disabled={activeStep === steps.length && activeCTab === "c3"}
+                    onClick={
+                      activeStep === 1
+                        ? handleCreateApplication
+                        : activeStep === steps.length && activeCTab === "c3"
+                        ? handleSubmit
+                        : handleNext
+                    }
+                    disabled={
+                      isLoading ||
+                      (activeStep === steps.length &&
+                        activeCTab === "c3" &&
+                        isLoading)
+                    }
                     className="px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed ml-2"
                   >
-                    {activeStep === 1 ? 'Create Application' : 
-                     activeStep === steps.length && activeCTab === "c3" ? 'Submit' : 
-                     activeStep === 2 && activeBTab === "b6" ? 'Next Section' : 
-                     activeStep === 3 && activeCTab === "c3" ? 'Submit' : 'Next'}
+                    {activeStep === 1
+                      ? "Create Application"
+                      : activeStep === steps.length && activeCTab === "c3"
+                      ? "Submit"
+                      : activeStep === 2 && activeBTab === "b6"
+                      ? "Next Section"
+                      : activeStep === 3 && activeCTab === "c3"
+                      ? "Submit"
+                      : "Next"}
                   </button>
                 </div>
               </div>

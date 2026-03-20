@@ -10,6 +10,8 @@ interface ApplicationState {
 
   createApplication: (data: Partial<IApplication>) => Promise<boolean>;
   updateApplication: (id: string, data: Partial<IApplication>) => Promise<boolean>;
+  saveAsDraft: (data: Partial<IApplication>, id?: string) => Promise<boolean>;
+  saveAndSubmit: (data: Partial<IApplication>, id?: string) => Promise<boolean>;
   fetchApplications: () => Promise<void>;
   fetchApplicationById: (id: string) => Promise<void>;
   deleteApplication: (id: string) => Promise<boolean>;
@@ -132,6 +134,66 @@ export const useApplicationStore = create<ApplicationState>()((set) => ({
       const error = err as { response?: { data?: { message?: string } } };
       set({
         error: error.response?.data?.message || "Failed to delete application",
+        isLoading: false,
+      });
+      return false;
+    }
+  },
+
+  saveAsDraft: async (data, id) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = id 
+        ? await api.put(`/applications/${id}/draft`, data)
+        : await api.post("/applications/draft", data);
+      
+      if (response.data.success) {
+        set((state) => ({
+          applications: id 
+            ? state.applications.map((app) => app.id === id ? response.data.data : app)
+            : [response.data.data, ...state.applications],
+          currentApplication: response.data.data,
+          isLoading: false,
+        }));
+        return true;
+      } else {
+        set({ error: response.data.message, isLoading: false });
+        return false;
+      }
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      set({
+        error: error.response?.data?.message || "Failed to save as draft",
+        isLoading: false,
+      });
+      return false;
+    }
+  },
+
+  saveAndSubmit: async (data, id) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = id 
+        ? await api.put(`/applications/${id}/submit`, data)
+        : await api.post("/applications/submit", data);
+      
+      if (response.data.success) {
+        set((state) => ({
+          applications: id 
+            ? state.applications.map((app) => app.id === id ? response.data.data : app)
+            : [response.data.data, ...state.applications],
+          currentApplication: response.data.data,
+          isLoading: false,
+        }));
+        return true;
+      } else {
+        set({ error: response.data.message, isLoading: false });
+        return false;
+      }
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      set({
+        error: error.response?.data?.message || "Failed to submit application",
         isLoading: false,
       });
       return false;

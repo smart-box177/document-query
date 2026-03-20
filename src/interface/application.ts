@@ -2,6 +2,7 @@
 export interface IApplication {
   id?: string;
   contractId?: string;
+  userId?: string;
   status?: "DRAFT" | "SUBMITTED" | "REVIWING" | "APPROVED" | "REJECTED";
   createdAt?: Date;
   updatedAt?: Date;
