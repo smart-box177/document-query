@@ -33,42 +33,30 @@ export type ContractType = (typeof ContractType)[keyof typeof ContractType];
 export interface ISectionA {
   contractType: ContractType | null;
   currency: Currency | null;
-
-  // Main grid fields
   referenceNumber: string;
   dateAndRefIncPlanApproval: string;
   totalContractValue: string;
-
   operatorOrProjectPromoter: string;
   dateAndRefNCDMBTechEvaluation: string;
   totalNCValue: string;
-
   contractProjectTitle: string;
   dateAndRefNCDMBCommEvaluation: string;
   onePercentNCDF: string;
-
   contractProjectNumber: string;
   commencementDate: string;
   ncdmbHcdTrainingBudgetPercent: string;
-
   bidCommencementDate: string;
   contractCompletionDate: string;
   mainContractor: string;
-
   singleSourceApprovalDateAndRef: string;
   contractDuration: string;
-
   subContractors: string; // usually comma-separated or multiline
   totalNCPercentSpend: string;
   totalNCPercentManhours: string;
-
-  // Operator Declaration
   operatorSignature?: File | string | null; // or string (base64 / url) depending on your signature handling
   operatorName: string;
   operatorDesignation: string;
   operatorDate: string; // ISO date string or empty
-
-  // Service Provider Declaration (optional)
   serviceProviderSignature?: File | null;
   serviceProviderName?: string;
   serviceProviderDesignation?: string;
@@ -77,126 +65,70 @@ export interface ISectionA {
 
 // Section B: Local Content Components
 export interface ISectionB {
-  b1: ISectionB1;
-  b2: ISectionB2;
-  b3: ISectionB3;
-  b4: ISectionB4;
-  b5: ISectionB5;
-  b6: ISectionB6;
+  b1: IPersonnelRecords;
+  b2: IProcurementRecord;
+  b3: IEquipmentRecord;
+  b4: IFabricationRecord;
+  b5: IOtherServicesRecord;
+  b6: IProfessionalServicesRecord;
 }
 
-export interface ISectionB1 {
-  b1_0: IB10;
-  b1_1: IB11;
-  b1_2: ISectionB3;
+export interface IPersonnelRecords {
+  b1_0: IPersonnelRecord;
+  b1_1: IPersonnelRecord;
+  b1_2: IPersonnelRecord;
 }
 
-export interface IB10 {
-    id: string;                      // unique identifier (usually timestamp or uuid)
-    jobPosition: string;
-    companyName: string;             // often includes address
-    totalPersonnel: string;          // kept as string because it's <input type="number"> controlled
-    nigerianNationality: string;
-    foreignNationality: string;
-    inCountryNigerian: string;
-    inCountryExpat: string;
-    outCountryNigerian: string;
-    outCountryExpat: string;
-    ncSpendValue: string;       // Nigerian Content spend
-    foreignSpendValue: string;
-    totalSpendValue: string;
-    ncManhours: string;         // NC% manhours (Nigerian Content %)
-    ncSpendPercent: string;     // NC% spend
-  }
-
-  interface IB11 {
-    id: string
-    jobPosition: string
-    companyName: string
-    totalPersonnel: string
-    nigerianNationality: string
-    foreignNationality: string
-    inCountryNigerian: string
-    inCountryExpat: string
-    outCountryNigerian: string
-    outCountryExpat: string
-    ncManhours: string
-    ncSpendValue: string
-    foreignSpendValue: string
-    totalSpendValue: string
-    ncSpendPercent: string
+export interface IPersonnelRecord {
+  id: string; // unique identifier (usually timestamp or uuid)
+  jobPosition: string;
+  companyName: string; // often includes address
+  totalPersonnel: string; // kept as string because it's <input type="number"> controlled
+  nigerianNationality: string;
+  foreignNationality: string;
+  inCountryNigerian: string;
+  inCountryExpat: string;
+  outCountryNigerian: string;
+  outCountryExpat: string;
+  ncSpendValue: string; // Nigerian Content spend
+  foreignSpendValue: string;
+  totalSpendValue: string;
+  ncManhours: string; // NC% manhours (Nigerian Content %)
+  ncSpendPercent: string; // NC% spend
 }
 
-// Section B1: Equipment
-export interface ISectionB1 {
-  // B1.0: General Equipment
-  generalEquipment: IEquipmentRecord[];
-
-  // B1.1: Equipment/Machinery
-  equipmentMachinery: IEquipmentRecord[];
-
-  // B1.2: Materials
-  materials: IMaterialRecord[];
-}
-
-export interface IEquipmentRecord {
+interface IEquipmentRecord {
   id: string;
-  itemName: string;
-  manufacturer: string;
-  countryOfOrigin: string;
-  quantity: string;
-  unitPrice: string;
-  totalAmount: string;
-  localContentPercentage: string;
+  equipmentName: string;
+  availableInCountry: string;
+  inCountryOwner: string;
+  outCountryOwner: string;
+  nigerianOwnership: string;
+  foreignOwnership: string;
+  ncPercent: string;
+  ncValue: string;
+  foreignValue: string;
+  totalValue: string;
+  ncSpendPercent: string;
 }
 
-export interface IMaterialRecord {
+interface IProcurementRecord {
   id: string;
-  itemName: string;
-  supplier: string;
-  countryOfOrigin: string;
-  quantity: string;
-  unitPrice: string;
-  totalAmount: string;
-  localContentPercentage: string;
+  procurementItem: string;
+  manufacturedInCountry: string;
+  inCountryVendor: string;
+  outCountryVendor: string;
+  uom: string;
+  procuredInCountry: string;
+  procuredOutCountry: string;
+  ncPercent: string;
+  ncValue: string;
+  foreignValue: string;
+  totalValue: string;
+  ncSpendPercent: string;
 }
 
-// Section B2: Services
-export interface ISectionB2 {
-  records: IServiceRecord[];
-}
-
-export interface IServiceRecord {
-  id: string;
-  serviceName: string;
-  vendorName: string;
-  countryOfOrigin: string;
-  scopeOfWork: string;
-  contractValue: string;
-  localContentPercentage: string;
-}
-
-// Section B3: Manpower
-export interface ISectionB3 {
-  records: IManpowerRecord[];
-}
-
-export interface IManpowerRecord {
-  id: string;
-  position: string;
-  numberOfPersonnel: string;
-  nationality: string;
-  monthlyRate: string;
-  totalCost: string;
-  localContentPercentage: string;
-}
-
-// Section B4: Fabrication
-export interface ISectionB4 {
-  records: IFabricationRecord[];
-}
-
-export interface IFabricationRecord {
+interface IFabricationRecord {
   id: string;
   itemName: string;
   inCountryFabricationYard: string;
@@ -211,61 +143,50 @@ export interface IFabricationRecord {
   ncSpendPercent: string;
 }
 
-// Section B5: Transportation
-export interface ISectionB5 {
-  records: ITransportationRecord[];
-}
-
-export interface ITransportationRecord {
+interface IOtherServicesRecord {
   id: string;
-  typeOfTransport: string;
-  origin: string;
-  destination: string;
-  quantity: string;
-  unitCost: string;
-  totalCost: string;
-  localContentPercentage: string;
+  itemName: string;
+  inCountryVendor: string;
+  outCountryVendor: string;
+  uom: string;
+  executedInCountry: string;
+  executedOutCountry: string;
+  ncPercent: string;
+  ncValue: string;
+  foreignValue: string;
+  totalValue: string;
+  ncSpendPercent: string;
 }
 
-// Section B6: Training
-export interface ISectionB6 {
-  records: ITrainingRecord[];
-}
-
-export interface ITrainingRecord {
+interface IProfessionalServicesRecord {
   id: string;
-  trainingType: string;
-  numberOfTrainees: string;
-  duration: string;
-  trainingInstitution: string;
-  location: string;
-  costPerTrainee: string;
-  totalCost: string;
-  localContentPercentage: string;
+  itemName: string;
+  inCountryFirm: string;
+  outCountryFirm: string;
+  uom: string;
+  executedInCountry: string;
+  executedOutCountry: string;
+  ncPercent: string;
+  ncValue: string;
+  foreignValue: string;
+  totalValue: string;
+  ncSpendPercent: string;
 }
 
 // Section C: Capacity Development & R&D
 export interface ISectionC {
-  c1: ISectionC1;
-  c2: ISectionC2;
-  c3: ISectionC3;
+  c1: IHCDTrainingRecord;
+  c2: ICapacityDevelopmentRecord;
+  c3: IResearchDevelopmentRecord;
 }
 
-// Section C1: Local Content Plan
-export interface ISectionC1 {
-  localContentTarget: string;
-  description: string;
-  implementationTimeline: string;
-  responsibleDepartment: string;
-  budgetAllocation: string;
+interface IHCDTrainingRecord {
+  id: string;
+  trainingScope: string;
+  hcdPercentage: string;
 }
 
-// Section C2: Capacity Development Initiative (CDI)
-export interface ISectionC2 {
-  records: ICapacityDevelopmentRecord[];
-}
-
-export interface ICapacityDevelopmentRecord {
+interface ICapacityDevelopmentRecord {
   id: string;
   scopeDetails: string;
   projectLocation: string;
@@ -276,21 +197,17 @@ export interface ICapacityDevelopmentRecord {
   costOfActivity: string;
 }
 
-// Section C3: R & D (If Applicable)
-export interface ISectionC3 {
-  records: IResearchDevelopmentRecord[];
-}
 
-export interface IResearchDevelopmentRecord {
-  id: string;
-  typeOfResearch: string;
-  projectLocation: string;
-  activityDuration: string;
-  numberOfResearcher: string;
-  typeOfResearcher: string;
-  briefScopeOfWork: string;
-  costOfActivity: string;
-}
+interface IResearchDevelopmentRecord {
+    id: string;
+    typeOfResearch: string;
+    projectLocation: string;
+    activityDuration: string;
+    numberOfResearcher: string;
+    typeOfResearcher: string;
+    briefScopeOfWork: string;
+    costOfActivity: string;
+  }
 
 // Application submission interface
 export interface IApplicationSubmission {
