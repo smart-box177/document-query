@@ -67,11 +67,11 @@ export interface ISectionA {
 // Section B: Local Content Components
 export interface ISectionB {
   b1: IPersonnelRecords;
-  b2: IProcurementRecord;
-  b3: IEquipmentRecord;
-  b4: IFabricationRecord;
-  b5: IOtherServicesRecord;
-  b6: IProfessionalServicesRecord;
+  b2: IProcurementRecord[];
+  b3: IEquipmentRecord[];
+  b4: IFabricationRecord[];
+  b5: IOtherServicesRecord[];
+  b6: IProfessionalServicesRecord[];
 }
 
 export interface IPersonnelRecords {

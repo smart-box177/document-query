@@ -39,17 +39,17 @@ const defaultInitialData: Partial<IApplication> = {
     operatorDesignation: '',
     operatorDate: '',
   },
-  sectionB: {
+    sectionB: {
     b1: {
       b1_0: { id: '1', jobPosition: '', companyName: '', totalPersonnel: '', nigerianNationality: '', foreignNationality: '', inCountryNigerian: '', inCountryExpat: '', outCountryNigerian: '', outCountryExpat: '', ncManhours: '', ncSpendValue: '', foreignSpendValue: '', totalSpendValue: '', ncSpendPercent: '' },
       b1_1: { id: '2', jobPosition: '', companyName: '', totalPersonnel: '', nigerianNationality: '', foreignNationality: '', inCountryNigerian: '', inCountryExpat: '', outCountryNigerian: '', outCountryExpat: '', ncManhours: '', ncSpendValue: '', foreignSpendValue: '', totalSpendValue: '', ncSpendPercent: '' },
       b1_2: { id: '3', jobPosition: '', companyName: '', totalPersonnel: '', nigerianNationality: '', foreignNationality: '', inCountryNigerian: '', inCountryExpat: '', outCountryNigerian: '', outCountryExpat: '', ncManhours: '', ncSpendValue: '', foreignSpendValue: '', totalSpendValue: '', ncSpendPercent: '' },
     },
-    b2: { id: '1', procurementItem: '', manufacturedInCountry: '', inCountryVendor: '', outCountryVendor: '', uom: '', procuredInCountry: '', procuredOutCountry: '', ncPercent: '', ncValue: '', foreignValue: '', totalValue: '', ncSpendPercent: '' },
-    b3: { id: '1', equipmentName: '', availableInCountry: '', inCountryOwner: '', outCountryOwner: '', nigerianOwnership: '', foreignOwnership: '', ncPercent: '', ncValue: '', foreignValue: '', totalValue: '', ncSpendPercent: '' },
-    b4: { id: '1', itemName: '', inCountryFabricationYard: '', outCountryFabricationYard: '', uom: '', fabricatedInCountry: '', fabricatedOutCountry: '', ncPercentTonage: '', ncValue: '', foreignValue: '', totalValue: '', ncSpendPercent: '' },
-    b5: { id: '1', itemName: '', inCountryVendor: '', outCountryVendor: '', uom: '', executedInCountry: '', executedOutCountry: '', ncPercent: '', ncValue: '', foreignValue: '', totalValue: '', ncSpendPercent: '' },
-    b6: { id: '1', itemName: '', inCountryFirm: '', outCountryFirm: '', uom: '', executedInCountry: '', executedOutCountry: '', ncPercent: '', ncValue: '', foreignValue: '', totalValue: '', ncSpendPercent: '' },
+    b2: [{ id: '1', procurementItem: '', manufacturedInCountry: '', inCountryVendor: '', outCountryVendor: '', uom: '', procuredInCountry: '', procuredOutCountry: '', ncPercent: '', ncValue: '', foreignValue: '', totalValue: '', ncSpendPercent: '' }],
+    b3: [{ id: '1', equipmentName: '', availableInCountry: '', inCountryOwner: '', outCountryOwner: '', nigerianOwnership: '', foreignOwnership: '', ncPercent: '', ncValue: '', foreignValue: '', totalValue: '', ncSpendPercent: '' }],
+    b4: [{ id: '1', itemName: '', inCountryFabricationYard: '', outCountryFabricationYard: '', uom: '', fabricatedInCountry: '', fabricatedOutCountry: '', ncPercentTonage: '', ncValue: '', foreignValue: '', totalValue: '', ncSpendPercent: '' }],
+    b5: [{ id: '1', itemName: '', inCountryVendor: '', outCountryVendor: '', uom: '', executedInCountry: '', executedOutCountry: '', ncPercent: '', ncValue: '', foreignValue: '', totalValue: '', ncSpendPercent: '' }],
+    b6: [{ id: '1', itemName: '', inCountryFirm: '', outCountryFirm: '', uom: '', executedInCountry: '', executedOutCountry: '', ncPercent: '', ncValue: '', foreignValue: '', totalValue: '', ncSpendPercent: '' }],
   },
   sectionC: {
     c1: { id: '1', trainingScope: '', hcdPercentage: '' },

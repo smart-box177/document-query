@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Plus, Trash2 } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import {
     Drawer,
     DrawerContent,
@@ -20,6 +20,7 @@ import {
     TableHeader,
     TableRow
 } from '@/components/ui/table'
+import { useApplicationFormStore } from '@/store/application-form.store'
 
 interface ProfessionalServicesRecord {
     id: string
@@ -80,28 +81,42 @@ const CellInput = ({
 )
 
 const SectionB6 = () => {
-    const [records, setRecords] = useState<ProfessionalServicesRecord[]>([])
+    const { formData, updateSectionB } = useApplicationFormStore()
     const [open, setOpen] = useState(false)
     const [newRecord, setNewRecord] = useState<Omit<ProfessionalServicesRecord, 'id'>>(emptyRecord())
+    const idCounter = useRef(0)
 
-    const addRecord = () => setRecords((prev) => [...prev, emptyRecord()])
+    // Get existing records from store or initialize with empty
+    const records = formData.sectionB?.b6 || []
+
+    const addRecord = () => {
+        idCounter.current += 1
+        const updatedRecords = [...records, { ...emptyRecord(), id: idCounter.current.toString() }]
+        updateSectionB({ b6: updatedRecords })
+    }
 
     const removeRecord = (id: string) => {
-        if (records.length > 1) setRecords((prev) => prev.filter((r) => r.id !== id))
+        if (records.length > 1) {
+            const updatedRecords = records.filter((r) => r.id !== id)
+            updateSectionB({ b6: updatedRecords })
+        }
     }
 
     const update = (id: string, field: keyof ProfessionalServicesRecord, value: string) => {
-        setRecords((prev) =>
-            prev.map((r) => (r.id === id ? { ...r, [field]: value } : r))
+        const updatedRecords = records.map((r) => 
+            r.id === id ? { ...r, [field]: value } : r
         )
+        updateSectionB({ b6: updatedRecords })
     }
 
     const handleAddRecord = () => {
+        idCounter.current += 1
         const record: ProfessionalServicesRecord = {
             ...newRecord,
-            id: Date.now().toString()
+            id: idCounter.current.toString()
         }
-        setRecords([...records, record])
+        const updatedRecords = [...records, record]
+        updateSectionB({ b6: updatedRecords })
         setNewRecord(emptyRecord())
         setOpen(false)
     }
