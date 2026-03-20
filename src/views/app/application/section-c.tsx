@@ -1,5 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import SectionC1 from './section-c/c1'
+import SectionC2 from './section-c/c2'
+import SectionC3 from './section-c/c3'
 
 const SectionC = () => {
     return (
@@ -21,15 +23,11 @@ const SectionC = () => {
                     </TabsContent>
 
                     <TabsContent value="c2" className="m-0 focus-visible:outline-none">
-                        <div className="flex items-center justify-center p-8 text-muted-foreground bg-muted/20 rounded-lg border border-dashed border-border">
-                            <p>Content for C2 goes here...</p>
-                        </div>
+                        <SectionC2 />
                     </TabsContent>
 
                     <TabsContent value="c3" className="m-0 focus-visible:outline-none">
-                        <div className="flex items-center justify-center p-8 text-muted-foreground bg-muted/20 rounded-lg border border-dashed border-border">
-                            <p>Content for C3 goes here...</p>
-                        </div>
+                        <SectionC3 />
                     </TabsContent>
                 </div>
             </Tabs>
