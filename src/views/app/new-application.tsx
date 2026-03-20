@@ -235,7 +235,8 @@ const NewApplicationSubmission = () => {
                     disabled={activeStep === steps.length && activeCTab === "c3"}
                     className="px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed ml-2"
                   >
-                    {activeStep === steps.length && activeCTab === "c3" ? 'Submit' : 
+                    {activeStep === 1 ? 'Create Application' : 
+                     activeStep === steps.length && activeCTab === "c3" ? 'Submit' : 
                      activeStep === 2 && activeBTab === "b6" ? 'Next Section' : 
                      activeStep === 3 && activeCTab === "c3" ? 'Submit' : 'Next'}
                   </button>
