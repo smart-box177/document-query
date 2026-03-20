@@ -1,9 +1,10 @@
-import React from 'react'
-
-const Dashboard = () => {
-  return (
-    <div>Dashboard</div>
-  )
+const AppDashboard = () => {
+    return (
+        <div>
+            <h1>App Dashboard</h1>
+            <p>Coming soon...</p>
+        </div>
+    )
 }
 
-export default Dashboard
+export default AppDashboard
