@@ -85,6 +85,48 @@ export interface ISectionB {
   b6: ISectionB6;
 }
 
+export interface ISectionB1 {
+  b1_0: IB10;
+  b1_1: IB11;
+  b1_2: ISectionB3;
+}
+
+export interface IB10 {
+    id: string;                      // unique identifier (usually timestamp or uuid)
+    jobPosition: string;
+    companyName: string;             // often includes address
+    totalPersonnel: string;          // kept as string because it's <input type="number"> controlled
+    nigerianNationality: string;
+    foreignNationality: string;
+    inCountryNigerian: string;
+    inCountryExpat: string;
+    outCountryNigerian: string;
+    outCountryExpat: string;
+    ncSpendValue: string;       // Nigerian Content spend
+    foreignSpendValue: string;
+    totalSpendValue: string;
+    ncManhours: string;         // NC% manhours (Nigerian Content %)
+    ncSpendPercent: string;     // NC% spend
+  }
+
+  interface IB11 {
+    id: string
+    jobPosition: string
+    companyName: string
+    totalPersonnel: string
+    nigerianNationality: string
+    foreignNationality: string
+    inCountryNigerian: string
+    inCountryExpat: string
+    outCountryNigerian: string
+    outCountryExpat: string
+    ncManhours: string
+    ncSpendValue: string
+    foreignSpendValue: string
+    totalSpendValue: string
+    ncSpendPercent: string
+}
+
 // Section B1: Equipment
 export interface ISectionB1 {
   // B1.0: General Equipment
