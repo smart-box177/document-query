@@ -20,6 +20,8 @@ import SectionC from "./application/section-c";
 
 const NewApplicationSubmission = () => {
   const [activeStep, setActiveStep] = useState(1);
+  const [activeBTab, setActiveBTab] = useState("b1");
+  const [activeCTab, setActiveCTab] = useState("c1");
 
   const steps = [
     {
@@ -41,6 +43,53 @@ const NewApplicationSubmission = () => {
       icon: <GraduationCapIcon className="size-4" />,
     },
   ];
+
+  const bTabs = ["b1", "b2", "b3", "b4", "b5", "b6"];
+  const cTabs = ["c1", "c2", "c3"];
+
+  const handleNext = () => {
+    if (activeStep === 2) {
+      // Section B sub-tabs
+      const currentBIndex = bTabs.indexOf(activeBTab);
+      if (currentBIndex < bTabs.length - 1) {
+        setActiveBTab(bTabs[currentBIndex + 1]);
+        return;
+      }
+    } else if (activeStep === 3) {
+      // Section C sub-tabs
+      const currentCIndex = cTabs.indexOf(activeCTab);
+      if (currentCIndex < cTabs.length - 1) {
+        setActiveCTab(cTabs[currentCIndex + 1]);
+        return;
+      }
+    }
+    // Move to next main step if all sub-tabs are completed
+    setActiveStep(Math.min(steps.length, activeStep + 1));
+  };
+
+  const handlePrevious = () => {
+    if (activeStep === 2) {
+      // Section B sub-tabs
+      const currentBIndex = bTabs.indexOf(activeBTab);
+      if (currentBIndex > 0) {
+        setActiveBTab(bTabs[currentBIndex - 1]);
+        return;
+      }
+    } else if (activeStep === 3) {
+      // Section C sub-tabs
+      const currentCIndex = cTabs.indexOf(activeCTab);
+      if (currentCIndex > 0) {
+        setActiveCTab(cTabs[currentCIndex - 1]);
+        return;
+      }
+    }
+    // Move to previous main step
+    setActiveStep(Math.max(1, activeStep - 1));
+    // Reset sub-tab to first when moving to a new step
+    if (activeStep === 3) {
+      setActiveBTab("b1");
+    }
+  };
 
   return (
     <div className="container mx-auto pt-2 px-4 overflow-y-hidden">
@@ -121,14 +170,24 @@ const NewApplicationSubmission = () => {
               {/* Section body */}
               <div className="h-[calc(100vh-520px)] min-h-[400px] w-full overflow-y-auto overflow-x-hidden custom-scrollbar">
                 {step.id === 1 && <SectionA />}
-                {step.id === 2 && <SectionB />}
-                {step.id === 3 && <SectionC />}
+                {step.id === 2 && (
+                  <SectionB 
+                    activeTab={activeBTab} 
+                    onTabChange={setActiveBTab}
+                  />
+                )}
+                {step.id === 3 && (
+                  <SectionC 
+                    activeTab={activeCTab} 
+                    onTabChange={setActiveCTab}
+                  />
+                )}
               </div>
 
               <div className="flex justify-between mt-6 pt-4 border-t">
                 <button
-                  onClick={() => setActiveStep(Math.max(1, activeStep - 1))}
-                  disabled={activeStep === 1}
+                  onClick={handlePrevious}
+                  disabled={activeStep === 1 && activeBTab === "b1" && activeCTab === "c1"}
                   className="px-4 py-2 rounded-md border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Previous
@@ -145,11 +204,13 @@ const NewApplicationSubmission = () => {
                     Save
                   </button>
                   <button
-                    onClick={() => setActiveStep(Math.min(steps.length, activeStep + 1))}
-                    disabled={activeStep === steps.length}
+                    onClick={handleNext}
+                    disabled={activeStep === steps.length && activeCTab === "c3"}
                     className="px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed ml-2"
                   >
-                    {activeStep === steps.length ? 'Submit' : 'Next'}
+                    {activeStep === steps.length && activeCTab === "c3" ? 'Submit' : 
+                     activeStep === 2 && activeBTab === "b6" ? 'Next Section' : 
+                     activeStep === 3 && activeCTab === "c3" ? 'Submit' : 'Next'}
                   </button>
                 </div>
               </div>

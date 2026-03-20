@@ -3,14 +3,24 @@ import SectionC1 from './section-c/c1'
 import SectionC2 from './section-c/c2'
 import SectionC3 from './section-c/c3'
 
-const SectionC = () => {
+interface SectionCProps {
+  activeTab?: string;
+  onTabChange?: (value: string) => void;
+}
+
+const SectionC = ({ activeTab = "c1", onTabChange }: SectionCProps) => {
     return (
         <div className="flex flex-col gap-6 py-4">
             <div className="mb-2">
                 <p className="text-sm text-muted-foreground mt-1">Please fill out sections C1 through C3 below.</p>
             </div>
 
-            <Tabs defaultValue="c1" className="w-full relative">
+            <Tabs 
+                defaultValue="c1" 
+                value={activeTab} 
+                onValueChange={onTabChange}
+                className="w-full relative"
+            >
                 <TabsList className="grid w-full grid-cols-3 mb-4 gap-1 h-auto bg-muted/50 p-1 rounded-xl">
                     <TabsTrigger className="py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary font-medium" value="c1">Section C1</TabsTrigger>
                     <TabsTrigger className="py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary font-medium" value="c2">Section C2</TabsTrigger>

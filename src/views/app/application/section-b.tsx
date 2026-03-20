@@ -7,14 +7,24 @@ import SectionB4 from './section-b/b4'
 import SectionB5 from './section-b/b5'
 import SectionB6 from './section-b/b6'
 
-const SectionB = () => {
+interface SectionBProps {
+  activeTab?: string;
+  onTabChange?: (value: string) => void;
+}
+
+const SectionB = ({ activeTab = "b1", onTabChange }: SectionBProps) => {
     return (
         <div className="flex flex-col gap-6 py-1">
             <div className="">
                 <p className="text-sm text-muted-foreground">Please fill out sections B1 through B6 below.</p>
             </div>
 
-            <Tabs defaultValue="b1" className="w-full relative">
+            <Tabs 
+                defaultValue="b1" 
+                value={activeTab} 
+                onValueChange={onTabChange}
+                className="w-full relative"
+            >
                 <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 mb-1 gap-1 h-auto bg-muted/50 p-1 rounded-xl">
                     <TabsTrigger className="py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary font-medium" value="b1">Section B1</TabsTrigger>
                     <TabsTrigger className="py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary font-medium" value="b2">Section B2</TabsTrigger>
