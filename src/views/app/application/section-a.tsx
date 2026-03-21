@@ -63,11 +63,12 @@ const SectionA = () => {
                 <div className="hidden lg:block"></div>
 
                 {/* Grid Fields */}
-                <FloatingInput
-                    label="Ref. No."
-                    value={localData.referenceNumber}
-                    onChange={(e) => handleChange('referenceNumber', e.target.value)}
-                />
+                 <FloatingInput
+                     label="Ref. No."
+                     disabled
+                     value={localData.referenceNumber}
+                     onChange={(e) => handleChange('referenceNumber', e.target.value)}
+                 />
                 <FloatingInput
                     label="Date and Ref Inc Plan Approval"
                     value={localData.dateAndRefIncPlanApproval}

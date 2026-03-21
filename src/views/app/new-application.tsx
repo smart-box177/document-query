@@ -165,9 +165,14 @@ const NewApplicationSubmission = () => {
 
   return (
     <div className="container mx-auto pt-2 px-4 overflow-y-hidden">
-      <h1 className="text-xl font-bold my-2">
-        NCCC New Application Submission
-      </h1>
+       <h1 className="text-xl font-bold my-2 flex items-center gap-2">
+         NCCC New Application Submission
+         {formData.sectionA?.referenceNumber && (
+           <span className="text-muted-foreground text-sm">
+             (Ref. No.: {formData.sectionA.referenceNumber})
+           </span>
+         )}
+       </h1>
 
       <Stepper
         value={activeStep}
