@@ -73,11 +73,12 @@ const SectionA = () => {
                     value={localData.dateAndRefIncPlanApproval}
                     onChange={(e) => handleChange('dateAndRefIncPlanApproval', e.target.value)}
                 />
-                <FloatingInput
-                    label="Total Contract Value"
-                    value={localData.totalContractValue}
-                    onChange={(e) => handleChange('totalContractValue', e.target.value)}
-                />
+                 <FloatingInput
+                     label="Total Contract Value"
+                     disabled
+                     value={localData.totalContractValue}
+                     onChange={(e) => handleChange('totalContractValue', e.target.value)}
+                 />
 
                 <FloatingInput
                     label="Name of Operator / Project Promoter"
@@ -89,11 +90,12 @@ const SectionA = () => {
                     value={localData.dateAndRefNCDMBTechEvaluation}
                     onChange={(e) => handleChange('dateAndRefNCDMBTechEvaluation', e.target.value)}
                 />
-                <FloatingInput
-                    label="Total NC Value"
-                    value={localData.totalNCValue}
-                    onChange={(e) => handleChange('totalNCValue', e.target.value)}
-                />
+                 <FloatingInput
+                     label="Total NC Value"
+                     disabled
+                     value={localData.totalNCValue}
+                     onChange={(e) => handleChange('totalNCValue', e.target.value)}
+                 />
 
                 <FloatingInput
                     label="Contract / Project Title"
@@ -105,11 +107,12 @@ const SectionA = () => {
                     value={localData.dateAndRefNCDMBCommEvaluation}
                     onChange={(e) => handleChange('dateAndRefNCDMBCommEvaluation', e.target.value)}
                 />
-                <FloatingInput
-                    label="1% NCDF: Being the sum of one percent of contract awarded"
-                    value={localData.onePercentNCDF}
-                    onChange={(e) => handleChange('onePercentNCDF', e.target.value)}
-                />
+                 <FloatingInput
+                     label="1% NCDF: Being the sum of one percent of contract awarded"
+                     disabled
+                     value={localData.onePercentNCDF}
+                     onChange={(e) => handleChange('onePercentNCDF', e.target.value)}
+                 />
 
                 <FloatingInput
                     label="Contract / Project Number"
@@ -121,11 +124,12 @@ const SectionA = () => {
                     value={localData.commencementDate}
                     onChange={(e) => handleChange('commencementDate', e.target.value)}
                 />
-                <FloatingInput
-                    label="NCDMB HCD Training Budget (% of TCV)"
-                    value={localData.ncdmbHcdTrainingBudgetPercent}
-                    onChange={(e) => handleChange('ncdmbHcdTrainingBudgetPercent', e.target.value)}
-                />
+                 <FloatingInput
+                     label="NCDMB HCD Training Budget (% of TCV)"
+                     disabled
+                     value={localData.ncdmbHcdTrainingBudgetPercent}
+                     onChange={(e) => handleChange('ncdmbHcdTrainingBudgetPercent', e.target.value)}
+                 />
 
                 <FloatingInput
                     label="Date of Commencement of Bid"
