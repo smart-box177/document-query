@@ -72,6 +72,7 @@ const NewApplicationSubmission = () => {
     saveAndSubmit,
     clearCurrentApplication,
     currentApplication,
+    applications,
     isLoading,
     error,
   } = useApplicationStore();
@@ -223,9 +224,9 @@ const NewApplicationSubmission = () => {
        <h1 className="text-xl font-bold my-2 flex items-center justify-between">
          <div className="flex items-center gap-2">
            NCCC New Application Submission
-           {formData.sectionA?.referenceNumber && (
+           {currentApplication && (
              <span className="text-muted-foreground text-sm">
-               (Ref. No.: {formData.sectionA.referenceNumber})
+               (Ref. No.: {applications.find(app => app._id === currentApplication?._id)?.sectionA.referenceNumber || "N/A"})
              </span>
            )}
          </div>

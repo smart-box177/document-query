@@ -84,9 +84,9 @@ const SectionA = () => {
 
         <FloatingInput
           label="Name of Operator / Project Promoter"
-          value={localData.operatorOrProjectPromoter}
+          value={localData.operatorName}
           onChange={(e) =>
-            handleChange("operatorOrProjectPromoter", e.target.value)
+            handleChange("operatorName", e.target.value)
           }
         />
         <FloatingInput

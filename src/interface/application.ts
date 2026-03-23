@@ -1,5 +1,6 @@
 // Application interface
 export interface IApplication {
+  _id?: string; 
   id?: string;
   contractId?: string;
   userId?: string;
