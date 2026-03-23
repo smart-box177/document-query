@@ -4,7 +4,7 @@ export interface IApplication {
   id?: string;
   contractId?: string;
   userId?: string;
-  status?: "DRAFT" | "SUBMITTED" | "REVIWING" | "APPROVED" | "REJECTED";
+  status?: "DRAFT" | "SUBMITTED" | "REVIEWING" | "APPROVED" | "REJECTED";
   createdAt?: Date;
   updatedAt?: Date;
 

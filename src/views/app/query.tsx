@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, FileText, RefreshCw, Filter, MoreHorizontalIcon } from "lucide-react";
-import { columns as contractColumns } from "./contracts/columns";
+import { Loader2, Filter, MoreHorizontalIcon } from "lucide-react";
 import { DataTable } from "./contracts/data-table";
-import { useContractStore } from "@/store/contract.store";
+import { useApplicationStore } from "@/store/application.store";
+import { useApplicationFormStore } from "@/store/application-form.store";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -14,79 +14,44 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-// Dummy application data
-interface Application {
-  id: string;
-  contractId: string;
-  contractTitle: string;
-  contractorName: string;
-  status: "APPROVED" | "REJECTED" | "REVIEWING" | "DRAFT" | "SUBMITTED";
-  submittedDate: string;
-  reviewedBy: string;
-}
-
-const dummyApplications: Application[] = [
-  {
-    id: "1",
-    contractId: "123",
-    contractTitle: "Oil Pipeline Construction",
-    contractorName: "Nigerian Construction Company",
-    status: "APPROVED",
-    submittedDate: "2024-01-15",
-    reviewedBy: "John Doe",
-  },
-  {
-    id: "2",
-    contractId: "456",
-    contractTitle: "Refinery Maintenance",
-    contractorName: "Global Engineering Services",
-    status: "REJECTED",
-    submittedDate: "2024-01-18",
-    reviewedBy: "Jane Smith",
-  },
-  {
-    id: "3",
-    contractId: "789",
-    contractTitle: "Offshore Platform Installation",
-    contractorName: "Marine Engineering Ltd",
-    status: "REVIEWING",
-    submittedDate: "2024-01-20",
-    reviewedBy: "Pending",
-  },
-  {
-    id: "4",
-    contractId: "101",
-    contractTitle: "Gas Processing Plant Upgrade",
-    contractorName: "Energy Solutions Inc",
-    status: "DRAFT",
-    submittedDate: "2024-01-22",
-    reviewedBy: "Pending",
-  },
-  {
-    id: "5",
-    contractId: "102",
-    contractTitle: "Drilling Rig Maintenance",
-    contractorName: "Drilling Services Co.",
-    status: "SUBMITTED",
-    submittedDate: "2024-01-25",
-    reviewedBy: "Pending",
-  },
-];
+// import type { IApplication } from "@/interface/application";
 
 const Query = () => {
   const [activeStatus, setActiveStatus] = useState("all");
+
   const {
-    contracts,
-    isLoading,
-    fetchContracts,
-  } = useContractStore();
+    applications,
+    isLoading: appsLoading,
+    fetchApplications,
+  } = useApplicationStore();
 
-  // Filter applications by status
+  const {
+    formData,
+  } = useApplicationFormStore();
+
+  const hasLocalDraft = Object.keys(formData).length > 1;
+
+  useEffect(() => {
+    fetchApplications();
+  }, [fetchApplications]);
+
+  // Filter applications by status - any[] to handle local draft
+  const tableData: any[] = activeStatus === "local" 
+    ? hasLocalDraft ? [{
+        id: "local-draft",
+        status: "DRAFT",
+        sectionA: formData.sectionA || { contractProjectTitle: "Unsaved Draft", mainContractor: "N/A" },
+        createdAt: new Date().toISOString(),
+      }] : []
+    : applications;
+    
   const filteredApplications = activeStatus === "all" 
-    ? dummyApplications 
-    : dummyApplications.filter(app => app.status === activeStatus);
+    ? tableData 
+    : tableData.filter((app: any) => app.status === activeStatus);
 
-  // Table columns for applications
+  const isLoadingTable = appsLoading;
+
+  // Table columns for applications (updated for real IApplication data)
   const applicationColumns = [
     {
       id: "select",
@@ -113,29 +78,33 @@ const Query = () => {
     {
       header: "Contract ID",
       accessorKey: "contractId",
+      cell: ({ row }: any) => row.original.contractId || row.original.sectionA?.contractProjectNumber || "-",
     },
     {
       header: "Contract Title",
       accessorKey: "contractTitle",
+      cell: ({ row }: any) => row.original.sectionA?.contractProjectTitle || "-",
     },
     {
       header: "Contractor",
       accessorKey: "contractorName",
+      cell: ({ row }: any) => row.original.sectionA?.mainContractor || "-",
     },
     {
       header: "Status",
       accessorKey: "status",
-      cell: (info: { getValue: () => unknown }) => {
-        const status = info.getValue() as Application["status"];
-        const colors = {
+      cell: ({ row }: any) => {
+        const status = row.original.status;
+        const colors: Record<string, string> = {
           APPROVED: "bg-green-100 text-green-800",
           REJECTED: "bg-red-100 text-red-800",
           REVIEWING: "bg-yellow-100 text-yellow-800",
+          REVIWING: "bg-yellow-100 text-yellow-800",
           DRAFT: "bg-blue-100 text-blue-800",
           SUBMITTED: "bg-purple-100 text-purple-800",
         };
         return (
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors[status] || "bg-gray-100 text-gray-800"}`}>
+          <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors[status as keyof typeof colors] || "bg-gray-100 text-gray-800"}`}>
             {status}
           </span>
         );
@@ -144,10 +113,12 @@ const Query = () => {
     {
       header: "Submitted Date",
       accessorKey: "submittedDate",
+      cell: ({ row }: any) => row.original.createdAt ? new Date(row.original.createdAt).toLocaleDateString() : "-",
     },
     {
       header: "Reviewed By",
       accessorKey: "reviewedBy",
+      cell: () => "Pending",
     },
     {
       id: "actions",
@@ -185,76 +156,55 @@ const Query = () => {
 
       {/* Status Tabs */}
       <Tabs value={activeStatus} onValueChange={setActiveStatus} className="w-full">
-        <TabsList className="grid grid-cols-6 mb-6">
+        <TabsList className="grid grid-cols-7 mb-6">
           <TabsTrigger value="all" className="flex items-center gap-2">
             <Filter className="h-4 w-4" />
-            All ({dummyApplications.length})
+            All ({applications.length})
           </TabsTrigger>
           <TabsTrigger value="APPROVED" className="flex items-center gap-2">
-            Approved ({dummyApplications.filter(app => app.status === "APPROVED").length})
+            Approved ({applications.filter(app => app.status === "APPROVED").length})
           </TabsTrigger>
           <TabsTrigger value="REJECTED" className="flex items-center gap-2">
-            Rejected ({dummyApplications.filter(app => app.status === "REJECTED").length})
+            Rejected ({applications.filter(app => app.status === "REJECTED").length})
           </TabsTrigger>
           <TabsTrigger value="REVIEWING" className="flex items-center gap-2">
-            Reviewing ({dummyApplications.filter(app => app.status === "REVIEWING").length})
+            Reviewing ({applications.filter(app => app.status === "REVIEWING").length})
           </TabsTrigger>
           <TabsTrigger value="DRAFT" className="flex items-center gap-2">
-            Draft ({dummyApplications.filter(app => app.status === "DRAFT").length})
+            Draft ({applications.filter(app => app.status === "DRAFT").length})
           </TabsTrigger>
           <TabsTrigger value="SUBMITTED" className="flex items-center gap-2">
-            Submitted ({dummyApplications.filter(app => app.status === "SUBMITTED").length})
+            Submitted ({applications.filter(app => app.status === "SUBMITTED").length})
+          </TabsTrigger>
+          <TabsTrigger value="local" className="flex items-center gap-2">
+            Local Drafts ({hasLocalDraft ? 1 : 0})
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value={activeStatus} className="mt-0">
           {/* Applications Table */}
-          <div className="bg-white rounded-lg shadow p-3">
-            <div className="p-4 border-b border-gray-200">
-              <h2 className="text-lg font-semibold">
-                {activeStatus === "all" ? "All Applications" : `${activeStatus} Applications`}
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                Showing {filteredApplications.length} application{filteredApplications.length !== 1 ? "s" : ""}
-              </p>
-            </div>
-            
-            <DataTable columns={applicationColumns} data={filteredApplications} />
+          <div className="bg-card rounded-lg border shadow-sm">
+            {isLoadingTable ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground mr-2" />
+                <span className="text-muted-foreground">Loading applications...</span>
+              </div>
+            ) : (
+              <>
+                <div className="p-4 border-b border-border">
+                  <h2 className="text-lg font-semibold text-foreground">
+                    {activeStatus === "local" ? "Local Drafts" : activeStatus === "all" ? "All Applications" : `${activeStatus} Applications`}
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
+                    Showing {filteredApplications.length} application{filteredApplications.length !== 1 ? "s" : ""}
+                  </p>
+                </div>
+                <DataTable columns={applicationColumns} data={filteredApplications} />
+              </>
+            )}
           </div>
         </TabsContent>
       </Tabs>
-
-      {/* Contracts Information */}
-      <div className="mt-8">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold">NCCC Contracts</h2>
-            <Button
-            onClick={() => fetchContracts({})}
-            variant="outline"
-            size="sm"
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <RefreshCw className="h-4 w-4" />
-            )}
-            <span className="ml-2">Refresh</span>
-          </Button>
-        </div>
-        
-        {contracts.length > 0 ? (
-          <DataTable columns={contractColumns} data={contracts} />
-        ) : (
-          <div className="flex flex-col items-center justify-center py-10 bg-white rounded-lg shadow">
-            <FileText className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium mb-2">No contracts found</h3>
-            <p className="text-muted-foreground mb-4">
-              There are no NCCC contracts in the database yet.
-            </p>
-          </div>
-        )}
-      </div>
     </div>
   );
 };
