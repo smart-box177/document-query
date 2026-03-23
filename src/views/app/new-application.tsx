@@ -70,6 +70,7 @@ const NewApplicationSubmission = () => {
     createApplication,
     saveAsDraft,
     saveAndSubmit,
+    clearCurrentApplication,
     currentApplication,
     isLoading,
     error,
@@ -79,6 +80,7 @@ const NewApplicationSubmission = () => {
 
   const handleNewApplication = () => {
     resetForm();
+    clearCurrentApplication();
     setActiveStep(1);
     setActiveBTab("b1");
     setActiveB1SubTab("b1-0");
