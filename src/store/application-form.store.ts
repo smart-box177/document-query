@@ -2,6 +2,8 @@
 import { create } from 'zustand';
 import type { IApplication, ISectionA } from '@/interface/application';
 
+const STORAGE_KEY = 'application-form-data';
+
 interface ApplicationFormState {
   formData: Partial<IApplication>;
   updateFormData: (data: Partial<IApplication>) => void;
@@ -10,6 +12,34 @@ interface ApplicationFormState {
   updateSectionC: (data: any) => void;
   resetForm: () => void;
 }
+
+const loadFromLocalStorage = (): Partial<IApplication> => {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      return JSON.parse(stored);
+    }
+  } catch (error) {
+    console.error('Error loading form data from localStorage:', error);
+  }
+  return defaultInitialData;
+};
+
+const saveToLocalStorage = (data: Partial<IApplication>) => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch (error) {
+    console.error('Error saving form data to localStorage:', error);
+  }
+};
+
+const clearLocalStorage = () => {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch (error) {
+    console.error('Error clearing form data from localStorage:', error);
+  }
+};
 
 const defaultInitialData: Partial<IApplication> = {
   sectionA: {
@@ -150,19 +180,23 @@ const calculateNCDMBHcdTrainingBudgetPercent = (sectionC: any): string => {
 };
 
 export const useApplicationFormStore = create<ApplicationFormState>()((set) => ({
-  formData: defaultInitialData,
+  formData: loadFromLocalStorage(),
   updateFormData: (data: Partial<IApplication>) => {
-    set((state) => ({
-      formData: { ...state.formData, ...data },
-    }));
+    set((state) => {
+      const newData = { ...state.formData, ...data };
+      saveToLocalStorage(newData);
+      return { formData: newData };
+    });
   },
   updateSectionA: (data: any) => {
-    set((state) => ({
-      formData: {
+    set((state) => {
+      const newData = {
         ...state.formData,
         sectionA: { ...state.formData.sectionA, ...data },
-      },
-    }));
+      };
+      saveToLocalStorage(newData);
+      return { formData: newData };
+    });
   },
   updateSectionB: (data: any) => {
     set((state) => {
@@ -171,18 +205,18 @@ export const useApplicationFormStore = create<ApplicationFormState>()((set) => (
       const totalNCValue = calculateTotalNCValue(newSectionB);
       const onePercentNCDF = calculateOnePercentNCDF(totalContractValue);
       
-      return {
-        formData: {
-          ...state.formData,
-          sectionB: newSectionB,
-          sectionA: {
-            ...state.formData.sectionA,
-            totalContractValue,
-            totalNCValue,
-            onePercentNCDF,
-          } as ISectionA,
-        },
+      const newData = {
+        ...state.formData,
+        sectionB: newSectionB,
+        sectionA: {
+          ...state.formData.sectionA,
+          totalContractValue,
+          totalNCValue,
+          onePercentNCDF,
+        } as ISectionA,
       };
+      saveToLocalStorage(newData);
+      return { formData: newData };
     });
   },
   updateSectionC: (data: any) => {
@@ -190,19 +224,20 @@ export const useApplicationFormStore = create<ApplicationFormState>()((set) => (
       const newSectionC = { ...state.formData.sectionC, ...data };
       const ncdmbHcdTrainingBudgetPercent = calculateNCDMBHcdTrainingBudgetPercent(newSectionC);
       
-      return {
-        formData: {
-          ...state.formData,
-          sectionC: newSectionC,
-          sectionA: {
-            ...state.formData.sectionA,
-            ncdmbHcdTrainingBudgetPercent,
-          } as ISectionA,
-        },
+      const newData = {
+        ...state.formData,
+        sectionC: newSectionC,
+        sectionA: {
+          ...state.formData.sectionA,
+          ncdmbHcdTrainingBudgetPercent,
+        } as ISectionA,
       };
+      saveToLocalStorage(newData);
+      return { formData: newData };
     });
   },
   resetForm: () => {
+    clearLocalStorage();
     set({ formData: defaultInitialData });
   },
 }));

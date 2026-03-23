@@ -11,7 +11,7 @@ import {
   StepperContent,
   StepperDescription,
 } from "@/components/reui/stepper";
-import { FileTextIcon, GraduationCapIcon, ListIcon } from "lucide-react";
+import { FileTextIcon, GraduationCapIcon, ListIcon, PlusIcon } from "lucide-react";
 import { Badge } from "@/components/reui/badge";
 import { useApplicationStore } from "@/store/application.store";
 import { useApplicationFormStore } from "@/store/application-form.store";
@@ -75,7 +75,16 @@ const NewApplicationSubmission = () => {
     error,
   } = useApplicationStore();
 
-  const { formData } = useApplicationFormStore();
+  const { formData, resetForm } = useApplicationFormStore();
+
+  const handleNewApplication = () => {
+    resetForm();
+    setActiveStep(1);
+    setActiveBTab("b1");
+    setActiveB1SubTab("b1-0");
+    setActiveCTab("c1");
+    toast.success("Form cleared. You can start a new application.");
+  };
 
   const handleCreateApplication = async () => {
     const success = await createApplication(formData);
@@ -100,6 +109,11 @@ const NewApplicationSubmission = () => {
     const success = await saveAndSubmit(formData, currentApplication?.id);
     if (success) {
       toast.success("Application submitted successfully");
+      resetForm();
+      setActiveStep(1);
+      setActiveBTab("b1");
+      setActiveB1SubTab("b1-0");
+      setActiveCTab("c1");
     } else if (error) {
       toast.error(error);
     }
@@ -213,9 +227,18 @@ const NewApplicationSubmission = () => {
              </span>
            )}
          </div>
-         <Badge variant="outline" className="text-sm font-semibold">
-           {calculateCompletionPercentage(formData)}% Complete
-         </Badge>
+         <div className="flex items-center gap-3">
+           <Badge variant="outline" className="text-sm font-semibold">
+             {calculateCompletionPercentage(formData)}% Complete
+           </Badge>
+           <button
+             onClick={handleNewApplication}
+             className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground text-sm font-medium"
+           >
+             <PlusIcon className="size-4" />
+             New Application
+           </button>
+         </div>
        </h1>
 
       <Stepper
@@ -329,7 +352,7 @@ const NewApplicationSubmission = () => {
                   </button>
                   <button
                     onClick={
-                      activeStep === 1
+                      activeStep === 1 && !currentApplication
                         ? handleCreateApplication
                         : activeStep === steps.length && activeCTab === "c3"
                         ? handleSubmit
@@ -343,7 +366,7 @@ const NewApplicationSubmission = () => {
                     }
                     className="px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed ml-2"
                   >
-                    {activeStep === 1
+                    {activeStep === 1 && !currentApplication
                       ? "Create Application"
                       : activeStep === steps.length && activeCTab === "c3"
                       ? "Submit"
