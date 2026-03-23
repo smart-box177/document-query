@@ -14,8 +14,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-// import type { IApplication } from "@/interface/application";
-
 const Query = () => {
   const [activeStatus, setActiveStatus] = useState("all");
 
