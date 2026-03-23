@@ -70,16 +70,61 @@ const CellInput = ({
     onChange: (v: string) => void
     type?: string
     placeholder?: string
-}) => (
-    <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        className="w-full bg-transparent border-0 outline-none text-sm text-center px-1 py-1 placeholder:text-muted-foreground/40 focus:bg-primary/5 rounded transition-colors"
-        style={{ minWidth: 0 }}
-    />
-)
+}) => {
+    const [isEditing, setIsEditing] = useState(false)
+    const [editValue, setEditValue] = useState(value)
+
+    const handleBlur = () => {
+        setIsEditing(false)
+        if (editValue !== value) {
+            onChange(editValue)
+        }
+    }
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            setIsEditing(false)
+            if (editValue !== value) {
+                onChange(editValue)
+            }
+        } else if (e.key === 'Escape') {
+            setIsEditing(false)
+            setEditValue(value)
+        }
+    }
+
+    const handleClick = () => {
+        if (!isEditing) {
+            setIsEditing(true)
+            setEditValue(value)
+        }
+    }
+
+    if (isEditing) {
+        return (
+            <input
+                type={type}
+                value={editValue}
+                onChange={(e) => setEditValue(e.target.value)}
+                onBlur={handleBlur}
+                onKeyDown={handleKeyDown}
+                placeholder={placeholder}
+                autoFocus
+                className="w-full bg-transparent border-0 outline-none text-sm text-center px-1 py-1 placeholder:text-muted-foreground/40 focus:bg-primary/5 rounded transition-colors text-wrap"
+                style={{ minWidth: 0 }}
+            />
+        )
+    }
+
+    return (
+        <div
+            onClick={handleClick}
+            className="w-full text-sm text-center px-1 py-1 cursor-pointer hover:bg-muted/30 rounded transition-colors text-wrap min-h-[1.75rem] flex items-center justify-center"
+        >
+            {value || <span className="text-muted-foreground/40">{placeholder}</span>}
+        </div>
+    )
+}
 
 const SectionB11 = () => {
     const { formData, updateSectionB } = useApplicationFormStore()
@@ -330,7 +375,7 @@ const SectionB11 = () => {
                             {/* Company */}
                             <th
                                 rowSpan={3}
-                                className="border border-border/50 px-2 py-2 text-center font-semibold w-36"
+                                className="border border-border/50 px-2 py-2 text-center font-semibold w-36 whitespace-normal"
                             >
                                 Name & Address of Company Providing Each Job Position
                             </th>
@@ -344,14 +389,14 @@ const SectionB11 = () => {
                             {/* Nationality */}
                             <th
                                 colSpan={2}
-                                className="border border-border/50 px-2 py-2 text-center font-semibold"
+                                className="border border-border/50 px-2 py-2 text-center font-semibold whitespace-normal"
                             >
                                 Nationality of Personnel (State in Figures)
                             </th>
                             {/* Work Scope */}
                             <th
                                 colSpan={4}
-                                className="border border-border/50 px-2 py-2 text-center font-semibold"
+                                className="border border-border/50 px-2 py-2 text-center font-semibold whitespace-normal"
                             >
                                 Work Scope Domiciliation (Manhours)
                             </th>
@@ -365,7 +410,7 @@ const SectionB11 = () => {
                             {/* FUSD columns */}
                             <th
                                 colSpan={3}
-                                className="border border-border/50 px-2 py-2 text-center font-semibold"
+                                className="border border-border/50 px-2 py-2 text-center font-semibold whitespace-normal"
                             >
                                 FUSD
                             </th>
@@ -390,10 +435,10 @@ const SectionB11 = () => {
                             <th className="border border-border/50 px-2 py-1 text-center font-medium" rowSpan={2}>Nigerian</th>
                             <th className="border border-border/50 px-2 py-1 text-center font-medium" rowSpan={2}>Foreign</th>
                             {/* Work scope sub */}
-                            <th colSpan={2} className="border border-border/50 px-2 py-1 text-center font-medium">
+                            <th colSpan={2} className="border border-border/50 px-2 py-1 text-center font-medium whitespace-normal">
                                 In-Country (Manhours)
                             </th>
-                            <th colSpan={2} className="border border-border/50 px-2 py-1 text-center font-medium">
+                            <th colSpan={2} className="border border-border/50 px-2 py-1 text-center font-medium whitespace-normal">
                                 Out-Country (Manhours)
                             </th>
                             {/* FUSD sub */}
