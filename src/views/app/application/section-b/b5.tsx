@@ -68,17 +68,62 @@ const CellInput = ({
     type?: string
     placeholder?: string
     step?: string
-}) => (
-    <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        step={step}
-        className="w-full bg-transparent border-0 outline-none text-sm text-center px-1 py-1 placeholder:text-muted-foreground/40 focus:bg-primary/5 rounded transition-colors"
-        style={{ minWidth: 0 }}
-    />
-)
+}) => {
+    const [isEditing, setIsEditing] = useState(false)
+    const [editValue, setEditValue] = useState(value)
+
+    const handleBlur = () => {
+        setIsEditing(false)
+        if (editValue !== value) {
+            onChange(editValue)
+        }
+    }
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            setIsEditing(false)
+            if (editValue !== value) {
+                onChange(editValue)
+            }
+        } else if (e.key === 'Escape') {
+            setIsEditing(false)
+            setEditValue(value)
+        }
+    }
+
+    const handleClick = () => {
+        if (!isEditing) {
+            setIsEditing(true)
+            setEditValue(value)
+        }
+    }
+
+    if (isEditing) {
+        return (
+            <input
+                type={type}
+                value={editValue}
+                onChange={(e) => setEditValue(e.target.value)}
+                onBlur={handleBlur}
+                onKeyDown={handleKeyDown}
+                placeholder={placeholder}
+                step={step}
+                autoFocus
+                className="w-full bg-transparent border-0 outline-none text-sm text-center px-1 py-1 placeholder:text-muted-foreground/40 focus:bg-primary/5 rounded transition-colors text-wrap"
+                style={{ minWidth: 0 }}
+            />
+        )
+    }
+
+    return (
+        <div
+            onClick={handleClick}
+            className="w-full text-sm text-center px-1 py-1 cursor-pointer hover:bg-muted/30 rounded transition-colors text-wrap min-h-[1.75rem] flex items-center justify-center"
+        >
+            {value || <span className="text-muted-foreground/40">{placeholder}</span>}
+        </div>
+    )
+}
 
 const SectionB5 = () => {
     const { formData, updateSectionB } = useApplicationFormStore()
@@ -283,23 +328,23 @@ const SectionB5 = () => {
                                 S/N
                             </TableHead>
                             {/* Item Name */}
-                            <TableHead rowSpan={2} className="w-32 text-center border border-border/50 px-2 py-2 font-semibold">
+                            <TableHead rowSpan={2} className="w-32 text-center border border-border/50 px-2 py-2 font-semibold whitespace-normal">
                                 ITEMS <br />(List Services)
                             </TableHead>
                             {/* Vendor Details */}
-                            <TableHead colSpan={2} className="text-center border border-border/50 px-2 py-2 font-semibold">
+                            <TableHead colSpan={2} className="text-center border border-border/50 px-2 py-2 font-semibold whitespace-normal">
                                 VENDOR DETAILS & LOCATION
                             </TableHead>
                             {/* UoM */}
-                            <TableHead rowSpan={2} className="w-24 text-center border border-border/50 px-2 py-2 font-semibold">
+                            <TableHead rowSpan={2} className="w-24 text-center border border-border/50 px-2 py-2 font-semibold whitespace-normal">
                                 UoM <br />(Hours/Tonnes/Numbers of Items/Length)
                             </TableHead>
                             {/* Other Related Services Activity */}
-                            <TableHead colSpan={3} className="text-center border border-border/50 px-2 py-2 font-semibold">
+                            <TableHead colSpan={3} className="text-center border border-border/50 px-2 py-2 font-semibold whitespace-normal">
                                 OTHER RELATED SERVICES ACTIVITY
                             </TableHead>
                             {/* Value */}
-                            <TableHead colSpan={3} className="text-center border border-border/50 px-2 py-2 font-semibold">
+                            <TableHead colSpan={3} className="text-center border border-border/50 px-2 py-2 font-semibold whitespace-normal">
                                 VALUE <br />(FUSD)
                             </TableHead>
                             {/* NC% Spend */}
@@ -314,17 +359,17 @@ const SectionB5 = () => {
 
                         <TableRow className="bg-muted/40 text-muted-foreground">
                             {/* Vendor sub-columns */}
-                            <TableHead className="text-center border border-border/50 px-2 py-1 font-medium">
+                            <TableHead className="text-center border border-border/50 px-2 py-1 font-medium whitespace-normal">
                                 NAME & ADDRESS OF IN-COUNTRY VENDOR
                             </TableHead>
-                            <TableHead className="text-center border border-border/50 px-2 py-1 font-medium">
+                            <TableHead className="text-center border border-border/50 px-2 py-1 font-medium whitespace-normal">
                                 NAME & ADDRESS OF OUT-COUNTRY VENDOR
                             </TableHead>
                             {/* Other related services activity sub-columns */}
-                            <TableHead className="text-center border border-border/50 px-2 py-1 font-medium">
+                            <TableHead className="text-center border border-border/50 px-2 py-1 font-medium whitespace-normal">
                                 % EXECUTED <br />(In-Country)
                             </TableHead>
-                            <TableHead className="text-center border border-border/50 px-2 py-1 font-medium">
+                            <TableHead className="text-center border border-border/50 px-2 py-1 font-medium whitespace-normal">
                                 % EXECUTED <br />(Out-Country)
                             </TableHead>
                             <TableHead className="text-center border border-border/50 px-2 py-1 font-medium">
