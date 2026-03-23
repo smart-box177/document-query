@@ -25,7 +25,7 @@ const SectionA = () => {
 
     return (
         <div className="flex flex-col gap-8 py-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-end">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-end">
                 {/* Row 1 equivalent */}
                 <div className="flex gap-4 col-span-1 md:col-span-2 space-x-2">
                     <div className="flex-1 space-y-2">
@@ -61,25 +61,21 @@ const SectionA = () => {
                     </div>
                 </div>
                 <div className="hidden lg:block"></div>
+                <div className="hidden lg:block"></div>
 
                 {/* Grid Fields */}
-                 <FloatingInput
+                 {/* <FloatingInput
                      label="Ref. No."
                      disabled
                      value={localData.referenceNumber}
                      onChange={(e) => handleChange('referenceNumber', e.target.value)}
-                 />
+                 /> */}
                 <FloatingInput
                     label="Date and Ref Inc Plan Approval"
                     value={localData.dateAndRefIncPlanApproval}
                     onChange={(e) => handleChange('dateAndRefIncPlanApproval', e.target.value)}
                 />
-                 <FloatingInput
-                     label="Total Contract Value"
-                     disabled
-                     value={localData.totalContractValue}
-                     onChange={(e) => handleChange('totalContractValue', e.target.value)}
-                 />
+                 
 
                 <FloatingInput
                     label="Name of Operator / Project Promoter"
@@ -177,6 +173,12 @@ const SectionA = () => {
                     value={localData.totalNCPercentSpend}
                     onChange={(e) => handleChange('totalNCPercentSpend', e.target.value)}
                 />
+                <FloatingInput
+                     label="Total Contract Value"
+                     disabled
+                     value={localData.totalContractValue}
+                     onChange={(e) => handleChange('totalContractValue', e.target.value)}
+                 />
                 <FloatingInput
                     label="Total NC% (Manhours)"
                     className="mt-8"

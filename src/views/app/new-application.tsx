@@ -21,6 +21,45 @@ import SectionA from "./application/section-a";
 import SectionB from "./application/section-b";
 import SectionC from "./application/section-c";
 
+// Helper function to count filled fields recursively
+const countFilledFields = (obj: unknown): { filled: number; total: number } => {
+  if (obj === null || obj === undefined) {
+    return { filled: 0, total: 0 };
+  }
+
+  if (typeof obj !== "object") {
+    // Primitive value: count as total 1, filled if truthy (non-empty string, non-zero number, etc.)
+    return { filled: obj ? 1 : 0, total: 1 };
+  }
+
+  if (Array.isArray(obj)) {
+    // Array: sum up counts from each element
+    return obj.reduce(
+      (acc, item) => {
+        const result = countFilledFields(item);
+        return { filled: acc.filled + result.filled, total: acc.total + result.total };
+      },
+      { filled: 0, total: 0 }
+    );
+  }
+
+  // Object: sum up counts from each property
+  return Object.values(obj as Record<string, unknown>).reduce(
+    (acc: { filled: number; total: number }, value: unknown) => {
+      const result = countFilledFields(value);
+      return { filled: acc.filled + result.filled, total: acc.total + result.total };
+    },
+    { filled: 0, total: 0 } as { filled: number; total: number }
+  );
+};
+
+// Calculate overall completion percentage
+const calculateCompletionPercentage = (formData: unknown): number => {
+  const { filled, total } = countFilledFields(formData);
+  if (total === 0) return 0;
+  return Math.round((filled / total) * 100);
+};
+
 const NewApplicationSubmission = () => {
   const [activeStep, setActiveStep] = useState(1);
   const [activeBTab, setActiveBTab] = useState("b1");
@@ -165,13 +204,18 @@ const NewApplicationSubmission = () => {
 
   return (
     <div className="container mx-auto pt-2 px-4 overflow-y-hidden">
-       <h1 className="text-xl font-bold my-2 flex items-center gap-2">
-         NCCC New Application Submission
-         {formData.sectionA?.referenceNumber && (
-           <span className="text-muted-foreground text-sm">
-             (Ref. No.: {formData.sectionA.referenceNumber})
-           </span>
-         )}
+       <h1 className="text-xl font-bold my-2 flex items-center justify-between">
+         <div className="flex items-center gap-2">
+           NCCC New Application Submission
+           {formData.sectionA?.referenceNumber && (
+             <span className="text-muted-foreground text-sm">
+               (Ref. No.: {formData.sectionA.referenceNumber})
+             </span>
+           )}
+         </div>
+         <Badge variant="outline" className="text-sm font-semibold">
+           {calculateCompletionPercentage(formData)}% Complete
+         </Badge>
        </h1>
 
       <Stepper
