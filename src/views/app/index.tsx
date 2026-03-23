@@ -1,6 +1,5 @@
 import { useState } from "react";
 import {
-  BarChart3,
   FileText,
   Calendar,
   Clock,
@@ -269,7 +268,7 @@ const AppDashboard = () => {
                           <TableCell className="font-medium">
                             {app.id}
                           </TableCell>
-                          <TableCell className="max-w-[200px] truncate">
+                          <TableCell className="max-w-50 truncate">
                             {app.applicant}
                           </TableCell>
                           <TableCell>{app.type}</TableCell>
@@ -280,7 +279,7 @@ const AppDashboard = () => {
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            <div className="w-full max-w-[100px]">
+                            <div className="w-full max-w-25">
                               <Progress value={app.progress} className="h-2" />
                             </div>
                           </TableCell>
@@ -343,26 +342,6 @@ const AppDashboard = () => {
               </CardFooter>
             </Card>
           </div>
-
-          {/* Application Analytics */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Application Analytics</CardTitle>
-              <CardDescription>
-                Monthly application submissions and approvals
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-80 bg-muted/50 rounded-lg flex items-center justify-center">
-                <div className="text-center">
-                  <BarChart3 className="mx-auto h-12 w-12 text-muted-foreground mb-2" />
-                  <p className="text-muted-foreground">
-                    Chart component coming soon
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </TabsContent>
 
         {/* Applications Tab */}
