@@ -46,8 +46,9 @@ const countFilledFields = (obj: unknown): { filled: number; total: number } => {
   }
 
   // Object: sum up counts from each property
-  return Object.values(obj as Record<string, unknown>).reduce(
-    (acc: { filled: number; total: number }, value: unknown) => {
+  return Object.entries(obj as Record<string, unknown>).reduce(
+    (acc: { filled: number; total: number }, [key, value]) => {
+      if (key === "id" || key === "_id") return acc;
       const result = countFilledFields(value);
       return { filled: acc.filled + result.filled, total: acc.total + result.total };
     },
@@ -80,6 +81,9 @@ const NewApplicationSubmission = () => {
   } = useApplicationStore();
 
   const { formData, resetForm } = useApplicationFormStore();
+
+  const completionPercentage = calculateCompletionPercentage(formData);
+  const isFormEmpty = completionPercentage === 0;
 
   const handleNewApplication = () => {
     resetForm();
@@ -245,8 +249,16 @@ const NewApplicationSubmission = () => {
          </div>
          <div className="flex items-center gap-3">
            <Badge variant="outline" className="text-sm font-semibold">
-             {calculateCompletionPercentage(formData)}% Complete
+             {completionPercentage}% Complete
            </Badge>
+           <button
+             onClick={() => setActiveStep(4)}
+             disabled={isFormEmpty || activeStep === 4}
+             className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+           >
+             <EyeIcon className="size-4" />
+             Preview
+           </button>
            <button
              onClick={handleNewApplication}
              className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground text-sm font-medium"
