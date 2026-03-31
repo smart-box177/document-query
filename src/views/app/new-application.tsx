@@ -20,6 +20,8 @@ import { toast } from "sonner";
 import SectionA from "./application/section-a";
 import SectionB from "./application/section-b";
 import SectionC from "./application/section-c";
+import ApplicationPreview from "./application/preview";
+import { EyeIcon } from "lucide-react";
 
 // Helper function to count filled fields recursively
 const countFilledFields = (obj: unknown): { filled: number; total: number } => {
@@ -141,6 +143,12 @@ const NewApplicationSubmission = () => {
       description: "Section C",
       icon: <GraduationCapIcon className="size-4" />,
     },
+    {
+      id: 4,
+      title: "Preview",
+      description: "Review Application",
+      icon: <EyeIcon className="size-4" />,
+    },
   ];
 
   const bTabs = ["b1", "b2", "b3", "b4", "b5", "b6"];
@@ -209,6 +217,11 @@ const NewApplicationSubmission = () => {
         setActiveCTab(cTabs[currentCIndex - 1]);
         return;
       }
+    } else if (activeStep === 4) {
+      // Moving from Preview back to Section C
+      setActiveStep(3);
+      setActiveCTab("c3");
+      return;
     }
     // Move to previous main step
     setActiveStep(Math.max(1, activeStep - 1));
@@ -331,6 +344,7 @@ const NewApplicationSubmission = () => {
                     onTabChange={setActiveCTab}
                   />
                 )}
+                {step.id === 4 && <ApplicationPreview />}
               </div>
 
               <div className="flex justify-between mt-6 pt-4 border-t">
@@ -357,26 +371,24 @@ const NewApplicationSubmission = () => {
                     onClick={
                       activeStep === 1 && !currentApplication
                         ? handleCreateApplication
-                        : activeStep === steps.length && activeCTab === "c3"
+                        : activeStep === steps.length
                         ? handleSubmit
                         : handleNext
                     }
                     disabled={
                       isLoading ||
-                      (activeStep === steps.length &&
-                        activeCTab === "c3" &&
-                        isLoading)
+                      (activeStep === steps.length && isLoading)
                     }
                     className="px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed ml-2"
                   >
                     {activeStep === 1 && !currentApplication
                       ? "Create Application"
-                      : activeStep === steps.length && activeCTab === "c3"
+                      : activeStep === steps.length
                       ? "Submit"
                       : activeStep === 2 && activeBTab === "b6"
                       ? "Next Section"
                       : activeStep === 3 && activeCTab === "c3"
-                      ? "Submit"
+                      ? "Preview Application"
                       : "Next"}
                   </button>
                 </div>
