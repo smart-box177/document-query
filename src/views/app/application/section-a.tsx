@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { FloatingInput } from "@/components/ui/floating-input";
+import { DatePicker } from "@/components/date-picker";
 import {
   Select,
   SelectContent,
@@ -74,12 +75,10 @@ const SectionA = () => {
                      value={localData.referenceNumber}
                      onChange={(e) => handleChange('referenceNumber', e.target.value)}
                  /> */}
-        <FloatingInput
+        <DatePicker
           label="Date and Ref Inc Plan Approval"
           value={localData.dateAndRefIncPlanApproval}
-          onChange={(e) =>
-            handleChange("dateAndRefIncPlanApproval", e.target.value)
-          }
+          onChange={(value) => handleChange("dateAndRefIncPlanApproval", value)}
         />
 
         <FloatingInput
@@ -89,12 +88,10 @@ const SectionA = () => {
             handleChange("operatorName", e.target.value)
           }
         />
-        <FloatingInput
+        <DatePicker
           label="Date of and Ref (NCDMB Tech Evaluation Rpt)"
           value={localData.dateAndRefNCDMBTechEvaluation}
-          onChange={(e) =>
-            handleChange("dateAndRefNCDMBTechEvaluation", e.target.value)
-          }
+          onChange={(value) => handleChange("dateAndRefNCDMBTechEvaluation", value)}
         />
         <FloatingInput
           label="Contract / Project Title"
@@ -122,10 +119,10 @@ const SectionA = () => {
             handleChange("contractProjectNumber", e.target.value)
           }
         />
-        <FloatingInput
+        <DatePicker
           label="Date of Commencement of Contract"
           value={localData.commencementDate}
-          onChange={(e) => handleChange("commencementDate", e.target.value)}
+          onChange={(value) => handleChange("commencementDate", value)}
         />
         <FloatingInput
           label="NCDMB HCD Training Budget (% of TCV)"
@@ -136,10 +133,10 @@ const SectionA = () => {
           }
         />
 
-        <FloatingInput
+        <DatePicker
           label="Date of Commencement of Bid"
           value={localData.bidCommencementDate}
-          onChange={(e) => handleChange("bidCommencementDate", e.target.value)}
+          onChange={(value) => handleChange("bidCommencementDate", value)}
         />
         <FloatingInput
           label="Date of Completion of Contract"
@@ -154,12 +151,10 @@ const SectionA = () => {
           onChange={(e) => handleChange("mainContractor", e.target.value)}
         />
 
-        <FloatingInput
+        <DatePicker
           label="Date and Ref (Single Source/ Selective Approval) - Not Applicable"
           value={localData.singleSourceApprovalDateAndRef}
-          onChange={(e) =>
-            handleChange("singleSourceApprovalDateAndRef", e.target.value)
-          }
+          onChange={(value) => handleChange("singleSourceApprovalDateAndRef", value)}
         />
         <FloatingInput
           label="Duration of Contract"
@@ -296,12 +291,10 @@ const SectionA = () => {
                   handleChange("operatorDesignation", e.target.value)
                 }
               />
-              <FloatingInput
+              <DatePicker
                 label="Date"
-                type="date"
-                className="bg-background"
                 value={localData.operatorDate}
-                onChange={(e) => handleChange("operatorDate", e.target.value)}
+                onChange={(value) => handleChange("operatorDate", value)}
               />
             </div>
           </div>
@@ -384,14 +377,10 @@ const SectionA = () => {
                   handleChange("serviceProviderDesignation", e.target.value)
                 }
               />
-              <FloatingInput
+              <DatePicker
                 label="Date"
-                type="date"
-                className="bg-background"
                 value={localData.serviceProviderDate || ""}
-                onChange={(e) =>
-                  handleChange("serviceProviderDate", e.target.value)
-                }
+                onChange={(value) => handleChange("serviceProviderDate", value)}
               />
             </div>
           </div>
