@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { User, Bell, Shield, Palette, Save, Loader2, Upload, Trash2 } from "lucide-react";
+import { User, Bell, Shield, Palette, Save, Loader2, Upload, Trash2, Crop as CropIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,9 +8,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useAuthStore } from "@/store/auth.store";
 import { toast } from "sonner";
 import { api } from "@/config/axios";
+import ReactCrop, { type Crop, type PixelCrop } from 'react-image-crop';
+import 'react-image-crop/dist/ReactCrop.css';
 
 const Settings = () => {
   const { user, setUser } = useAuthStore();
@@ -27,6 +30,13 @@ const Settings = () => {
 
   const [signatureFile, setSignatureFile] = useState<File | null>(null);
   const [signaturePreview, setSignaturePreview] = useState<string | null>(null);
+
+  // Cropping states
+  const [isCropModalOpen, setIsCropModalOpen] = useState(false);
+  const [imgSrc, setImgSrc] = useState("");
+  const imgRef = useRef<HTMLImageElement>(null);
+  const [crop, setCrop] = useState<Crop>();
+  const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
 
   // Notification settings
   const [notifications, setNotifications] = useState({
@@ -54,9 +64,56 @@ const Settings = () => {
   const handleSignatureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setSignatureFile(file);
-      setSignaturePreview(URL.createObjectURL(file));
+      setImgSrc(URL.createObjectURL(file));
+      setIsCropModalOpen(true);
+      // Reset input value so same file can be selected again
+      e.target.value = "";
     }
+  };
+
+  const getCroppedImg = async () => {
+    if (!imgRef.current || !completedCrop || completedCrop.width === 0 || completedCrop.height === 0) {
+      return;
+    }
+
+    const canvas = document.createElement("canvas");
+    const image = imgRef.current;
+    const scaleX = image.naturalWidth / image.width;
+    const scaleY = image.naturalHeight / image.height;
+
+    canvas.width = completedCrop.width;
+    canvas.height = completedCrop.height;
+    const ctx = canvas.getContext("2d");
+
+    if (!ctx) {
+      toast.error("Failed to crop image");
+      return;
+    }
+
+    ctx.drawImage(
+      image,
+      completedCrop.x * scaleX,
+      completedCrop.y * scaleY,
+      completedCrop.width * scaleX,
+      completedCrop.height * scaleY,
+      0,
+      0,
+      completedCrop.width,
+      completedCrop.height
+    );
+
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        toast.error("Canvas is empty");
+        return;
+      }
+      const newFile = new File([blob], "signature_cropped.png", { type: "image/png" });
+      setSignatureFile(newFile);
+      setSignaturePreview(URL.createObjectURL(blob));
+      setIsCropModalOpen(false);
+      setCrop(undefined);
+      setCompletedCrop(undefined);
+    }, "image/png");
   };
 
   const removeBackground = async () => {
@@ -547,6 +604,50 @@ const Settings = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Cropping Modal */}
+      <Dialog open={isCropModalOpen} onOpenChange={setIsCropModalOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Crop Signature</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center justify-center p-4 max-h-[60vh] overflow-auto">
+            {imgSrc && (
+              <ReactCrop
+                crop={crop}
+                onChange={(_, percentCrop) => setCrop(percentCrop)}
+                onComplete={(c) => setCompletedCrop(c)}
+              >
+                <img
+                  ref={imgRef}
+                  alt="Crop preview"
+                  src={imgSrc}
+                  className="max-h-[50vh] w-auto object-contain"
+                  onLoad={() => {
+                    // Provide a default crop covering a central area
+                    setCrop({
+                      unit: '%',
+                      width: 90,
+                      height: 90,
+                      x: 5,
+                      y: 5
+                    });
+                  }}
+                />
+              </ReactCrop>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCropModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={getCroppedImg}>
+              <CropIcon className="h-4 w-4 mr-2" />
+              Confirm Crop
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
