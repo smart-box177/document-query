@@ -8,6 +8,7 @@ import {
   Users,
   BarChart3,
   ClipboardCheck,
+  TrendingUp,
 } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -34,6 +35,7 @@ const adminNavItems = [
   { to: "/admin/contracts", icon: FileStack, label: "NCCC Contracts" },
   { to: "/admin/applications", icon: ClipboardCheck, label: "Application Review" },
   { to: "/admin/users", icon: Users, label: "Users" },
+  { to: "/admin/compliance-reports", icon: TrendingUp, label: "Compliance Reports" },
   { to: "/admin/settings", icon: Settings, label: "Settings" },
 ];
 
@@ -42,6 +44,7 @@ const routeLabels: Record<string, string> = {
   contracts: "NCCC Contracts",
   applications: "Application Review",
   users: "Users",
+  "compliance-reports": "Compliance Reports",
   settings: "Settings",
 };
 
@@ -86,7 +89,7 @@ const AdminLayout = () => {
 
   return (
     <div className="flex h-screen">
-      <aside className="w-64 border-r bg-muted/30 flex flex-col">
+      <aside className="w-50 border-r bg-muted/30 flex flex-col">
         <div className="p-4 border-b">
           <div className="flex items-center gap-3">
             <img

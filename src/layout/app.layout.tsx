@@ -143,7 +143,7 @@ const AppLayout = () => {
 
   return (
     <div className="flex h-screen">
-      <aside className="w-64 border-r bg-muted/30 flex flex-col">
+      <aside className="w-50 border-r bg-muted/30 flex flex-col">
         <div className="p-4 border-b">
           <div className="flex items-center gap-3">
             <img

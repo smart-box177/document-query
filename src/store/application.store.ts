@@ -112,7 +112,9 @@ export const useApplicationStore = create<ApplicationState>()((set) => ({
     try {
       const response = await api.get("/admin/applications");
       if (response.data.success) {
-        set({ applications: response.data.data, isLoading: false });
+        const data = response.data.data;
+        const applications = Array.isArray(data) ? data : (data?.applications ?? []);
+        set({ applications, isLoading: false });
       } else {
         set({ error: response.data.message, isLoading: false });
       }
