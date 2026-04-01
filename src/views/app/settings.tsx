@@ -59,49 +59,52 @@ const Settings = () => {
     }
   };
 
-  const removeBackground = () => {
+  const removeBackground = async () => {
     if (!signaturePreview) return;
     setIsUploadingSig(true);
-    const img = new Image();
-    img.crossOrigin = "Anonymous";
-    img.src = signaturePreview;
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return setIsUploadingSig(false);
+    
+    try {
+      let imageUrl = signaturePreview;
       
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx.drawImage(img, 0, 0);
-      
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const data = imageData.data;
-      
-      const threshold = 200; // Threshold for "white"
-      for (let i = 0; i < data.length; i += 4) {
-        const r = data[i];
-        const g = data[i + 1];
-        const b = data[i + 2];
-        if (r > threshold && g > threshold && b > threshold) {
-          data[i + 3] = 0; // Set alpha to 0 for white pixels
+      // If we only have a local file blob URL, we need to upload it first
+      // before we can use the remove.bg API which expects a public URL
+      if (signatureFile && signaturePreview.startsWith('blob:')) {
+        const formData = new FormData();
+        formData.append("file", signatureFile);
+        
+        const mediaRes = await api.post("/users/signature", formData, {
+          headers: { "Content-Type": "multipart/form-data" }
+        });
+        
+        if (mediaRes.data.success) {
+          imageUrl = mediaRes.data.data.signatureUrl;
+        } else {
+          throw new Error("Failed to upload image for processing");
         }
       }
-      ctx.putImageData(imageData, 0, 0);
-      
-      canvas.toBlob((blob) => {
-        if (blob) {
-          const newFile = new File([blob], "signature_processed.png", { type: "image/png" });
-          setSignatureFile(newFile);
-          setSignaturePreview(URL.createObjectURL(blob));
-        }
-        setIsUploadingSig(false);
-        toast.success("Background removed!");
-      }, "image/png");
-    };
-    img.onerror = () => {
+
+      const res = await api.post("/users/signature/remove-bg", {
+        imageUrl: imageUrl
+      });
+
+      if (res.data.success && res.data.data.processedImage) {
+        // Convert base64 back to file
+        const response = await fetch(res.data.data.processedImage);
+        const blob = await response.blob();
+        const newFile = new File([blob], "signature_processed.png", { type: "image/png" });
+        
+        setSignatureFile(newFile);
+        setSignaturePreview(URL.createObjectURL(blob));
+        toast.success("Background removed successfully!");
+      } else {
+        toast.error("Failed to remove background");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to process image background");
+    } finally {
       setIsUploadingSig(false);
-      toast.error("Failed to process image");
-    };
+    }
   };
 
   const handleProfileSave = async () => {
@@ -114,16 +117,16 @@ const Settings = () => {
         const formData = new FormData();
         formData.append("file", signatureFile);
         
-        const mediaRes = await api.post("/media", formData, {
+        const mediaRes = await api.post("/users/signature", formData, {
           headers: { "Content-Type": "multipart/form-data" }
         });
         if (mediaRes.data.success) {
-          uploadedSignatureUrl = mediaRes.data.data.url;
+          uploadedSignatureUrl = mediaRes.data.data.signatureUrl;
         }
       }
 
       // Update profile with the new fields
-      const res = await api.put("/auth/profile", {
+      const res = await api.put("/users/profile", {
         username: profile.username,
         email: profile.email,
         signature: uploadedSignatureUrl,
