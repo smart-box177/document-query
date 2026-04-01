@@ -623,14 +623,25 @@ const Settings = () => {
                   alt="Crop preview"
                   src={imgSrc}
                   className="max-h-[50vh] w-auto object-contain"
-                  onLoad={() => {
+                  onLoad={(e) => {
                     // Provide a default crop covering a central area
-                    setCrop({
+                    const initialCrop: Crop = {
                       unit: '%',
                       width: 90,
                       height: 90,
                       x: 5,
                       y: 5
+                    };
+                    setCrop(initialCrop);
+                    
+                    // Convert percent to pixels for completedCrop based on rendered size
+                    const { width, height } = e.currentTarget;
+                    setCompletedCrop({
+                      unit: 'px',
+                      width: width * 0.9,
+                      height: height * 0.9,
+                      x: width * 0.05,
+                      y: height * 0.05
                     });
                   }}
                 />
