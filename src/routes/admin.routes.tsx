@@ -18,7 +18,7 @@ export const adminRoutes = [
     element: <Contracts />,
   },
   {
-    path: "review-queue",
+    path: "applications",
     element: <ApplicationReviewQueue />,
   },
   {

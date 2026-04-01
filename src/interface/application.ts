@@ -7,6 +7,7 @@ export interface IApplication {
   status?: "DRAFT" | "SUBMITTED" | "REVIEWING" | "APPROVED" | "REJECTED";
   createdAt?: Date;
   updatedAt?: Date;
+  adminComments?: string;
 
   sectionA: ISectionA;
   sectionB: ISectionB;

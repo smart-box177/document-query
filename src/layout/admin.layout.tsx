@@ -7,6 +7,7 @@ import {
   Shield,
   Users,
   BarChart3,
+  ClipboardCheck,
 } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -31,6 +32,7 @@ import { useAuthStore } from "@/store/auth.store";
 const adminNavItems = [
   { to: "/admin", icon: BarChart3, label: "Dashboard" },
   { to: "/admin/contracts", icon: FileStack, label: "NCCC Contracts" },
+  { to: "/admin/applications", icon: ClipboardCheck, label: "Application Review" },
   { to: "/admin/users", icon: Users, label: "Users" },
   { to: "/admin/settings", icon: Settings, label: "Settings" },
 ];
@@ -38,6 +40,7 @@ const adminNavItems = [
 const routeLabels: Record<string, string> = {
   admin: "Admin",
   contracts: "NCCC Contracts",
+  applications: "Application Review",
   users: "Users",
   settings: "Settings",
 };

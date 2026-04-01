@@ -10,6 +10,7 @@ interface ApplicationState {
 
   createApplication: (data: Partial<IApplication>) => Promise<boolean>;
   updateApplication: (id: string, data: Partial<IApplication>) => Promise<boolean>;
+  reviewApplication: (id: string, status: "APPROVED" | "REJECTED" | "REVISION_REQUESTED", adminComments?: string) => Promise<boolean>;
   saveAsDraft: (data: Partial<IApplication>, id?: string) => Promise<boolean>;
   saveAndSubmit: (data: Partial<IApplication>, id?: string) => Promise<boolean>;
   fetchApplications: () => Promise<void>;
@@ -72,6 +73,34 @@ export const useApplicationStore = create<ApplicationState>()((set) => ({
       const error = err as { response?: { data?: { message?: string } } };
       set({
         error: error.response?.data?.message || "Failed to update application",
+        isLoading: false,
+      });
+      return false;
+    }
+  },
+
+  reviewApplication: async (id, status, adminComments) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await api.put(`/applications/${id}/review`, { status, adminComments });
+      if (response.data.success) {
+        set((state) => ({
+          applications: state.applications.map((app) =>
+            app.id === id ? response.data.data : app
+          ),
+          currentApplication:
+            state.currentApplication?.id === id ? response.data.data : state.currentApplication,
+          isLoading: false,
+        }));
+        return true;
+      } else {
+        set({ error: response.data.message, isLoading: false });
+        return false;
+      }
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      set({
+        error: error.response?.data?.message || "Failed to review application",
         isLoading: false,
       });
       return false;
