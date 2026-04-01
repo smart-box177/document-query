@@ -38,7 +38,8 @@ const Query = () => {
     ? hasLocalDraft ? [{
         id: "local-draft",
         status: "DRAFT",
-        sectionA: formData.sectionA || { contractProjectTitle: "Unsaved Draft", mainContractor: "N/A" },
+        contractTitle: formData.contractTitle || "Unsaved Draft",
+        contractorName: formData.contractorName || "N/A",
         createdAt: new Date().toISOString(),
       }] : []
     : applications;
@@ -75,18 +76,18 @@ const Query = () => {
     },
     {
       header: "Contract ID",
-      accessorKey: "contractId",
-      cell: ({ row }: any) => row.original.contractId || row.original.sectionA?.contractProjectNumber || "-",
+      accessorKey: "contractNumber",
+      cell: ({ row }: any) => row.original.contractNumber || "-",
     },
     {
       header: "Contract Title",
       accessorKey: "contractTitle",
-      cell: ({ row }: any) => row.original.sectionA?.contractProjectTitle || "-",
+      cell: ({ row }: any) => row.original.contractTitle || "-",
     },
     {
       header: "Contractor",
       accessorKey: "contractorName",
-      cell: ({ row }: any) => row.original.sectionA?.mainContractor || "-",
+      cell: ({ row }: any) => row.original.contractorName || "-",
     },
     {
       header: "Status",

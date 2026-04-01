@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import type { IContract } from "@/interface/contract";
+import type { IApplication } from "@/interface/application";
 import { type ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 
-export const columns: ColumnDef<IContract>[] = [
+export const columns: ColumnDef<IApplication>[] = [
   {
     id: "select",
     header: ({ table }) => (

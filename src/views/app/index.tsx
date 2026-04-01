@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   FileText,
   Calendar,
@@ -10,8 +10,12 @@ import {
   ArrowDownRight,
   Plus,
   Filter,
+  Loader2,
 } from "lucide-react";
+import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import { useApplicationStore } from "@/store/application.store";
 import {
   Card,
   CardContent,
@@ -34,93 +38,82 @@ import {
 
 const AppDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
+  const navigate = useNavigate();
+  const { applications, fetchApplications, isLoading } = useApplicationStore();
 
-  // Sample data for the dashboard
-  const stats = [
-    {
-      id: "applications",
-      label: "Total Applications",
-      value: "142",
-      change: "+12%",
-      trend: "up",
-      icon: FileText,
-      color: "text-blue-600",
-      bgColor: "bg-blue-50 dark:bg-blue-950/20",
-    },
-    {
-      id: "pending",
-      label: "Pending Review",
-      value: "36",
-      change: "+8%",
-      trend: "up",
-      icon: Clock,
-      color: "text-yellow-600",
-      bgColor: "bg-yellow-50 dark:bg-yellow-950/20",
-    },
-    {
-      id: "approved",
-      label: "Approved",
-      value: "98",
-      change: "+15%",
-      trend: "up",
-      icon: CheckCircle2,
-      color: "text-green-600",
-      bgColor: "bg-green-50 dark:bg-green-950/20",
-    },
-    {
-      id: "rejected",
-      label: "Rejected",
-      value: "8",
-      change: "-2%",
-      trend: "down",
-      icon: AlertCircle,
-      color: "text-red-600",
-      bgColor: "bg-red-50 dark:bg-red-950/20",
-    },
-  ];
+  useEffect(() => {
+    fetchApplications();
+  }, [fetchApplications]);
 
-  const recentApplications = [
-    {
-      id: "APP-2023-001",
-      applicant: "Chevron Nigeria Limited",
-      type: "Drilling Equipment",
-      date: "2023-10-15",
-      status: "approved" as const,
-      progress: 100,
-    },
-    {
-      id: "APP-2023-002",
-      applicant: "Shell Nigeria Exploration and Production Company",
-      type: "Offshore Platform Fabrication",
-      date: "2023-10-14",
-      status: "pending" as const,
-      progress: 75,
-    },
-    {
-      id: "APP-2023-003",
-      applicant: "TotalEnergies Nigeria",
-      type: "Refinery Maintenance",
-      date: "2023-10-13",
-      status: "pending" as const,
-      progress: 45,
-    },
-    {
-      id: "APP-2023-004",
-      applicant: "ExxonMobil Nigeria",
-      type: "Pipeline Construction",
-      date: "2023-10-12",
-      status: "rejected" as const,
-      progress: 0,
-    },
-    {
-      id: "APP-2023-005",
-      applicant: "Nigerian National Petroleum Corporation",
-      type: "LPG Terminal Development",
-      date: "2023-10-11",
-      status: "approved" as const,
-      progress: 100,
-    },
-  ];
+  const { stats, recentApplications } = useMemo(() => {
+    let total = 0;
+    let pending = 0;
+    let approved = 0;
+    let rejected = 0;
+
+    applications.forEach((app) => {
+      total++;
+      if (app.status === "SUBMITTED" || app.status === "REVIEWING" || app.status === "REVISION_REQUESTED") pending++;
+      if (app.status === "APPROVED") approved++;
+      if (app.status === "REJECTED") rejected++;
+    });
+
+    const recent = applications.slice(0, 5).map((app) => ({
+      id: app.id || app._id,
+      refNumber: app.sectionA?.referenceNumber || "N/A",
+      applicant: app.sectionA?.operatorOrProjectPromoter || "Unknown",
+      type: app.sectionA?.contractType || "N/A",
+      date: app.updatedAt ? format(new Date(app.updatedAt), "MMM d, yyyy") : "N/A",
+      status: app.status,
+      progress: app.status === "APPROVED" ? 100 : app.status === "REJECTED" ? 0 : app.status === "DRAFT" ? 25 : 75,
+    }));
+
+    return {
+      stats: [
+        {
+          id: "applications",
+          label: "Total Applications",
+          value: total.toString(),
+          change: "Total submitted",
+          trend: "up",
+          icon: FileText,
+          color: "text-blue-600",
+          bgColor: "bg-blue-50 dark:bg-blue-950/20",
+        },
+        {
+          id: "pending",
+          label: "Pending Review",
+          value: pending.toString(),
+          change: "Currently active",
+          trend: "up",
+          icon: Clock,
+          color: "text-yellow-600",
+          bgColor: "bg-yellow-50 dark:bg-yellow-950/20",
+        },
+        {
+          id: "approved",
+          label: "Approved",
+          value: approved.toString(),
+          change: "Successfully processed",
+          trend: "up",
+          icon: CheckCircle2,
+          color: "text-green-600",
+          bgColor: "bg-green-50 dark:bg-green-950/20",
+        },
+        {
+          id: "rejected",
+          label: "Rejected",
+          value: rejected.toString(),
+          change: "Needs attention",
+          trend: "down",
+          icon: AlertCircle,
+          color: "text-red-600",
+          bgColor: "bg-red-50 dark:bg-red-950/20",
+        },
+      ],
+      recentApplications: recent,
+    };
+  }, [applications]);
 
   const activityTimeline = [
     {
@@ -159,12 +152,22 @@ const AppDashboard = () => {
     },
   ];
 
-  const statusColors = {
-    approved:
-      "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
-    pending:
-      "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
-    rejected: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "APPROVED":
+        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
+      case "SUBMITTED":
+      case "REVIEWING":
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
+      case "REJECTED":
+        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
+      case "REVISION_REQUESTED":
+        return "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200";
+      case "DRAFT":
+        return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200";
+      default:
+        return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200";
+    }
   };
 
   return (
@@ -182,7 +185,7 @@ const AppDashboard = () => {
             <Filter className="mr-2 h-4 w-4" />
             Filter
           </Button>
-          <Button size="sm">
+          <Button size="sm" onClick={() => navigate("/app/new-application")}>
             <Plus className="mr-2 h-4 w-4" />
             New Application
           </Button>
@@ -263,39 +266,53 @@ const AppDashboard = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {recentApplications.map((app) => (
-                        <TableRow key={app.id}>
-                          <TableCell className="font-medium">
-                            {app.id}
-                          </TableCell>
-                          <TableCell className="max-w-50 truncate">
-                            {app.applicant}
-                          </TableCell>
-                          <TableCell>{app.type}</TableCell>
-                          <TableCell>{app.date}</TableCell>
-                          <TableCell>
-                            <Badge className={statusColors[app.status]}>
-                              {app.status}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <div className="w-full max-w-25">
-                              <Progress value={app.progress} className="h-2" />
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Button variant="ghost" size="sm">
-                              View
-                            </Button>
+                      {isLoading ? (
+                        <TableRow>
+                          <TableCell colSpan={7} className="text-center py-8">
+                            <Loader2 className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
                           </TableCell>
                         </TableRow>
-                      ))}
+                      ) : recentApplications.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                            No recent applications found.
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        recentApplications.map((app) => (
+                          <TableRow key={app.id}>
+                            <TableCell className="font-medium">
+                              {app.refNumber}
+                            </TableCell>
+                            <TableCell className="max-w-50 truncate">
+                              {app.applicant}
+                            </TableCell>
+                            <TableCell>{app.type}</TableCell>
+                            <TableCell>{app.date}</TableCell>
+                            <TableCell>
+                              <Badge className={getStatusColor(app.status || "")}>
+                                {app.status || "UNKNOWN"}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <div className="w-full max-w-25">
+                                <Progress value={app.progress} className="h-2" />
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Button variant="ghost" size="sm" onClick={() => navigate("/app/applications")}>
+                                View
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
                     </TableBody>
                   </Table>
                 </div>
               </CardContent>
               <CardFooter className="flex justify-center">
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" onClick={() => navigate("/app/applications")}>
                   View All Applications
                 </Button>
               </CardFooter>

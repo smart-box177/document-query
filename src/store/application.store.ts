@@ -110,7 +110,7 @@ export const useApplicationStore = create<ApplicationState>()((set) => ({
   fetchApplications: async () => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.get("/applications");
+      const response = await api.get("/admin/applications");
       if (response.data.success) {
         set({ applications: response.data.data, isLoading: false });
       } else {

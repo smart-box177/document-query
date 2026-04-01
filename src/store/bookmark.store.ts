@@ -1,28 +1,34 @@
 import { create } from "zustand";
 import { api } from "@/config/axios";
 
-export interface BookmarkedContract {
+export interface BookmarkedApplication {
   id: string;
-  contractTitle: string;
-  operator: string;
-  contractorName: string;
-  contractNumber: string;
-  year: string;
-  contractValue: number;
+  contractTitle?: string;
+  operator?: string;
+  contractorName?: string;
+  contractNumber?: string;
+  year?: string;
+  contractValue?: number;
   bookmarkedAt: string;
+  sectionA?: {
+    contractProjectTitle?: string;
+    operatorOrProjectPromoter?: string;
+    mainContractor?: string;
+    contractProjectNumber?: string;
+  };
 }
 
 interface BookmarkState {
-  bookmarks: BookmarkedContract[];
+  bookmarks: BookmarkedApplication[];
   total: number;
   isLoading: boolean;
   error: string | null;
 
   fetchBookmarks: () => Promise<void>;
-  addBookmark: (contractId: string) => Promise<boolean>;
-  removeBookmark: (contractId: string) => Promise<boolean>;
+  addBookmark: (applicationId: string) => Promise<boolean>;
+  removeBookmark: (applicationId: string) => Promise<boolean>;
   clearAllBookmarks: () => Promise<boolean>;
-  isBookmarked: (contractId: string) => boolean;
+  isBookmarked: (applicationId: string) => boolean;
   clearError: () => void;
 }
 
@@ -35,7 +41,7 @@ export const useBookmarkStore = create<BookmarkState>()((set, get) => ({
   fetchBookmarks: async () => {
     set({ isLoading: true, error: null });
     try {
-      const { data } = await api.get("/contracts/bookmarks");
+      const { data } = await api.get("/applications/bookmarks");
       if (data.success) {
         set({
           bookmarks: data.data.bookmarks,
@@ -54,12 +60,11 @@ export const useBookmarkStore = create<BookmarkState>()((set, get) => ({
     }
   },
 
-  addBookmark: async (contractId: string) => {
+  addBookmark: async (applicationId: string) => {
     set({ isLoading: true, error: null });
     try {
-      const { data } = await api.post(`/contracts/bookmarks/${contractId}`);
+      const { data } = await api.post(`/applications/bookmarks/${applicationId}`);
       if (data.success) {
-        // Refresh bookmarks to get full details
         await get().fetchBookmarks();
         return true;
       } else {
@@ -76,13 +81,13 @@ export const useBookmarkStore = create<BookmarkState>()((set, get) => ({
     }
   },
 
-  removeBookmark: async (contractId: string) => {
+  removeBookmark: async (applicationId: string) => {
     set({ isLoading: true, error: null });
     try {
-      const { data } = await api.delete(`/contracts/bookmarks/${contractId}`);
+      const { data } = await api.delete(`/applications/bookmarks/${applicationId}`);
       if (data.success) {
         set((state) => ({
-          bookmarks: state.bookmarks.filter((b) => b.id !== contractId),
+          bookmarks: state.bookmarks.filter((b) => b.id !== applicationId),
           total: state.total - 1,
           isLoading: false,
         }));
@@ -104,7 +109,7 @@ export const useBookmarkStore = create<BookmarkState>()((set, get) => ({
   clearAllBookmarks: async () => {
     set({ isLoading: true, error: null });
     try {
-      const { data } = await api.delete("/contracts/bookmarks");
+      const { data } = await api.delete("/applications/bookmarks");
       if (data.success) {
         set({ bookmarks: [], total: 0, isLoading: false });
         return true;
@@ -122,8 +127,8 @@ export const useBookmarkStore = create<BookmarkState>()((set, get) => ({
     }
   },
 
-  isBookmarked: (contractId: string) => {
-    return get().bookmarks.some((b) => b.id === contractId);
+  isBookmarked: (applicationId: string) => {
+    return get().bookmarks.some((b) => b.id === applicationId);
   },
 
   clearError: () => set({ error: null }),

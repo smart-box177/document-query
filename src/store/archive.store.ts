@@ -1,14 +1,14 @@
 import { create } from "zustand";
 import { api } from "@/config/axios";
 
-export interface ArchivedContract {
+export interface ArchivedApplication {
   id: string;
-  contractTitle: string;
-  operator: string;
-  contractorName: string;
-  contractNumber: string;
-  year: string;
-  contractValue: number;
+  contractTitle?: string;
+  operator?: string;
+  contractorName?: string;
+  contractNumber?: string;
+  year?: string;
+  contractValue?: number;
   archivedAt: string;
   archivedBy?: {
     _id: string;
@@ -16,14 +16,20 @@ export interface ArchivedContract {
     firstname?: string;
     lastname?: string;
   };
+  sectionA?: {
+    contractProjectTitle?: string;
+    operatorOrProjectPromoter?: string;
+    mainContractor?: string;
+    contractProjectNumber?: string;
+  };
 }
 
 interface ArchiveState {
   // User archive
-  userArchive: ArchivedContract[];
+  userArchive: ArchivedApplication[];
   userTotal: number;
   // Global archive (admin)
-  globalArchive: ArchivedContract[];
+  globalArchive: ArchivedApplication[];
   globalTotal: number;
   
   isLoading: boolean;
@@ -31,16 +37,16 @@ interface ArchiveState {
 
   // User archive actions
   fetchUserArchive: () => Promise<void>;
-  archiveForUser: (contractId: string) => Promise<boolean>;
-  restoreForUser: (contractId: string) => Promise<boolean>;
+  archiveForUser: (applicationId: string) => Promise<boolean>;
+  restoreForUser: (applicationId: string) => Promise<boolean>;
   clearUserArchive: () => Promise<boolean>;
-  isArchivedByUser: (contractId: string) => boolean;
+  isArchivedByUser: (applicationId: string) => boolean;
 
   // Global archive actions (admin)
   fetchGlobalArchive: () => Promise<void>;
-  archiveGlobally: (contractId: string) => Promise<boolean>;
-  restoreGlobally: (contractId: string) => Promise<boolean>;
-  permanentlyDelete: (contractId: string) => Promise<boolean>;
+  archiveGlobally: (applicationId: string) => Promise<boolean>;
+  restoreGlobally: (applicationId: string) => Promise<boolean>;
+  permanentlyDelete: (applicationId: string) => Promise<boolean>;
   emptyGlobalArchive: () => Promise<boolean>;
 
   clearError: () => void;
@@ -58,7 +64,7 @@ export const useArchiveStore = create<ArchiveState>()((set, get) => ({
   fetchUserArchive: async () => {
     set({ isLoading: true, error: null });
     try {
-      const { data } = await api.get("/contracts/archive/user");
+      const { data } = await api.get("/applications/archive/user");
       if (data.success) {
         set({
           userArchive: data.data.archived,
@@ -77,10 +83,10 @@ export const useArchiveStore = create<ArchiveState>()((set, get) => ({
     }
   },
 
-  archiveForUser: async (contractId: string) => {
+  archiveForUser: async (applicationId: string) => {
     set({ isLoading: true, error: null });
     try {
-      const { data } = await api.post(`/contracts/archive/user/${contractId}`);
+      const { data } = await api.post(`/applications/archive/user/${applicationId}`);
       if (data.success) {
         await get().fetchUserArchive();
         return true;
@@ -91,20 +97,20 @@ export const useArchiveStore = create<ArchiveState>()((set, get) => ({
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
       set({
-        error: error.response?.data?.message || "Failed to archive contract",
+        error: error.response?.data?.message || "Failed to archive application",
         isLoading: false,
       });
       return false;
     }
   },
 
-  restoreForUser: async (contractId: string) => {
+  restoreForUser: async (applicationId: string) => {
     set({ isLoading: true, error: null });
     try {
-      const { data } = await api.delete(`/contracts/archive/user/${contractId}`);
+      const { data } = await api.delete(`/applications/archive/user/${applicationId}`);
       if (data.success) {
         set((state) => ({
-          userArchive: state.userArchive.filter((a) => a.id !== contractId),
+          userArchive: state.userArchive.filter((a) => a.id !== applicationId),
           userTotal: state.userTotal - 1,
           isLoading: false,
         }));
@@ -116,7 +122,7 @@ export const useArchiveStore = create<ArchiveState>()((set, get) => ({
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
       set({
-        error: error.response?.data?.message || "Failed to restore contract",
+        error: error.response?.data?.message || "Failed to restore application",
         isLoading: false,
       });
       return false;
@@ -126,7 +132,7 @@ export const useArchiveStore = create<ArchiveState>()((set, get) => ({
   clearUserArchive: async () => {
     set({ isLoading: true, error: null });
     try {
-      const { data } = await api.delete("/contracts/archive/user");
+      const { data } = await api.delete("/applications/archive/user");
       if (data.success) {
         set({ userArchive: [], userTotal: 0, isLoading: false });
         return true;
@@ -144,15 +150,15 @@ export const useArchiveStore = create<ArchiveState>()((set, get) => ({
     }
   },
 
-  isArchivedByUser: (contractId: string) => {
-    return get().userArchive.some((a) => a.id === contractId);
+  isArchivedByUser: (applicationId: string) => {
+    return get().userArchive.some((a) => a.id === applicationId);
   },
 
   // Global archive actions (admin)
   fetchGlobalArchive: async () => {
     set({ isLoading: true, error: null });
     try {
-      const { data } = await api.get("/contracts/archive/global");
+      const { data } = await api.get("/applications/archive/global");
       if (data.success) {
         set({
           globalArchive: data.data.archived,
@@ -171,10 +177,10 @@ export const useArchiveStore = create<ArchiveState>()((set, get) => ({
     }
   },
 
-  archiveGlobally: async (contractId: string) => {
+  archiveGlobally: async (applicationId: string) => {
     set({ isLoading: true, error: null });
     try {
-      const { data } = await api.post(`/contracts/archive/global/${contractId}`);
+      const { data } = await api.post(`/applications/archive/global/${applicationId}`);
       if (data.success) {
         await get().fetchGlobalArchive();
         return true;
@@ -185,20 +191,20 @@ export const useArchiveStore = create<ArchiveState>()((set, get) => ({
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
       set({
-        error: error.response?.data?.message || "Failed to archive contract globally",
+        error: error.response?.data?.message || "Failed to archive application globally",
         isLoading: false,
       });
       return false;
     }
   },
 
-  restoreGlobally: async (contractId: string) => {
+  restoreGlobally: async (applicationId: string) => {
     set({ isLoading: true, error: null });
     try {
-      const { data } = await api.delete(`/contracts/archive/global/${contractId}`);
+      const { data } = await api.delete(`/applications/archive/global/${applicationId}`);
       if (data.success) {
         set((state) => ({
-          globalArchive: state.globalArchive.filter((a) => a.id !== contractId),
+          globalArchive: state.globalArchive.filter((a) => a.id !== applicationId),
           globalTotal: state.globalTotal - 1,
           isLoading: false,
         }));
@@ -210,20 +216,20 @@ export const useArchiveStore = create<ArchiveState>()((set, get) => ({
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
       set({
-        error: error.response?.data?.message || "Failed to restore contract",
+        error: error.response?.data?.message || "Failed to restore application",
         isLoading: false,
       });
       return false;
     }
   },
 
-  permanentlyDelete: async (contractId: string) => {
+  permanentlyDelete: async (applicationId: string) => {
     set({ isLoading: true, error: null });
     try {
-      const { data } = await api.delete(`/contracts/archive/global/${contractId}/permanent`);
+      const { data } = await api.delete(`/applications/archive/global/${applicationId}/permanent`);
       if (data.success) {
         set((state) => ({
-          globalArchive: state.globalArchive.filter((a) => a.id !== contractId),
+          globalArchive: state.globalArchive.filter((a) => a.id !== applicationId),
           globalTotal: state.globalTotal - 1,
           isLoading: false,
         }));
@@ -235,7 +241,7 @@ export const useArchiveStore = create<ArchiveState>()((set, get) => ({
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
       set({
-        error: error.response?.data?.message || "Failed to delete contract",
+        error: error.response?.data?.message || "Failed to delete application",
         isLoading: false,
       });
       return false;
@@ -245,7 +251,7 @@ export const useArchiveStore = create<ArchiveState>()((set, get) => ({
   emptyGlobalArchive: async () => {
     set({ isLoading: true, error: null });
     try {
-      const { data } = await api.delete("/contracts/archive/global");
+      const { data } = await api.delete("/applications/archive/global");
       if (data.success) {
         set({ globalArchive: [], globalTotal: 0, isLoading: false });
         return true;

@@ -2,10 +2,10 @@ import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
-import { useContractStore } from "@/store/contract.store";
+import { useApplicationStore } from "@/store/application.store";
 
 export default function ContractsPage() {
-  const { contracts, isLoading, fetchContracts } = useContractStore();
+  const { applications: contracts, isLoading, fetchApplications: fetchContracts } = useApplicationStore();
 
   useEffect(() => {
     fetchContracts();
@@ -13,7 +13,7 @@ export default function ContractsPage() {
 
   if (isLoading && contracts.length === 0) {
     return (
-      <div className="container mx-auto py-10 flex items-center justify-center min-h-[400px]">
+      <div className="container mx-auto py-10 flex items-center justify-center min-h-100">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );

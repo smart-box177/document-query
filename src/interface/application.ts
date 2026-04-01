@@ -2,16 +2,36 @@
 export interface IApplication {
   _id?: string; 
   id?: string;
-  contractId?: string;
   userId?: string;
-  status?: "DRAFT" | "SUBMITTED" | "REVIEWING" | "APPROVED" | "REJECTED";
+  status?: "DRAFT" | "SUBMITTED" | "REVIEWING" | "APPROVED" | "REJECTED" | "REVISION_REQUESTED";
   createdAt?: Date;
   updatedAt?: Date;
   adminComments?: string;
 
-  sectionA: ISectionA;
-  sectionB: ISectionB;
-  sectionC: ISectionC;
+  // NCCC multi-step form sections
+  sectionA?: ISectionA;
+  sectionB?: ISectionB;
+  sectionC?: ISectionC;
+
+  // Contract / document fields (migrated from Contract model)
+  operator?: string;
+  contractorName?: string;
+  contractTitle?: string;
+  year?: string;
+  contractNumber?: string;
+  startDate?: string;
+  endDate?: string;
+  contractValue?: number;
+  contractStatus?: "active" | "completed" | "pending" | "cancelled";
+
+  // Media fields
+  hasMedia?: boolean;
+  mediaType?: "pdf" | "image" | "document" | "other" | null;
+
+  // Archive fields
+  isArchived?: boolean;
+  archivedAt?: Date;
+  archivedBy?: string;
 
   notes?: string;
   attachments?: string[];
@@ -229,8 +249,10 @@ export interface IApplicationResponse {
 // Application filter interface
 export interface IApplicationFilter {
   status?: string[];
-  contractId?: string;
   fromDate?: Date;
   toDate?: Date;
   search?: string;
+  operator?: string;
+  contractorName?: string;
+  year?: string;
 }

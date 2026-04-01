@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { useArchiveStore, type ArchivedContract } from "@/store/archive.store";
+import { useArchiveStore, type ArchivedApplication } from "@/store/archive.store";
 import { useAuthStore } from "@/store/auth.store";
 
 const Archive = () => {
@@ -60,7 +60,7 @@ const Archive = () => {
   const [activeTab, setActiveTab] = useState<"user" | "global">("user");
   const [restoreDialogOpen, setRestoreDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<ArchivedContract | null>(null);
+  const [selectedItem, setSelectedItem] = useState<ArchivedApplication | null>(null);
   const [emptyArchiveDialogOpen, setEmptyArchiveDialogOpen] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
 
@@ -76,10 +76,10 @@ const Archive = () => {
 
   const filteredArchived = currentArchive.filter(
     (item) =>
-      item.contractTitle.toLowerCase().includes(filter.toLowerCase()) ||
-      item.operator.toLowerCase().includes(filter.toLowerCase()) ||
-      item.contractorName.toLowerCase().includes(filter.toLowerCase()) ||
-      item.contractNumber.toLowerCase().includes(filter.toLowerCase())
+      item.contractTitle?.toLowerCase().includes(filter.toLowerCase()) ||
+      item.operator?.toLowerCase().includes(filter.toLowerCase()) ||
+      item.contractorName?.toLowerCase().includes(filter.toLowerCase()) ||
+      item.contractNumber?.toLowerCase().includes(filter.toLowerCase())
   );
 
   const formatDate = (dateString: string) => {
@@ -90,7 +90,8 @@ const Archive = () => {
     });
   };
 
-  const formatCurrency = (value: number | string) => {
+  const formatCurrency = (value: number | string | undefined) => {
+    if (value === undefined || value === null) return "N/A";
     const numValue = typeof value === "string" ? parseFloat(value) : value;
     if (isNaN(numValue)) return value;
     return new Intl.NumberFormat("en-US", {
@@ -154,7 +155,7 @@ const Archive = () => {
     }
   };
 
-  const getArchivedByName = (item: ArchivedContract) => {
+  const getArchivedByName = (item: ArchivedApplication) => {
     if (activeTab === "user") return "You";
     if (item.archivedBy) {
       const { firstname, lastname, username } = item.archivedBy;

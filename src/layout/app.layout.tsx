@@ -53,7 +53,7 @@ import {
 import { useAuthStore } from "@/store/auth.store";
 import {
   useBookmarkStore,
-  type BookmarkedContract,
+  type BookmarkedApplication,
 } from "@/store/bookmark.store";
 import { toast } from "sonner";
 
@@ -122,20 +122,20 @@ const AppLayout = () => {
     }));
   };
 
-  const handleRemoveBookmark = async (bookmark: BookmarkedContract) => {
+  const handleRemoveBookmark = async (bookmark: BookmarkedApplication) => {
     const success = await removeBookmark(bookmark.id);
     if (success) {
       toast.success(`Removed: ${bookmark.contractTitle}`);
     }
   };
 
-  const handleCopyLink = (bookmark: BookmarkedContract) => {
+  const handleCopyLink = (bookmark: BookmarkedApplication) => {
     const url = `${window.location.origin}/app/contracts/${bookmark.id}`;
     navigator.clipboard.writeText(url);
     toast.success("Link copied to clipboard");
   };
 
-  const handleOpenInNewTab = (bookmark: BookmarkedContract) => {
+  const handleOpenInNewTab = (bookmark: BookmarkedApplication) => {
     window.open(`/app/contracts/${bookmark.id}`, "_blank");
   };
 

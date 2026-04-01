@@ -2,9 +2,9 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { type ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, Download, FileText } from "lucide-react";
-import type { IContract } from "@/interface/contract";
+import type { IApplication } from "@/interface/application";
 
-export interface SearchResult extends IContract {
+export interface SearchResult extends IApplication {
   _id: string;
   media?: Array<{
     url: string;

@@ -63,10 +63,10 @@ const Bookmarks = () => {
 
   const filteredBookmarks = bookmarks.filter(
     (item) =>
-      item.contractTitle.toLowerCase().includes(filter.toLowerCase()) ||
-      item.operator.toLowerCase().includes(filter.toLowerCase()) ||
-      item.contractorName.toLowerCase().includes(filter.toLowerCase()) ||
-      item.contractNumber.toLowerCase().includes(filter.toLowerCase())
+      item.contractTitle?.toLowerCase().includes(filter.toLowerCase()) ||
+      item.operator?.toLowerCase().includes(filter.toLowerCase()) ||
+      item.contractorName?.toLowerCase().includes(filter.toLowerCase()) ||
+      item.contractNumber?.toLowerCase().includes(filter.toLowerCase())
   );
 
   const formatDate = (dateString: string) => {
@@ -77,7 +77,7 @@ const Bookmarks = () => {
     });
   };
 
-  const formatCurrency = (value: number) => {
+  const formatCurrency = (value: number | undefined) => {
     if (!value) return "N/A";
     return new Intl.NumberFormat("en-US", {
       style: "currency",

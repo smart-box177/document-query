@@ -5,7 +5,6 @@ import History from "@/views/app/history";
 import Archive from "@/views/app/archive";
 import Setting from "@/views/app/settings";
 import Bookmarks from "@/views/app/bookmarks";
-import ContractDetail from "@/views/app/contract-detail";
 import NewApplicationSubmission from "@/views/app/new-application";
 import OperatorComplianceReports from "@/views/app/operator-compliance-reports";
 
@@ -29,10 +28,6 @@ export const appRoutes = [
   {
     path: "compliance-reports",
     element: <OperatorComplianceReports />,
-  },
-  {
-    path: "contracts/:id",
-    element: <ContractDetail />,
   },
   {
     path: "history",
