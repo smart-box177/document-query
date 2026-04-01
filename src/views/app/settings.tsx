@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { User, Bell, Shield, Palette, Save, Loader2 } from "lucide-react";
+import { useState, useRef } from "react";
+import { User, Bell, Shield, Palette, Save, Loader2, Upload, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,16 +10,23 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { useAuthStore } from "@/store/auth.store";
 import { toast } from "sonner";
+import { api } from "@/config/axios";
 
 const Settings = () => {
-  const { user } = useAuthStore();
+  const { user, setUser } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploadingSig, setIsUploadingSig] = useState(false);
+  const signatureInputRef = useRef<HTMLInputElement>(null);
 
   // Profile form state
   const [profile, setProfile] = useState({
     username: user?.username || "",
     email: user?.email || "",
+    signature: (user as any)?.signature || "",
   });
+
+  const [signatureFile, setSignatureFile] = useState<File | null>(null);
+  const [signaturePreview, setSignaturePreview] = useState<string | null>(null);
 
   // Notification settings
   const [notifications, setNotifications] = useState({
@@ -44,12 +51,97 @@ const Settings = () => {
       .slice(0, 2);
   };
 
+  const handleSignatureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSignatureFile(file);
+      setSignaturePreview(URL.createObjectURL(file));
+    }
+  };
+
+  const removeBackground = () => {
+    if (!signaturePreview) return;
+    setIsUploadingSig(true);
+    const img = new Image();
+    img.crossOrigin = "Anonymous";
+    img.src = signaturePreview;
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return setIsUploadingSig(false);
+      
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+      
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imageData.data;
+      
+      const threshold = 200; // Threshold for "white"
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+        if (r > threshold && g > threshold && b > threshold) {
+          data[i + 3] = 0; // Set alpha to 0 for white pixels
+        }
+      }
+      ctx.putImageData(imageData, 0, 0);
+      
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const newFile = new File([blob], "signature_processed.png", { type: "image/png" });
+          setSignatureFile(newFile);
+          setSignaturePreview(URL.createObjectURL(blob));
+        }
+        setIsUploadingSig(false);
+        toast.success("Background removed!");
+      }, "image/png");
+    };
+    img.onerror = () => {
+      setIsUploadingSig(false);
+      toast.error("Failed to process image");
+    };
+  };
+
   const handleProfileSave = async () => {
     setIsLoading(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setIsLoading(false);
-    toast.success("Profile updated successfully");
+    try {
+      let uploadedSignatureUrl = profile.signature;
+
+      // If user selected a new signature file, upload it first
+      if (signatureFile) {
+        const formData = new FormData();
+        formData.append("file", signatureFile);
+        
+        const mediaRes = await api.post("/media", formData, {
+          headers: { "Content-Type": "multipart/form-data" }
+        });
+        if (mediaRes.data.success) {
+          uploadedSignatureUrl = mediaRes.data.data.url;
+        }
+      }
+
+      // Update profile with the new fields
+      const res = await api.put("/auth/profile", {
+        username: profile.username,
+        email: profile.email,
+        signature: uploadedSignatureUrl,
+      });
+
+      if (res.data.success) {
+        setUser(res.data.data);
+        setProfile(prev => ({ ...prev, signature: uploadedSignatureUrl }));
+        setSignatureFile(null);
+        toast.success("Profile updated successfully");
+      } else {
+        toast.error(res.data.message || "Failed to update profile");
+      }
+    } catch (error) {
+      toast.error("Failed to update profile");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleNotificationsSave = async () => {
@@ -150,6 +242,73 @@ const Settings = () => {
                     }
                     placeholder="Enter your email"
                   />
+                </div>
+
+                <Separator className="my-2" />
+
+                {/* Signature Section */}
+                <div className="grid gap-2">
+                  <Label>Digital Signature</Label>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Upload your signature to use in applications. You can automatically remove the white background.
+                  </p>
+                  <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center bg-muted/20 hover:bg-muted/40 transition-colors relative group">
+                    <input
+                      type="file"
+                      ref={signatureInputRef}
+                      className="hidden"
+                      accept="image/png, image/jpeg"
+                      onChange={handleSignatureChange}
+                    />
+                    
+                    {(signaturePreview || profile.signature) ? (
+                      <div className="flex flex-col items-center w-full">
+                        <div className="bg-white/10 dark:bg-black/10 border p-2 rounded-md mb-4 w-full flex justify-center min-h-[100px] overflow-hidden">
+                          <img 
+                            src={signaturePreview || profile.signature} 
+                            alt="Signature" 
+                            className="max-h-[150px] object-contain mix-blend-multiply dark:mix-blend-screen"
+                          />
+                        </div>
+                        <div className="flex gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => signatureInputRef.current?.click()}
+                          >
+                            <Upload className="h-4 w-4 mr-2" /> Change
+                          </Button>
+                          {signaturePreview && (
+                            <Button 
+                              variant="secondary" 
+                              size="sm" 
+                              onClick={removeBackground}
+                              disabled={isUploadingSig}
+                            >
+                              {isUploadingSig ? <Loader2 className="h-4 w-4 animate-spin" /> : "Remove Background"}
+                            </Button>
+                          )}
+                          <Button 
+                            variant="destructive" 
+                            size="sm" 
+                            onClick={() => {
+                              setSignaturePreview(null);
+                              setSignatureFile(null);
+                              setProfile(prev => ({ ...prev, signature: "" }));
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-center cursor-pointer py-4 w-full" onClick={() => signatureInputRef.current?.click()}>
+                        <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                        <p className="text-sm font-medium">Click to upload signature</p>
+                        <p className="text-xs text-muted-foreground mt-1">PNG or JPG (max. 2MB)</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 

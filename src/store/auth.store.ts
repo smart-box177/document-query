@@ -83,6 +83,7 @@ interface AuthState {
   fetchMe: () => Promise<boolean>;
   logout: () => void;
   setAuth: (user: IAuthUser, accessToken: string, refreshToken: string) => void;
+  setUser: (user: IAuthUser) => void;
   setRecentSearches: (searches: RecentSearch[]) => void;
   clearError: () => void;
   initializeFromStorage: () => Promise<void>;
@@ -226,6 +227,11 @@ export const useAuthStore = create<AuthState>()((set) => ({
     storage.setTokens(accessToken, refreshToken);
     storage.setUser(user);
     set({ user, accessToken, refreshToken });
+  },
+
+  setUser: (user) => {
+    storage.setUser(user);
+    set({ user });
   },
 
   setRecentSearches: (searches) => {
