@@ -313,7 +313,7 @@ const ApplicationReviewQueue = () => {
 
       {/* Full Preview Modal */}
       <Dialog open={isPreviewModalOpen} onOpenChange={setIsPreviewModalOpen}>
-        <DialogContent className="max-w-5xl h-[85vh] flex flex-col">
+        <DialogContent className="max-w-6xl min-w-4xl w-full h-[85vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>Application Preview</DialogTitle>
             <DialogDescription>
