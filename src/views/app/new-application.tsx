@@ -11,7 +11,7 @@ import {
   StepperContent,
   StepperDescription,
 } from "@/components/reui/stepper";
-import { FileTextIcon, GraduationCapIcon, ListIcon, PlusIcon, EyeIcon } from "lucide-react";
+import { FileTextIcon, GraduationCapIcon, ListIcon, PlusIcon, EyeIcon, PenLineIcon } from "lucide-react";
 import { Badge } from "@/components/reui/badge";
 import { useApplicationStore } from "@/store/application.store";
 import { useApplicationFormStore } from "@/store/application-form.store";
@@ -27,6 +27,7 @@ import {
 import SectionA from "./application/section-a";
 import SectionB from "./application/section-b";
 import SectionC from "./application/section-c";
+import Declaration from "./application/declaration";
 import ApplicationPreview from "./application/preview";
 
 // Helper function to count filled fields recursively
@@ -156,6 +157,12 @@ const NewApplicationSubmission = () => {
     },
     {
       id: 4,
+      title: "Declaration & Signatures",
+      description: "Declaration",
+      icon: <PenLineIcon className="size-4" />,
+    },
+    {
+      id: 5,
       title: "Preview",
       description: "Review Application",
       icon: <EyeIcon className="size-4" />,
@@ -229,9 +236,13 @@ const NewApplicationSubmission = () => {
         return;
       }
     } else if (activeStep === 4) {
-      // Moving from Preview back to Section C
+      // Moving from Declaration back to Section C
       setActiveStep(3);
       setActiveCTab("c3");
+      return;
+    } else if (activeStep === 5) {
+      // Moving from Preview back to Declaration
+      setActiveStep(4);
       return;
     }
     // Move to previous main step
@@ -363,7 +374,8 @@ const NewApplicationSubmission = () => {
                     onTabChange={setActiveCTab}
                   />
                 )}
-                {step.id === 4 && <ApplicationPreview />}
+                {step.id === 4 && <Declaration />}
+                {step.id === 5 && <ApplicationPreview />}
               </div>
 
               <div className="flex justify-between mt-6 pt-4 border-t">
@@ -407,6 +419,8 @@ const NewApplicationSubmission = () => {
                       : activeStep === 2 && activeBTab === "b6"
                       ? "Next Section"
                       : activeStep === 3 && activeCTab === "c3"
+                      ? "Next Section"
+                      : activeStep === 4
                       ? "Preview Application"
                       : "Next"}
                   </button>
@@ -419,7 +433,7 @@ const NewApplicationSubmission = () => {
 
       {/* Preview Drawer — opens at any step to show current form progress */}
       <Sheet open={previewOpen} onOpenChange={setPreviewOpen}>
-        <SheetContent side="right" className="w-full sm:max-w-2xl overflow-y-auto">
+        <SheetContent side="right" className="w-full sm:max-w-2xl overflow-y-auto px-4">
           <SheetHeader className="pb-4 border-b border-border">
             <SheetTitle className="flex items-center gap-2">
               <EyeIcon className="size-4" />
