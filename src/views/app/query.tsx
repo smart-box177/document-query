@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, Filter, MoreHorizontalIcon } from "lucide-react";
 import { DataTable } from "./contracts/data-table";
@@ -16,6 +17,7 @@ import {
 
 const Query = () => {
   const [activeStatus, setActiveStatus] = useState("all");
+  const navigate = useNavigate();
 
   const {
     applications,
@@ -122,27 +124,36 @@ const Query = () => {
     {
       id: "actions",
       header: "Actions",
-      cell: () => (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm">
-             <MoreHorizontalIcon/>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem>View Details</DropdownMenuItem>
-            <DropdownMenuItem>Edit</DropdownMenuItem>
-            <DropdownMenuItem>Delete</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ),
+      cell: ({ row }: any) => {
+        const app = row.original;
+        const isDraft = app.status === "DRAFT";
+        const appId = app._id ?? app.id;
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm">
+               <MoreHorizontalIcon/>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem>View Details</DropdownMenuItem>
+              {isDraft && (
+                <DropdownMenuItem onClick={() => navigate(`/app/new-application/${appId}`)}>
+                  Edit Draft
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem>Delete</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
       enableSorting: false,
       enableHiding: false,
     },
   ];
 
   return (
-    <div className="container mx-auto py-10 space-y-6">
+    <div className="container mx-auto py-10 space-y-6 px-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

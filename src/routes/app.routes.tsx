@@ -26,6 +26,10 @@ export const appRoutes = [
     element: <NewApplicationSubmission />,
   },
   {
+    path: "new-application/:id",
+    element: <NewApplicationSubmission />,
+  },
+  {
     path: "compliance-reports",
     element: <OperatorComplianceReports />,
   },

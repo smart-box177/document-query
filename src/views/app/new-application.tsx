@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import {
   Stepper,
   StepperNav,
@@ -71,6 +72,7 @@ const calculateCompletionPercentage = (formData: unknown): number => {
 };
 
 const NewApplicationSubmission = () => {
+  const { id } = useParams<{ id: string }>();
   const [activeStep, setActiveStep] = useState(1);
   const [activeBTab, setActiveBTab] = useState("b1");
   const [activeB1SubTab, setActiveB1SubTab] = useState("b1-0");
@@ -86,9 +88,22 @@ const NewApplicationSubmission = () => {
     applications,
     isLoading,
     error,
+    fetchApplicationById,
   } = useApplicationStore();
 
-  const { formData, resetForm } = useApplicationFormStore();
+  const { formData, resetForm, loadDraft } = useApplicationFormStore();
+
+  // When navigated to /new-application/:id, load the draft into the form
+  useEffect(() => {
+    if (id) {
+      fetchApplicationById(id).then(() => {
+        // currentApplication is set by fetchApplicationById — read latest store state
+        const app = useApplicationStore.getState().currentApplication;
+        if (app) loadDraft(app);
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   const completionPercentage = calculateCompletionPercentage(formData);
   const isFormEmpty = completionPercentage === 0;

@@ -10,6 +10,7 @@ interface ApplicationFormState {
   updateSectionA: (data: any) => void;
   updateSectionB: (data: any) => void;
   updateSectionC: (data: any) => void;
+  loadDraft: (application: IApplication) => void;
   updateDeclaration: (data: Pick<IApplication,
     'operatorSignature' | 'operatorSignatureToken' | 'operatorName' | 'operatorDesignation' | 'operatorDate' |
     'serviceProviderSignature' | 'serviceProviderSignatureToken' | 'serviceProviderName' | 'serviceProviderDesignation' | 'serviceProviderDate'
@@ -240,6 +241,11 @@ export const useApplicationFormStore = create<ApplicationFormState>()((set) => (
   resetForm: () => {
     clearLocalStorage();
     set({ formData: defaultInitialData });
+  },
+  loadDraft: (application: IApplication) => {
+    const data: Partial<IApplication> = { ...application };
+    saveToLocalStorage(data);
+    set({ formData: data });
   },
   updateDeclaration: (data) => {
     set((state) => {
