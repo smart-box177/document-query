@@ -4,12 +4,13 @@ import {
   Search,
   MoreHorizontal,
   Shield,
-  ShieldOff,
+  ShieldCheck,
   Trash2,
   Loader2,
   Mail,
   Calendar,
   UserCircle,
+  ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,9 +32,36 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
-import { useUserStore, type User } from "@/store/user.store";
+import { useUserStore, type User, type UserRole } from "@/store/user.store";
+
+const ROLE_LABELS: Record<UserRole, string> = {
+  user: "User",
+  admin: "Admin",
+  PCAD: "PCAD Officer",
+};
+
+const ROLE_BADGE: Record<UserRole, string> = {
+  user: "",
+  admin: "bg-primary text-primary-foreground",
+  PCAD: "bg-amber-500 text-white",
+};
 
 const Users = () => {
   const { users, isLoading, fetchUsers, updateUserRole, deleteUser } = useUserStore();
@@ -41,6 +69,7 @@ const Users = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [roleDialogOpen, setRoleDialogOpen] = useState(false);
+  const [pendingRole, setPendingRole] = useState<UserRole>("user");
   const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
@@ -70,16 +99,15 @@ const Users = () => {
     });
   };
 
-  const handleToggleRole = async () => {
+  const handleUpdateRole = async () => {
     if (!selectedUser) return;
     setActionLoading(true);
 
-    const newRole = selectedUser.role === "admin" ? "user" : "admin";
-    const success = await updateUserRole(selectedUser._id, newRole);
+    const success = await updateUserRole(selectedUser._id, pendingRole);
 
     if (success) {
       toast.success(
-        `${selectedUser.username} is now ${newRole === "admin" ? "an admin" : "a user"}`
+        `${selectedUser.username} is now ${ROLE_LABELS[pendingRole]}`
       );
     } else {
       toast.error("Failed to update user role");
@@ -109,7 +137,7 @@ const Users = () => {
 
   if (isLoading && users.length === 0) {
     return (
-      <div className="p-6 flex items-center justify-center min-h-[400px]">
+      <div className="p-6 flex items-center justify-center min-h-100">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
@@ -177,9 +205,9 @@ const Users = () => {
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
                         <p className="font-medium truncate">{user.username}</p>
-                        {user.role === "admin" && (
-                          <span className="px-1.5 py-0.5 text-[10px] font-medium bg-primary text-primary-foreground rounded">
-                            Admin
+                        {user.role !== "user" && (
+                          <span className={`px-1.5 py-0.5 text-[10px] font-medium rounded ${ROLE_BADGE[user.role]}`}>
+                            {ROLE_LABELS[user.role]}
                           </span>
                         )}
                       </div>
@@ -214,20 +242,13 @@ const Users = () => {
                         <DropdownMenuItem
                           onClick={() => {
                             setSelectedUser(user);
+                            setPendingRole(user.role);
                             setRoleDialogOpen(true);
                           }}
                         >
-                          {user.role === "admin" ? (
-                            <>
-                              <ShieldOff className="h-4 w-4 mr-2" />
-                              Remove Admin
-                            </>
-                          ) : (
-                            <>
-                              <Shield className="h-4 w-4 mr-2" />
-                              Make Admin
-                            </>
-                          )}
+                          <Shield className="h-4 w-4 mr-2" />
+                          Assign Role
+                          <ChevronDown className="h-3 w-3 ml-auto" />
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
@@ -250,33 +271,66 @@ const Users = () => {
         </div>
       )}
 
-      {/* Role Change Dialog */}
-      <AlertDialog open={roleDialogOpen} onOpenChange={setRoleDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              {selectedUser?.role === "admin" ? "Remove admin access?" : "Grant admin access?"}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {selectedUser?.role === "admin"
-                ? `${selectedUser?.username} will no longer have admin privileges.`
-                : `${selectedUser?.username} will have full admin access to manage contracts and users.`}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={actionLoading}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleToggleRole} disabled={actionLoading}>
+      {/* Role Assignment Dialog */}
+      <Dialog open={roleDialogOpen} onOpenChange={setRoleDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ShieldCheck className="h-5 w-5 text-primary" />
+              Assign Role — {selectedUser?.username}
+            </DialogTitle>
+            <DialogDescription>
+              Select the role to assign. <strong>PCAD Officers</strong> receive
+              new application notifications and are the only users authorised to
+              approve, reject, or request revisions.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="py-2 space-y-3">
+            <Select
+              value={pendingRole}
+              onValueChange={(v) => setPendingRole(v as UserRole)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select role" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="user">User — standard access</SelectItem>
+                <SelectItem value="PCAD">PCAD Officer — can review &amp; approve applications</SelectItem>
+                <SelectItem value="admin">Admin — full platform management</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {pendingRole === "PCAD" && (
+              <p className="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded px-3 py-2">
+                This user will receive email notifications for every new application submitted and will be able to approve or reject them.
+              </p>
+            )}
+            {pendingRole === "admin" && (
+              <p className="text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded px-3 py-2">
+                Admin users can manage all users, view the review queue, and configure the platform — but cannot approve applications (that requires PCAD role).
+              </p>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRoleDialogOpen(false)} disabled={actionLoading}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleUpdateRole}
+              disabled={actionLoading || pendingRole === selectedUser?.role}
+            >
               {actionLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : selectedUser?.role === "admin" ? (
-                "Remove Admin"
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
               ) : (
-                "Make Admin"
+                <ShieldCheck className="h-4 w-4 mr-2" />
               )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+              Confirm
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Delete Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

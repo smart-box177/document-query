@@ -37,7 +37,7 @@ import { useApplicationFormStore } from "@/store/application-form.store";
 import { Label } from "@/components/ui/label";
 
 const ApplicationReviewQueue = () => {
-  const { applications, fetchApplications, reviewApplication, isLoading } = useApplicationStore();
+  const { adminApplications, fetchAllApplications, reviewApplication, isLoading } = useApplicationStore();
   const { updateFormData } = useApplicationFormStore();
   
   const [searchTerm, setSearchTerm] = useState("");
@@ -52,20 +52,23 @@ const ApplicationReviewQueue = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    fetchApplications();
-  }, [fetchApplications]);
+    fetchAllApplications();
+  }, [fetchAllApplications]);
 
-  const filteredApplications = applications.filter((app) => {
-    const matchesSearch = 
-      app.sectionA?.contractProjectTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      app.sectionA?.operatorOrProjectPromoter?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      app.sectionA?.referenceNumber?.toLowerCase().includes(searchTerm.toLowerCase());
-      
+  const filteredApplications = adminApplications.filter((app) => {
+    const appId = String(app.id ?? app._id ?? "");
+    const title = app.sectionA?.contractProjectTitle ?? app.contractTitle ?? "";
+    const operator = app.sectionA?.operatorOrProjectPromoter ?? app.operator ?? "";
+    const ref = app.sectionA?.referenceNumber ?? appId;
+
+    const matchesSearch =
+      title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      operator.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ref.toLowerCase().includes(searchTerm.toLowerCase());
+
     const matchesStatus = statusFilter === "ALL" || app.status === statusFilter;
-    
-    // Only show submitted apps or those in review process, not drafts
     const isSubmittable = app.status !== "DRAFT";
-    
+
     return matchesSearch && matchesStatus && isSubmittable;
   });
 
@@ -100,7 +103,8 @@ const ApplicationReviewQueue = () => {
   };
 
   const submitReview = async () => {
-    if (!selectedApp?.id || !actionType) return;
+    const appId = String(selectedApp?.id ?? selectedApp?._id ?? "");
+    if (!appId || !actionType) return;
     
     if ((actionType === "REJECTED" || actionType === "REVISION_REQUESTED") && !adminComments.trim()) {
       toast.error("Comments are required for rejections or revision requests.");
@@ -108,7 +112,7 @@ const ApplicationReviewQueue = () => {
     }
 
     setIsSubmitting(true);
-    const success = await reviewApplication(selectedApp.id, actionType, adminComments);
+    const success = await reviewApplication(appId, actionType, adminComments);
     setIsSubmitting(false);
 
     if (success) {
@@ -160,7 +164,7 @@ const ApplicationReviewQueue = () => {
                 />
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-45">
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -176,7 +180,7 @@ const ApplicationReviewQueue = () => {
           </div>
         </CardHeader>
         <CardContent>
-          {isLoading && applications.length === 0 ? (
+          {isLoading && adminApplications.length === 0 ? (
             <div className="flex justify-center items-center py-8">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
@@ -201,15 +205,20 @@ const ApplicationReviewQueue = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredApplications.map((app) => (
-                    <TableRow key={app.id}>
+                  {filteredApplications.map((app) => {
+                    const appId = String(app.id ?? app._id ?? "");
+                    const title = app.sectionA?.contractProjectTitle ?? app.contractTitle ?? "Untitled";
+                    const ref = app.sectionA?.referenceNumber ?? appId.slice(-8).toUpperCase();
+                    const operatorName = app.sectionA?.operatorOrProjectPromoter ?? app.operator ?? "Unknown";
+                    return (
+                    <TableRow key={appId}>
                       <TableCell>
-                        <div className="font-medium">{app.sectionA?.referenceNumber || "N/A"}</div>
-                        <div className="text-xs text-muted-foreground truncate max-w-[200px]">
-                          {app.sectionA?.contractProjectTitle || "Untitled"}
+                        <div className="font-medium">{ref}</div>
+                        <div className="text-xs text-muted-foreground truncate max-w-50">
+                          {title}
                         </div>
                       </TableCell>
-                      <TableCell>{app.sectionA?.operatorOrProjectPromoter || "Unknown"}</TableCell>
+                      <TableCell>{operatorName}</TableCell>
                       <TableCell>
                         {app.updatedAt ? format(new Date(app.updatedAt), "MMM d, yyyy") : "N/A"}
                       </TableCell>
@@ -251,7 +260,8 @@ const ApplicationReviewQueue = () => {
                         </Button>
                       </TableCell>
                     </TableRow>
-                  ))}
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>
@@ -274,7 +284,7 @@ const ApplicationReviewQueue = () => {
             <Textarea
               id="comments"
               placeholder="Provide detailed feedback for the operator..."
-              className="mt-2 min-h-[100px]"
+              className="mt-2 min-h-25"
               value={adminComments}
               onChange={(e) => setAdminComments(e.target.value)}
               required={actionType === "REJECTED" || actionType === "REVISION_REQUESTED"}

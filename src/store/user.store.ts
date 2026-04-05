@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import { api } from "@/config/axios";
 
+export type UserRole = "user" | "admin" | "PCAD";
+
 export interface User {
   _id: string;
   username: string;
@@ -8,7 +10,7 @@ export interface User {
   firstname?: string;
   lastname?: string;
   avatar?: string;
-  role: string;
+  role: UserRole;
   authProvider: string;
   createdAt: string;
 }
@@ -16,6 +18,7 @@ export interface User {
 export interface UserStats {
   totalUsers: number;
   adminCount: number;
+  pcadCount: number;
   userCount: number;
   recentUsers: {
     username: string;
@@ -32,7 +35,7 @@ interface UserState {
 
   fetchUsers: () => Promise<void>;
   fetchUserStats: () => Promise<void>;
-  updateUserRole: (userId: string, role: "user" | "admin") => Promise<boolean>;
+  updateUserRole: (userId: string, role: UserRole) => Promise<boolean>;
   deleteUser: (userId: string) => Promise<boolean>;
   clearError: () => void;
 }
@@ -79,7 +82,7 @@ export const useUserStore = create<UserState>()((set) => ({
     }
   },
 
-  updateUserRole: async (userId: string, role: "user" | "admin") => {
+  updateUserRole: async (userId: string, role: UserRole) => {
     set({ isLoading: true, error: null });
     try {
       const { data } = await api.patch(`/admin/${userId}/role`, { role });

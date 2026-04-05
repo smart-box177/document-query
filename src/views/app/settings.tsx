@@ -1,19 +1,41 @@
 import { useState, useRef } from "react";
-import { User, Bell, Shield, Palette, Save, Loader2, Upload, Trash2, Crop as CropIcon } from "lucide-react";
+import {
+  User,
+  Bell,
+  Shield,
+  Palette,
+  Save,
+  Loader2,
+  Upload,
+  Trash2,
+  Crop as CropIcon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { useAuthStore } from "@/store/auth.store";
 import { toast } from "sonner";
 import { api } from "@/config/axios";
-import ReactCrop, { type Crop, type PixelCrop } from 'react-image-crop';
-import 'react-image-crop/dist/ReactCrop.css';
+import ReactCrop, { type Crop, type PixelCrop } from "react-image-crop";
+import "react-image-crop/dist/ReactCrop.css";
 
 const Settings = () => {
   const { user, setUser } = useAuthStore();
@@ -72,7 +94,12 @@ const Settings = () => {
   };
 
   const getCroppedImg = async () => {
-    if (!imgRef.current || !completedCrop || completedCrop.width === 0 || completedCrop.height === 0) {
+    if (
+      !imgRef.current ||
+      !completedCrop ||
+      completedCrop.width === 0 ||
+      completedCrop.height === 0
+    ) {
       return;
     }
 
@@ -99,7 +126,7 @@ const Settings = () => {
       0,
       0,
       completedCrop.width,
-      completedCrop.height
+      completedCrop.height,
     );
 
     canvas.toBlob((blob) => {
@@ -107,7 +134,9 @@ const Settings = () => {
         toast.error("Canvas is empty");
         return;
       }
-      const newFile = new File([blob], "signature_cropped.png", { type: "image/png" });
+      const newFile = new File([blob], "signature_cropped.png", {
+        type: "image/png",
+      });
       setSignatureFile(newFile);
       setSignaturePreview(URL.createObjectURL(blob));
       setIsCropModalOpen(false);
@@ -119,20 +148,20 @@ const Settings = () => {
   const removeBackground = async () => {
     if (!signaturePreview) return;
     setIsUploadingSig(true);
-    
+
     try {
       let imageUrl = signaturePreview;
-      
+
       // If we only have a local file blob URL, we need to upload it first
       // before we can use the remove.bg API which expects a public URL
-      if (signatureFile && signaturePreview.startsWith('blob:')) {
+      if (signatureFile && signaturePreview.startsWith("blob:")) {
         const formData = new FormData();
         formData.append("file", signatureFile);
-        
+
         const mediaRes = await api.post("/users/signature", formData, {
-          headers: { "Content-Type": "multipart/form-data" }
+          headers: { "Content-Type": "multipart/form-data" },
         });
-        
+
         if (mediaRes.data.success) {
           imageUrl = mediaRes.data.data.signatureUrl;
         } else {
@@ -141,15 +170,17 @@ const Settings = () => {
       }
 
       const res = await api.post("/users/signature/remove-bg", {
-        imageUrl: imageUrl
+        imageUrl: imageUrl,
       });
 
       if (res.data.success && res.data.data.processedImage) {
         // Convert base64 back to file
         const response = await fetch(res.data.data.processedImage);
         const blob = await response.blob();
-        const newFile = new File([blob], "signature_processed.png", { type: "image/png" });
-        
+        const newFile = new File([blob], "signature_processed.png", {
+          type: "image/png",
+        });
+
         setSignatureFile(newFile);
         setSignaturePreview(URL.createObjectURL(blob));
         toast.success("Background removed successfully!");
@@ -173,9 +204,9 @@ const Settings = () => {
       if (signatureFile) {
         const formData = new FormData();
         formData.append("file", signatureFile);
-        
+
         const mediaRes = await api.post("/users/signature", formData, {
-          headers: { "Content-Type": "multipart/form-data" }
+          headers: { "Content-Type": "multipart/form-data" },
         });
         if (mediaRes.data.success) {
           uploadedSignatureUrl = mediaRes.data.data.signatureUrl;
@@ -191,7 +222,7 @@ const Settings = () => {
 
       if (res.data.success) {
         setUser(res.data.data);
-        setProfile(prev => ({ ...prev, signature: uploadedSignatureUrl }));
+        setProfile((prev) => ({ ...prev, signature: uploadedSignatureUrl }));
         setSignatureFile(null);
         toast.success("Profile updated successfully");
       } else {
@@ -310,7 +341,8 @@ const Settings = () => {
                 <div className="grid gap-2">
                   <Label>Digital Signature</Label>
                   <p className="text-sm text-muted-foreground mb-2">
-                    Upload your signature to use in applications. You can automatically remove the white background.
+                    Upload your signature to use in applications. You can
+                    automatically remove the white background.
                   </p>
                   <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center bg-muted/20 hover:bg-muted/40 transition-colors relative group">
                     <input
@@ -320,41 +352,48 @@ const Settings = () => {
                       accept="image/png, image/jpeg"
                       onChange={handleSignatureChange}
                     />
-                    
-                    {(signaturePreview || profile.signature) ? (
+
+                    {signaturePreview || profile.signature ? (
                       <div className="flex flex-col items-center w-full">
                         <div className="bg-white/10 dark:bg-black/10 border p-2 rounded-md mb-4 w-full flex justify-center min-h-[100px] overflow-hidden">
-                          <img 
-                            src={signaturePreview || profile.signature} 
-                            alt="Signature" 
+                          <img
+                            src={signaturePreview || profile.signature}
+                            alt="Signature"
                             className="max-h-[150px] object-contain mix-blend-multiply dark:mix-blend-screen"
                           />
                         </div>
                         <div className="flex gap-2">
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
+                          <Button
+                            variant="outline"
+                            size="sm"
                             onClick={() => signatureInputRef.current?.click()}
                           >
                             <Upload className="h-4 w-4 mr-2" /> Change
                           </Button>
                           {signaturePreview && (
-                            <Button 
-                              variant="secondary" 
-                              size="sm" 
+                            <Button
+                              variant="secondary"
+                              size="sm"
                               onClick={removeBackground}
                               disabled={isUploadingSig}
                             >
-                              {isUploadingSig ? <Loader2 className="h-4 w-4 animate-spin" /> : "Remove Background"}
+                              {isUploadingSig ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                "Remove Background"
+                              )}
                             </Button>
                           )}
-                          <Button 
-                            variant="destructive" 
-                            size="sm" 
+                          <Button
+                            variant="destructive"
+                            size="sm"
                             onClick={() => {
                               setSignaturePreview(null);
                               setSignatureFile(null);
-                              setProfile(prev => ({ ...prev, signature: "" }));
+                              setProfile((prev) => ({
+                                ...prev,
+                                signature: "",
+                              }));
                             }}
                           >
                             <Trash2 className="h-4 w-4" />
@@ -362,10 +401,17 @@ const Settings = () => {
                         </div>
                       </div>
                     ) : (
-                      <div className="text-center cursor-pointer py-4 w-full" onClick={() => signatureInputRef.current?.click()}>
+                      <div
+                        className="text-center cursor-pointer py-4 w-full"
+                        onClick={() => signatureInputRef.current?.click()}
+                      >
                         <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-                        <p className="text-sm font-medium">Click to upload signature</p>
-                        <p className="text-xs text-muted-foreground mt-1">PNG or JPG (max. 2MB)</p>
+                        <p className="text-sm font-medium">
+                          Click to upload signature
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          PNG or JPG (max. 2MB)
+                        </p>
                       </div>
                     )}
                   </div>
@@ -412,7 +458,10 @@ const Settings = () => {
                   <Switch
                     checked={notifications.emailNotifications}
                     onCheckedChange={(checked) =>
-                      setNotifications({ ...notifications, emailNotifications: checked })
+                      setNotifications({
+                        ...notifications,
+                        emailNotifications: checked,
+                      })
                     }
                   />
                 </div>
@@ -429,7 +478,10 @@ const Settings = () => {
                   <Switch
                     checked={notifications.searchAlerts}
                     onCheckedChange={(checked) =>
-                      setNotifications({ ...notifications, searchAlerts: checked })
+                      setNotifications({
+                        ...notifications,
+                        searchAlerts: checked,
+                      })
                     }
                   />
                 </div>
@@ -446,7 +498,10 @@ const Settings = () => {
                   <Switch
                     checked={notifications.contractUpdates}
                     onCheckedChange={(checked) =>
-                      setNotifications({ ...notifications, contractUpdates: checked })
+                      setNotifications({
+                        ...notifications,
+                        contractUpdates: checked,
+                      })
                     }
                   />
                 </div>
@@ -463,7 +518,10 @@ const Settings = () => {
                   <Switch
                     checked={notifications.weeklyDigest}
                     onCheckedChange={(checked) =>
-                      setNotifications({ ...notifications, weeklyDigest: checked })
+                      setNotifications({
+                        ...notifications,
+                        weeklyDigest: checked,
+                      })
                     }
                   />
                 </div>
@@ -582,7 +640,8 @@ const Settings = () => {
                 <div>
                   <Label>Theme</Label>
                   <p className="text-sm text-muted-foreground mb-3">
-                    Select your preferred theme. You can also toggle the theme using the switch in the sidebar.
+                    Select your preferred theme. You can also toggle the theme
+                    using the switch in the sidebar.
                   </p>
                   <div className="grid grid-cols-3 gap-4">
                     <button className="p-4 border rounded-lg hover:border-primary transition-colors text-center space-y-2">
@@ -626,22 +685,22 @@ const Settings = () => {
                   onLoad={(e) => {
                     // Provide a default crop covering a central area
                     const initialCrop: Crop = {
-                      unit: '%',
+                      unit: "%",
                       width: 90,
                       height: 90,
                       x: 5,
-                      y: 5
+                      y: 5,
                     };
                     setCrop(initialCrop);
-                    
+
                     // Convert percent to pixels for completedCrop based on rendered size
                     const { width, height } = e.currentTarget;
                     setCompletedCrop({
-                      unit: 'px',
+                      unit: "px",
                       width: width * 0.9,
                       height: height * 0.9,
                       x: width * 0.05,
-                      y: height * 0.05
+                      y: height * 0.05,
                     });
                   }}
                 />

@@ -4,6 +4,7 @@ import type { IApplication } from "@/interface/application";
 
 interface ApplicationState {
   applications: IApplication[];
+  adminApplications: IApplication[];
   currentApplication: IApplication | null;
   isLoading: boolean;
   error: string | null;
@@ -14,6 +15,7 @@ interface ApplicationState {
   saveAsDraft: (data: Partial<IApplication>, id?: string) => Promise<boolean>;
   saveAndSubmit: (data: Partial<IApplication>, id?: string) => Promise<boolean>;
   fetchApplications: () => Promise<void>;
+  fetchAllApplications: () => Promise<void>;
   fetchApplicationById: (id: string) => Promise<void>;
   deleteApplication: (id: string) => Promise<boolean>;
   clearError: () => void;
@@ -22,6 +24,7 @@ interface ApplicationState {
 
 export const useApplicationStore = create<ApplicationState>()((set) => ({
   applications: [],
+  adminApplications: [],
   currentApplication: null,
   isLoading: false,
   error: null,
@@ -84,12 +87,18 @@ export const useApplicationStore = create<ApplicationState>()((set) => ({
     try {
       const response = await api.put(`/applications/${id}/review`, { status, adminComments });
       if (response.data.success) {
+        const updated = response.data.data;
         set((state) => ({
           applications: state.applications.map((app) =>
-            app.id === id ? response.data.data : app
+            (app.id ?? app._id) === id ? updated : app
+          ),
+          adminApplications: state.adminApplications.map((app) =>
+            (app.id ?? app._id) === id ? updated : app
           ),
           currentApplication:
-            state.currentApplication?.id === id ? response.data.data : state.currentApplication,
+            (state.currentApplication?.id ?? state.currentApplication?._id) === id
+              ? updated
+              : state.currentApplication,
           isLoading: false,
         }));
         return true;
@@ -110,11 +119,31 @@ export const useApplicationStore = create<ApplicationState>()((set) => ({
   fetchApplications: async () => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.get("/admin/applications");
+      const response = await api.get("/applications");
       if (response.data.success) {
         const data = response.data.data;
         const applications = Array.isArray(data) ? data : (data?.applications ?? []);
         set({ applications, isLoading: false });
+      } else {
+        set({ error: response.data.message, isLoading: false });
+      }
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      set({
+        error: error.response?.data?.message || "Failed to fetch applications",
+        isLoading: false,
+      });
+    }
+  },
+
+  fetchAllApplications: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await api.get("/admin/applications");
+      if (response.data.success) {
+        const data = response.data.data;
+        const adminApplications = Array.isArray(data) ? data : (data?.applications ?? []);
+        set({ adminApplications, isLoading: false });
       } else {
         set({ error: response.data.message, isLoading: false });
       }
