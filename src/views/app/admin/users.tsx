@@ -55,12 +55,14 @@ const ROLE_LABELS: Record<UserRole, string> = {
   user: "User",
   admin: "Admin",
   PCAD: "PCAD Officer",
+  MD: "Managing Director",
 };
 
 const ROLE_BADGE: Record<UserRole, string> = {
   user: "",
   admin: "bg-primary text-primary-foreground",
   PCAD: "bg-amber-500 text-white",
+  MD: "bg-fuchsia-600 text-white",
 };
 
 const Users = () => {
@@ -298,6 +300,7 @@ const Users = () => {
                 <SelectItem value="user">User — standard access</SelectItem>
                 <SelectItem value="PCAD">PCAD Officer — can review &amp; approve applications</SelectItem>
                 <SelectItem value="admin">Admin — full platform management</SelectItem>
+                <SelectItem value="MD">Managing Director — executive access</SelectItem>
               </SelectContent>
             </Select>
 
@@ -309,6 +312,11 @@ const Users = () => {
             {pendingRole === "admin" && (
               <p className="text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded px-3 py-2">
                 Admin users can manage all users, view the review queue, and configure the platform — but cannot approve applications (that requires PCAD role).
+              </p>
+            )}
+            {pendingRole === "MD" && (
+              <p className="text-xs text-fuchsia-700 dark:text-fuchsia-400 bg-fuchsia-50 dark:bg-fuchsia-950/30 border border-fuchsia-200 dark:border-fuchsia-800 rounded px-3 py-2">
+                Managing Director: Executive access for compliance oversight and reporting. No direct application review permissions.
               </p>
             )}
           </div>

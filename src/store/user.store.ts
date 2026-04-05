@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { api } from "@/config/axios";
 
-export type UserRole = "user" | "admin" | "PCAD";
+export type UserRole = "user" | "admin" | "PCAD" | "MD";
 
 export interface User {
   _id: string;

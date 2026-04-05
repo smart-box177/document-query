@@ -108,7 +108,10 @@ const Query = () => {
     {
       header: "Contract ID",
       accessorKey: "contractNumber",
-      cell: ({ row }: any) => row.original.contractNumber || "-",
+      cell: ({ row }: any) => {
+        console.log(row.original);
+        return row.original.sectionA.referenceNumber || "-";
+      },
     },
     {
       header: "Contract Title",

@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { api } from "@/config/axios";
 import {
   BarChart3,
   Building2,
@@ -54,98 +55,28 @@ interface OperatorReport {
   trend: "up" | "down" | "stable";
 }
 
-// ─── Mock data (replace with API call when endpoint is ready) ─────────────────
+// ─── API Hook ───────────────────────────────────────────────────────────────
 
-const MOCK_REPORTS: OperatorReport[] = [
-  {
-    operator: "SEPLAT Energy",
-    submitted: 34,
-    approved: 28,
-    rejected: 3,
-    pending: 3,
-    revisionRequested: 0,
-    complianceRate: 82,
-    status: "compliant",
-    trend: "up",
-  },
-  {
-    operator: "NNPC Limited",
-    submitted: 58,
-    approved: 41,
-    rejected: 8,
-    pending: 9,
-    revisionRequested: 0,
-    complianceRate: 71,
-    status: "partial",
-    trend: "stable",
-  },
-  {
-    operator: "Shell SPDC",
-    submitted: 22,
-    approved: 10,
-    rejected: 9,
-    pending: 3,
-    revisionRequested: 0,
-    complianceRate: 45,
-    status: "non-compliant",
-    trend: "down",
-  },
-  {
-    operator: "TotalEnergies EP",
-    submitted: 47,
-    approved: 43,
-    rejected: 2,
-    pending: 2,
-    revisionRequested: 0,
-    complianceRate: 91,
-    status: "compliant",
-    trend: "up",
-  },
-  {
-    operator: "Chevron Nigeria",
-    submitted: 19,
-    approved: 14,
-    rejected: 1,
-    pending: 4,
-    revisionRequested: 0,
-    complianceRate: 74,
-    status: "partial",
-    trend: "up",
-  },
-  {
-    operator: "ExxonMobil Nigeria",
-    submitted: 31,
-    approved: 6,
-    rejected: 14,
-    pending: 11,
-    revisionRequested: 0,
-    complianceRate: 19,
-    status: "non-compliant",
-    trend: "down",
-  },
-  {
-    operator: "Oando PLC",
-    submitted: 12,
-    approved: 12,
-    rejected: 0,
-    pending: 0,
-    revisionRequested: 0,
-    complianceRate: 100,
-    status: "compliant",
-    trend: "stable",
-  },
-  {
-    operator: "Aiteo Eastern E&P",
-    submitted: 8,
-    approved: 3,
-    rejected: 0,
-    pending: 5,
-    revisionRequested: 0,
-    complianceRate: 38,
-    status: "pending",
-    trend: "stable",
-  },
-];
+function useOperatorComplianceReports(year: string) {
+  const [data, setData] = useState<OperatorReport[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLoading(true);
+    setError(null);
+    api.get(`/compliance/operator-reports?year=${year}`)
+      .then((res) => {
+        setData(res.data.data || []);
+      })
+      .catch((err) => {
+        setError(err?.response?.data?.message || "Failed to load reports");
+      })
+      .finally(() => setLoading(false));
+  }, [year]);
+
+  return { data, loading, error };
+}
 
 const YEARS = ["2026", "2025", "2024", "2023", "2022"];
 
@@ -193,7 +124,7 @@ const OperatorComplianceReports = () => {
   const [sortKey, setSortKey] = useState<SortKey>("rate");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
 
-  const reports = MOCK_REPORTS; // swap for API data
+  const { data: reports, loading, error } = useOperatorComplianceReports(year);
 
   // ── Summary stats ────────────────────────────────────────────────────────
   const summary = useMemo(() => {
@@ -282,6 +213,21 @@ const OperatorComplianceReports = () => {
       </span>
     </TableHead>
   );
+
+  if (loading) {
+    return (
+      <div className="p-12 flex items-center justify-center">
+        <span className="text-muted-foreground">Loading reports...</span>
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div className="p-12 flex items-center justify-center text-destructive">
+        {error}
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-6">
