@@ -11,17 +11,23 @@ import {
   StepperContent,
   StepperDescription,
 } from "@/components/reui/stepper";
-import { FileTextIcon, GraduationCapIcon, ListIcon, PlusIcon } from "lucide-react";
+import { FileTextIcon, GraduationCapIcon, ListIcon, PlusIcon, EyeIcon } from "lucide-react";
 import { Badge } from "@/components/reui/badge";
 import { useApplicationStore } from "@/store/application.store";
 import { useApplicationFormStore } from "@/store/application-form.store";
 import { toast } from "sonner";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
 
 import SectionA from "./application/section-a";
 import SectionB from "./application/section-b";
 import SectionC from "./application/section-c";
 import ApplicationPreview from "./application/preview";
-import { EyeIcon } from "lucide-react";
 
 // Helper function to count filled fields recursively
 const countFilledFields = (obj: unknown): { filled: number; total: number } => {
@@ -68,6 +74,7 @@ const NewApplicationSubmission = () => {
   const [activeBTab, setActiveBTab] = useState("b1");
   const [activeB1SubTab, setActiveB1SubTab] = useState("b1-0");
   const [activeCTab, setActiveCTab] = useState("c1");
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const {
     createApplication,
@@ -243,7 +250,7 @@ const NewApplicationSubmission = () => {
            NCCC New Application Submission
            {currentApplication && (
              <span className="text-muted-foreground text-sm">
-               (Ref. No.: {applications.find(app => app._id === currentApplication?._id)?.sectionA.referenceNumber || "N/A"})
+               (Ref. No.: {applications.find(app => app._id === currentApplication?._id)?.sectionA?.referenceNumber || "N/A"})
              </span>
            )}
          </div>
@@ -252,8 +259,8 @@ const NewApplicationSubmission = () => {
              {completionPercentage}% Complete
            </Badge>
            <button
-             onClick={() => setActiveStep(4)}
-             disabled={isFormEmpty || activeStep === 4}
+             onClick={() => setPreviewOpen(true)}
+             disabled={isFormEmpty}
              className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
            >
              <EyeIcon className="size-4" />
@@ -409,6 +416,29 @@ const NewApplicationSubmission = () => {
           ))}
         </StepperPanel>
       </Stepper>
+
+      {/* Preview Drawer — opens at any step to show current form progress */}
+      <Sheet open={previewOpen} onOpenChange={setPreviewOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-2xl overflow-y-auto">
+          <SheetHeader className="pb-4 border-b border-border">
+            <SheetTitle className="flex items-center gap-2">
+              <EyeIcon className="size-4" />
+              Application Preview
+            </SheetTitle>
+            <SheetDescription>
+              A read-only snapshot of your application so far.
+              {completionPercentage < 100 && (
+                <span className="ml-1 text-amber-600 dark:text-amber-400 font-medium">
+                  ({completionPercentage}% complete — some fields may be empty)
+                </span>
+              )}
+            </SheetDescription>
+          </SheetHeader>
+          <div className="pt-4 custom-scrollbar">
+            <ApplicationPreview />
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
