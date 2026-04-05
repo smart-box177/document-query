@@ -22,6 +22,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 
 const Query = () => {
@@ -38,7 +48,26 @@ const Query = () => {
     isLoading: appsLoading,
     fetchApplications,
     exportApplication,
+    deleteApplication,
   } = useApplicationStore();
+
+  // Delete dialog state
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    const ok = await deleteApplication(deleteTarget.id);
+    setIsDeleting(false);
+    setDeleteTarget(null);
+    if (ok) {
+      toast.success("Application deleted successfully");
+      fetchApplications();
+    } else {
+      toast.error("Failed to delete application");
+    }
+  };
 
   const {
     formData,
@@ -189,7 +218,19 @@ const Query = () => {
                   Export to Excel
                 </DropdownMenuItem>
               )}
-              <DropdownMenuItem>Delete</DropdownMenuItem>
+              {!isLocal && (
+                <DropdownMenuItem
+                  className="text-destructive focus:text-destructive"
+                  onClick={() =>
+                    setDeleteTarget({
+                      id: appId,
+                      title: app.contractTitle || app.sectionA?.contractProjectTitle || appId,
+                    })
+                  }
+                >
+                  Delete
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -261,6 +302,30 @@ const Query = () => {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete application?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete{" "}
+              <span className="font-medium text-foreground">{deleteTarget?.title}</span>.
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Export Confirmation Dialog */}
       <Dialog open={!!exportTarget} onOpenChange={(open) => { if (!open) { setExportTarget(null); setExportMode(null); } }}>
