@@ -129,7 +129,8 @@ const NewApplicationSubmission = () => {
   };
 
   const handleSaveAsDraft = async () => {
-    const success = await saveAsDraft(formData, currentApplication?.id);
+    const appId = currentApplication?.id ?? currentApplication?._id ?? id;
+    const success = await saveAsDraft(formData, appId);
     if (success) {
       toast.success("Application saved as draft");
     } else if (error) {
@@ -138,7 +139,8 @@ const NewApplicationSubmission = () => {
   };
 
   const handleSubmit = async () => {
-    const success = await saveAndSubmit(formData, currentApplication?.id);
+    const appId = currentApplication?.id ?? currentApplication?._id ?? id;
+    const success = await saveAndSubmit(formData, appId);
     if (success) {
       toast.success("Application submitted successfully");
       resetForm();

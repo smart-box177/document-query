@@ -210,7 +210,7 @@ export const useApplicationStore = create<ApplicationState>()((set) => ({
       if (response.data.success) {
         set((state) => ({
           applications: id 
-            ? state.applications.map((app) => app.id === id ? response.data.data : app)
+            ? state.applications.map((app) => (app.id ?? app._id) === id ? response.data.data : app)
             : [response.data.data, ...state.applications],
           currentApplication: response.data.data,
           isLoading: false,
@@ -240,7 +240,7 @@ export const useApplicationStore = create<ApplicationState>()((set) => ({
       if (response.data.success) {
         set((state) => ({
           applications: id 
-            ? state.applications.map((app) => app.id === id ? response.data.data : app)
+            ? state.applications.map((app) => (app.id ?? app._id) === id ? response.data.data : app)
             : [response.data.data, ...state.applications],
           currentApplication: response.data.data,
           isLoading: false,

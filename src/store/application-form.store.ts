@@ -243,7 +243,11 @@ export const useApplicationFormStore = create<ApplicationFormState>()((set) => (
     set({ formData: defaultInitialData });
   },
   loadDraft: (application: IApplication) => {
-    const data: Partial<IApplication> = { ...application };
+    // Strip Mongo identity fields — the ID is tracked in applicationStore.currentApplication
+    // Leaving _id in formData causes E11000 duplicate key errors on re-save/submit
+    const { _id, id, userId, createdAt, updatedAt, ...rest } = application as IApplication & { createdAt?: unknown; updatedAt?: unknown };
+    void _id; void id; void userId; void createdAt; void updatedAt;
+    const data: Partial<IApplication> = rest;
     saveToLocalStorage(data);
     set({ formData: data });
   },
