@@ -275,7 +275,7 @@ const NewApplicationSubmission = () => {
     <div className="container mx-auto pt-2 px-4 overflow-y-hidden">
        <h1 className="text-xl font-bold my-2 flex items-center justify-between">
          <div className="flex items-center gap-2">
-           NCCC New Application Submission
+           {id ? "Edit Draft Application" : "NCCC New Application Submission"}
            {currentApplication && (
              <span className="text-muted-foreground text-sm">
                (Ref. No.: {applications.find(app => app._id === currentApplication?._id)?.sectionA?.referenceNumber || "N/A"})
