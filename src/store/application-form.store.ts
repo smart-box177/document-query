@@ -10,6 +10,10 @@ interface ApplicationFormState {
   updateSectionA: (data: any) => void;
   updateSectionB: (data: any) => void;
   updateSectionC: (data: any) => void;
+  updateDeclaration: (data: Pick<IApplication,
+    'operatorSignature' | 'operatorSignatureToken' | 'operatorName' | 'operatorDesignation' | 'operatorDate' |
+    'serviceProviderSignature' | 'serviceProviderSignatureToken' | 'serviceProviderName' | 'serviceProviderDesignation' | 'serviceProviderDate'
+  >) => void;
   resetForm: () => void;
 }
 
@@ -65,9 +69,6 @@ const defaultInitialData: Partial<IApplication> = {
     subContractors: '',
     totalNCPercentSpend: '',
     totalNCPercentManhours: '',
-    operatorName: '',
-    operatorDesignation: '',
-    operatorDate: '',
   },
     sectionB: {
     b1: {
@@ -239,5 +240,12 @@ export const useApplicationFormStore = create<ApplicationFormState>()((set) => (
   resetForm: () => {
     clearLocalStorage();
     set({ formData: defaultInitialData });
+  },
+  updateDeclaration: (data) => {
+    set((state) => {
+      const newData = { ...state.formData, ...data };
+      saveToLocalStorage(newData);
+      return { formData: newData };
+    });
   },
 }));

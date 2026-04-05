@@ -1,16 +1,121 @@
+import { useState } from "react";
 import { FloatingInput } from "@/components/ui/floating-input";
 import { DatePicker } from "@/components/date-picker";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import type { ISectionA } from "@/interface/application";
+import type { IApplication } from "@/interface/application";
 import { useApplicationFormStore } from "@/store/application-form.store";
+import { useAuthStore } from "@/store/auth.store";
+import { api } from "@/config/axios";
+import { toast } from "sonner";
+import { Loader2Icon, CheckCircle2Icon, AlertTriangleIcon, PenLineIcon } from "lucide-react";
+import { Link } from "react-router-dom";
+
+type SignatureRole = "operator" | "serviceProvider";
+type DeclarationFields = Pick<IApplication,
+  | "operatorSignature" | "operatorSignatureToken" | "operatorName" | "operatorDesignation" | "operatorDate"
+  | "serviceProviderSignature" | "serviceProviderSignatureToken" | "serviceProviderName" | "serviceProviderDesignation" | "serviceProviderDate"
+>;
+
+interface SignatureBlockProps {
+  label: string;
+  userSignatureUrl: string | undefined;
+  signedUrl: string | null | undefined;
+  isSigning: boolean;
+  onSign: () => void;
+}
+
+const SignatureBlock = ({ label, userSignatureUrl, signedUrl, isSigning, onSign }: SignatureBlockProps) => {
+  if (!userSignatureUrl) {
+    return (
+      <div className="space-y-2">
+        <Label className="font-semibold text-sm">{label}</Label>
+        <div className="flex items-start gap-3 rounded-lg border border-amber-300 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-800 p-4 text-sm">
+          <AlertTriangleIcon className="size-4 mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" />
+          <p className="text-amber-700 dark:text-amber-300">
+            No signature found on your account. Please{" "}
+            <Link to="/settings" className="font-semibold underline underline-offset-2 hover:text-amber-900 dark:hover:text-amber-100">
+              update your signature in Settings
+            </Link>{" "}
+            before signing this declaration.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      <Label className="font-semibold text-sm">{label}</Label>
+      <div className="rounded-lg border border-border bg-background p-4 space-y-4">
+        {/* Signature image preview */}
+        <img
+          src={userSignatureUrl}
+          alt="Your signature"
+          className="max-h-20 object-contain"
+        />
+
+        {signedUrl ? (
+          <div className="flex items-center gap-2 text-xs text-green-600 dark:text-green-400 font-medium">
+            <CheckCircle2Icon className="size-3.5" />
+            Declaration signed — signature attached
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={onSign}
+            disabled={isSigning}
+            className="flex items-center gap-2 px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isSigning ? (
+              <Loader2Icon className="size-4 animate-spin" />
+            ) : (
+              <PenLineIcon className="size-4" />
+            )}
+            {isSigning ? "Signing…" : "Click to Sign"}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const Declaration = () => {
-  const { formData, updateSectionA } = useApplicationFormStore();
-  const sectionA = formData.sectionA!;
+  const { formData, updateDeclaration } = useApplicationFormStore();
+  const { user } = useAuthStore();
 
-  const handleChange = (field: keyof ISectionA, value: string) => {
-    updateSectionA({ ...sectionA, [field]: value });
+  const [signingOp, setSigningOp] = useState(false);
+  const [signingSp, setSigningSp] = useState(false);
+
+  const handleChange = (field: keyof DeclarationFields, value: string) => {
+    updateDeclaration({ [field]: value } as DeclarationFields);
+  };
+
+  const sign = async (role: SignatureRole, setSigning: (v: boolean) => void) => {
+    const signatureUrl = user?.signature;
+    if (!signatureUrl) {
+      toast.error("Please add your signature in Settings first.");
+      return;
+    }
+    setSigning(true);
+    try {
+      const signRes = await api.post<{ data: { token: string } }>(
+        "/users/sign-declaration",
+        { signatureUrl, role }
+      );
+      const token = signRes.data.data.token;
+
+      if (role === "operator") {
+        updateDeclaration({ operatorSignature: signatureUrl, operatorSignatureToken: token });
+      } else {
+        updateDeclaration({ serviceProviderSignature: signatureUrl, serviceProviderSignatureToken: token });
+      }
+      toast.success("Declaration signed successfully");
+    } catch {
+      toast.error("Failed to sign declaration. Please try again.");
+    } finally {
+      setSigning(false);
+    }
   };
 
   return (
@@ -74,37 +179,32 @@ const Declaration = () => {
           <Separator className="my-6" />
 
           <div className="space-y-6">
-            <Label className="font-semibold text-sm">
-              Signature of Operator authorised Representative (Contract
-              Manager/Contract Holder):
-            </Label>
-            <div className="border-2 border-dashed border-border rounded-lg p-8 flex flex-col items-center justify-center text-muted-foreground bg-background hover:bg-muted/50 transition-colors cursor-pointer group">
-              <div className="text-center">
-                <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
-                  Click to Sign digitally
-                </p>
-                <p className="text-xs mt-1">or drag and drop a signature file</p>
-              </div>
-            </div>
+            <SignatureBlock
+              label="Signature of Operator authorised Representative (Contract Manager/Contract Holder):"
+              userSignatureUrl={user?.signature}
+              signedUrl={formData.operatorSignature ?? null}
+              isSigning={signingOp}
+              onSign={() => sign("operator", setSigningOp)}
+            />
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
               <FloatingInput
                 label="Name"
                 className="bg-background"
-                value={sectionA.operatorName ?? ""}
+                value={formData.operatorName ?? ""}
                 onChange={(e) => handleChange("operatorName", e.target.value)}
               />
               <FloatingInput
                 label="Designation"
                 className="bg-background"
-                value={sectionA.operatorDesignation ?? ""}
+                value={formData.operatorDesignation ?? ""}
                 onChange={(e) =>
                   handleChange("operatorDesignation", e.target.value)
                 }
               />
               <DatePicker
                 label="Date"
-                value={sectionA.operatorDate ?? ""}
+                value={formData.operatorDate ?? ""}
                 onChange={(value) => handleChange("operatorDate", value)}
               />
             </div>
@@ -158,23 +258,20 @@ const Declaration = () => {
               *Signing of the Declaration by Service Provider is at the sole
               discretion of the Operator
             </p>
-            <Label className="font-semibold text-sm">
-              Signature of Service Provider, if applicable (MD to sign):
-            </Label>
-            <div className="border-2 border-dashed border-border rounded-lg p-8 flex flex-col items-center justify-center text-muted-foreground bg-background hover:bg-muted/50 transition-colors cursor-pointer group">
-              <div className="text-center">
-                <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
-                  Click to Sign digitally
-                </p>
-                <p className="text-xs mt-1">or drag and drop a signature file</p>
-              </div>
-            </div>
+
+            <SignatureBlock
+              label="Signature of Service Provider, if applicable (MD to sign):"
+              userSignatureUrl={user?.signature}
+              signedUrl={formData.serviceProviderSignature ?? null}
+              isSigning={signingSp}
+              onSign={() => sign("serviceProvider", setSigningSp)}
+            />
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
               <FloatingInput
                 label="Name"
                 className="bg-background"
-                value={sectionA.serviceProviderName ?? ""}
+                value={formData.serviceProviderName ?? ""}
                 onChange={(e) =>
                   handleChange("serviceProviderName", e.target.value)
                 }
@@ -182,14 +279,14 @@ const Declaration = () => {
               <FloatingInput
                 label="Designation"
                 className="bg-background"
-                value={sectionA.serviceProviderDesignation ?? ""}
+                value={formData.serviceProviderDesignation ?? ""}
                 onChange={(e) =>
                   handleChange("serviceProviderDesignation", e.target.value)
                 }
               />
               <DatePicker
                 label="Date"
-                value={sectionA.serviceProviderDate ?? ""}
+                value={formData.serviceProviderDate ?? ""}
                 onChange={(value) => handleChange("serviceProviderDate", value)}
               />
             </div>

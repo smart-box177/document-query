@@ -1,6 +1,7 @@
 import { useApplicationFormStore } from "@/store/application-form.store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { CheckCircle2Icon, AlertCircleIcon } from "lucide-react";
 
 const DataRow = ({ label, value }: { label: string; value: string | number | null | undefined }) => (
   <div className="flex flex-col space-y-1 pb-3 border-b border-border/50 last:border-0 last:pb-0">
@@ -178,6 +179,72 @@ const ApplicationPreview = () => {
               </div>
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      {/* DECLARATION */}
+      <Card>
+        <CardHeader className="bg-muted/50 pb-4">
+          <CardTitle className="text-lg">Declaration &amp; Signatures</CardTitle>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Operator */}
+            <div className="space-y-3 border rounded-md p-4 bg-muted/20">
+              <h4 className="font-semibold text-sm">Operator Declaration</h4>
+              {typeof formData.operatorSignature === "string" && formData.operatorSignature ? (
+                <div className="space-y-2">
+                  <img
+                    src={formData.operatorSignature}
+                    alt="Operator signature"
+                    className="max-h-20 object-contain border rounded bg-white p-1"
+                  />
+                  <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400 font-medium">
+                    <CheckCircle2Icon className="size-3.5" />
+                    Signed &amp; verified
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1 text-xs text-muted-foreground italic">
+                  <AlertCircleIcon className="size-3.5" />
+                  Not yet signed
+                </div>
+              )}
+              <div className="grid grid-cols-3 gap-3 pt-1 text-xs">
+                <DataRow label="Name" value={formData.operatorName} />
+                <DataRow label="Designation" value={formData.operatorDesignation} />
+                <DataRow label="Date" value={formData.operatorDate} />
+              </div>
+            </div>
+
+            {/* Service Provider */}
+            <div className="space-y-3 border rounded-md p-4 bg-muted/20">
+              <h4 className="font-semibold text-sm">Service Provider Declaration</h4>
+              {typeof formData.serviceProviderSignature === "string" && formData.serviceProviderSignature ? (
+                <div className="space-y-2">
+                  <img
+                    src={formData.serviceProviderSignature}
+                    alt="Service provider signature"
+                    className="max-h-20 object-contain border rounded bg-white p-1"
+                  />
+                  <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400 font-medium">
+                    <CheckCircle2Icon className="size-3.5" />
+                    Signed &amp; verified
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1 text-xs text-muted-foreground italic">
+                  <AlertCircleIcon className="size-3.5" />
+                  Not signed (optional)
+                </div>
+              )}
+              <div className="grid grid-cols-3 gap-3 pt-1 text-xs">
+                <DataRow label="Name" value={formData.serviceProviderName} />
+                <DataRow label="Designation" value={formData.serviceProviderDesignation} />
+                <DataRow label="Date" value={formData.serviceProviderDate} />
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>

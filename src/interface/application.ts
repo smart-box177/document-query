@@ -33,6 +33,18 @@ export interface IApplication {
   archivedAt?: Date;
   archivedBy?: string;
 
+  // Declaration & Signatures (top-level — not tied to a single form section)
+  operatorSignature?: string | null;
+  operatorSignatureToken?: string | null;
+  operatorName?: string;
+  operatorDesignation?: string;
+  operatorDate?: string;
+  serviceProviderSignature?: string | null;
+  serviceProviderSignatureToken?: string | null;
+  serviceProviderName?: string;
+  serviceProviderDesignation?: string;
+  serviceProviderDate?: string;
+
   notes?: string;
   attachments?: string[];
 }
@@ -76,14 +88,6 @@ export interface ISectionA {
   subContractors: string; // usually comma-separated or multiline
   totalNCPercentSpend: string;
   totalNCPercentManhours: string;
-  operatorSignature?: File | string | null; // or string (base64 / url) depending on your signature handling
-  operatorName: string;
-  operatorDesignation: string;
-  operatorDate: string; // ISO date string or empty
-  serviceProviderSignature?: File | null;
-  serviceProviderName?: string;
-  serviceProviderDesignation?: string;
-  serviceProviderDate?: string;
 }
 
 // Section B: Local Content Components

@@ -13,6 +13,7 @@ export interface IAuthUser {
   username: string;
   email: string;
   avatar?: string;
+  signature?: string;
   role: string;
 }
 

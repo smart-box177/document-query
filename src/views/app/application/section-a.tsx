@@ -82,9 +82,9 @@ const SectionA = () => {
 
         <FloatingInput
           label="Name of Operator / Project Promoter"
-          value={localData.operatorName}
+          value={localData.operatorOrProjectPromoter}
           onChange={(e) =>
-            handleChange("operatorName", e.target.value)
+            handleChange("operatorOrProjectPromoter", e.target.value)
           }
         />
         <DatePicker
