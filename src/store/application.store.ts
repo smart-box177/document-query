@@ -2,6 +2,29 @@ import { create } from "zustand";
 import { api } from "@/config/axios";
 import type { IApplication } from "@/interface/application";
 
+const CURRENT_APP_KEY = "current-application";
+
+const loadCurrentApplication = (): IApplication | null => {
+  try {
+    const stored = localStorage.getItem(CURRENT_APP_KEY);
+    return stored ? (JSON.parse(stored) as IApplication) : null;
+  } catch {
+    return null;
+  }
+};
+
+const saveCurrentApplication = (app: IApplication | null) => {
+  try {
+    if (app) {
+      localStorage.setItem(CURRENT_APP_KEY, JSON.stringify(app));
+    } else {
+      localStorage.removeItem(CURRENT_APP_KEY);
+    }
+  } catch {
+    // ignore storage errors
+  }
+};
+
 interface ApplicationState {
   applications: IApplication[];
   adminApplications: IApplication[];
@@ -25,7 +48,7 @@ interface ApplicationState {
 export const useApplicationStore = create<ApplicationState>()((set) => ({
   applications: [],
   adminApplications: [],
-  currentApplication: null,
+  currentApplication: loadCurrentApplication(),
   isLoading: false,
   error: null,
 
@@ -34,6 +57,7 @@ export const useApplicationStore = create<ApplicationState>()((set) => ({
     try {
       const response = await api.post("/applications", data);
       if (response.data.success) {
+        saveCurrentApplication(response.data.data);
         set((state) => ({
           applications: [response.data.data, ...state.applications],
           currentApplication: response.data.data,
@@ -64,7 +88,7 @@ export const useApplicationStore = create<ApplicationState>()((set) => ({
             app.id === id ? response.data.data : app
           ),
           currentApplication:
-            state.currentApplication?.id === id ? response.data.data : state.currentApplication,
+            (state.currentApplication?.id ?? state.currentApplication?._id) === id ? response.data.data : state.currentApplication,
           isLoading: false,
         }));
         return true;
@@ -161,6 +185,7 @@ export const useApplicationStore = create<ApplicationState>()((set) => ({
     try {
       const response = await api.get(`/applications/${id}`);
       if (response.data.success) {
+        saveCurrentApplication(response.data.data);
         set({ currentApplication: response.data.data, isLoading: false });
       } else {
         set({ error: response.data.message, isLoading: false });
@@ -208,6 +233,7 @@ export const useApplicationStore = create<ApplicationState>()((set) => ({
         : await api.post("/applications/draft", data);
       
       if (response.data.success) {
+        saveCurrentApplication(response.data.data);
         set((state) => ({
           applications: id 
             ? state.applications.map((app) => (app.id ?? app._id) === id ? response.data.data : app)
@@ -238,6 +264,7 @@ export const useApplicationStore = create<ApplicationState>()((set) => ({
         : await api.post("/applications/submit", data);
       
       if (response.data.success) {
+        saveCurrentApplication(null); // submitted — no longer an active draft
         set((state) => ({
           applications: id 
             ? state.applications.map((app) => (app.id ?? app._id) === id ? response.data.data : app)
@@ -261,5 +288,8 @@ export const useApplicationStore = create<ApplicationState>()((set) => ({
   },
 
   clearError: () => set({ error: null }),
-  clearCurrentApplication: () => set({ currentApplication: null }),
+  clearCurrentApplication: () => {
+    saveCurrentApplication(null);
+    set({ currentApplication: null });
+  },
 }));
