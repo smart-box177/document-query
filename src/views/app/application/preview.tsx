@@ -2,6 +2,7 @@ import { useApplicationFormStore } from "@/store/application-form.store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { CheckCircle2Icon, AlertCircleIcon } from "lucide-react";
+import type { IApplication } from "@/interface/application";
 
 const DataRow = ({ label, value }: { label: string; value: string | number | null | undefined }) => (
   <div className="flex flex-col space-y-1 pb-3 border-b border-border/50 last:border-0 last:pb-0">
@@ -10,8 +11,9 @@ const DataRow = ({ label, value }: { label: string; value: string | number | nul
   </div>
 );
 
-const ApplicationPreview = () => {
-  const { formData } = useApplicationFormStore();
+const ApplicationPreview = ({ data }: { data?: IApplication }) => {
+  const { formData: storeData } = useApplicationFormStore();
+  const formData: Partial<IApplication> = data ?? storeData;
   const { sectionA, sectionB, sectionC } = formData;
 
   return (

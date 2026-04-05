@@ -33,12 +33,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import ApplicationPreview from "./application/preview";
-import { useApplicationFormStore } from "@/store/application-form.store";
 import { Label } from "@/components/ui/label";
 
 const ApplicationReviewQueue = () => {
   const { adminApplications, fetchAllApplications, reviewApplication, isLoading } = useApplicationStore();
-  const { updateFormData } = useApplicationFormStore();
   
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
@@ -97,7 +95,6 @@ const ApplicationReviewQueue = () => {
   };
 
   const handlePreviewClick = (app: IApplication) => {
-    updateFormData(app);
     setSelectedApp(app);
     setIsPreviewModalOpen(true);
   };
@@ -325,7 +322,7 @@ const ApplicationReviewQueue = () => {
           </DialogHeader>
           
           <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-             <ApplicationPreview />
+             <ApplicationPreview data={selectedApp ?? undefined} />
           </div>
           
           <DialogFooter className="mt-4 pt-4 border-t border-border">
