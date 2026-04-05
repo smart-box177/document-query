@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Filter, MoreHorizontalIcon } from "lucide-react";
+import { Loader2, Filter, MoreHorizontalIcon, FileSpreadsheet, Mail, Download } from "lucide-react";
 import { DataTable } from "./contracts/data-table";
 import { useApplicationStore } from "@/store/application.store";
 import { useApplicationFormStore } from "@/store/application-form.store";
@@ -14,15 +14,30 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 const Query = () => {
   const [activeStatus, setActiveStatus] = useState("all");
   const navigate = useNavigate();
 
+  // Export dialog state
+  const [exportTarget, setExportTarget] = useState<{ id: string; title: string } | null>(null);
+  const [exportMode, setExportMode] = useState<"download" | "email" | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
+
   const {
     applications,
     isLoading: appsLoading,
     fetchApplications,
+    exportApplication,
   } = useApplicationStore();
 
   const {
@@ -35,8 +50,23 @@ const Query = () => {
     fetchApplications();
   }, [fetchApplications]);
 
+  const handleExportConfirm = async () => {
+    if (!exportTarget || !exportMode) return;
+    setIsExporting(true);
+    const sendToEmail = exportMode === "email";
+    const result = await exportApplication(exportTarget.id, sendToEmail);
+    setIsExporting(false);
+    setExportTarget(null);
+    setExportMode(null);
+    if (result.ok) {
+      toast.success(sendToEmail ? result.message ?? "Export sent to your email" : "Excel file downloaded");
+    } else {
+      toast.error(result.message ?? "Export failed");
+    }
+  };
+
   // Filter applications by status - any[] to handle local draft
-  const tableData: any[] = activeStatus === "local" 
+  const tableData: any[] = activeStatus === "local"
     ? hasLocalDraft ? [{
         id: "local-draft",
         status: "DRAFT",
@@ -45,14 +75,13 @@ const Query = () => {
         createdAt: new Date().toISOString(),
       }] : []
     : applications;
-    
-  const filteredApplications = activeStatus === "all" 
-    ? tableData 
+
+  const filteredApplications = activeStatus === "all"
+    ? tableData
     : tableData.filter((app: any) => app.status === activeStatus);
 
   const isLoadingTable = appsLoading;
 
-  // Table columns for applications (updated for real IApplication data)
   const applicationColumns = [
     {
       id: "select",
@@ -128,11 +157,12 @@ const Query = () => {
         const app = row.original;
         const isDraft = app.status === "DRAFT";
         const appId = app._id ?? app.id;
+        const isLocal = appId === "local-draft";
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm">
-               <MoreHorizontalIcon/>
+                <MoreHorizontalIcon />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -140,6 +170,20 @@ const Query = () => {
               {isDraft && (
                 <DropdownMenuItem onClick={() => navigate(`/app/new-application/${appId}`)}>
                   Edit Draft
+                </DropdownMenuItem>
+              )}
+              {!isLocal && (
+                <DropdownMenuItem
+                  className="flex items-center gap-2"
+                  onClick={() =>
+                    setExportTarget({
+                      id: appId,
+                      title: app.contractTitle || app.sectionA?.contractProjectTitle || appId,
+                    })
+                  }
+                >
+                  <FileSpreadsheet className="h-4 w-4" />
+                  Export to Excel
                 </DropdownMenuItem>
               )}
               <DropdownMenuItem>Delete</DropdownMenuItem>
@@ -192,7 +236,6 @@ const Query = () => {
         </TabsList>
 
         <TabsContent value={activeStatus} className="mt-0">
-          {/* Applications Table */}
           <div className="bg-card rounded-lg border shadow-sm">
             {isLoadingTable ? (
               <div className="flex items-center justify-center py-8">
@@ -215,6 +258,65 @@ const Query = () => {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Export Confirmation Dialog */}
+      <Dialog open={!!exportTarget} onOpenChange={(open) => { if (!open) { setExportTarget(null); setExportMode(null); } }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileSpreadsheet className="h-5 w-5 text-green-600" />
+              Export Application to Excel
+            </DialogTitle>
+            <DialogDescription>
+              <span className="font-medium text-foreground">{exportTarget?.title}</span>
+              <br />
+              Choose how you want to receive the exported Excel file.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid grid-cols-2 gap-3 py-2">
+            <button
+              onClick={() => setExportMode("download")}
+              className={`flex flex-col items-center gap-2 rounded-lg border-2 p-4 text-sm transition-colors ${
+                exportMode === "download"
+                  ? "border-primary bg-primary/5 text-primary"
+                  : "border-border hover:border-primary/50 hover:bg-accent"
+              }`}
+            >
+              <Download className="h-6 w-6" />
+              <span className="font-medium">Download File</span>
+              <span className="text-xs text-muted-foreground text-center">Save directly to your device</span>
+            </button>
+
+            <button
+              onClick={() => setExportMode("email")}
+              className={`flex flex-col items-center gap-2 rounded-lg border-2 p-4 text-sm transition-colors ${
+                exportMode === "email"
+                  ? "border-primary bg-primary/5 text-primary"
+                  : "border-border hover:border-primary/50 hover:bg-accent"
+              }`}
+            >
+              <Mail className="h-6 w-6" />
+              <span className="font-medium">Send to Email</span>
+              <span className="text-xs text-muted-foreground text-center">Receive as email attachment</span>
+            </button>
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => { setExportTarget(null); setExportMode(null); }}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleExportConfirm}
+              disabled={!exportMode || isExporting}
+              className="gap-2"
+            >
+              {isExporting && <Loader2 className="h-4 w-4 animate-spin" />}
+              {isExporting ? "Exporting…" : "Confirm Export"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

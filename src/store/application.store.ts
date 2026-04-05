@@ -41,6 +41,7 @@ interface ApplicationState {
   fetchAllApplications: () => Promise<void>;
   fetchApplicationById: (id: string) => Promise<void>;
   deleteApplication: (id: string) => Promise<boolean>;
+  exportApplication: (id: string, sendToEmail: boolean) => Promise<{ ok: boolean; message?: string }>;
   clearError: () => void;
   clearCurrentApplication: () => void;
 }
@@ -288,6 +289,39 @@ export const useApplicationStore = create<ApplicationState>()((set) => ({
   },
 
   clearError: () => set({ error: null }),
+  exportApplication: async (id, sendToEmail) => {
+    try {
+      if (sendToEmail) {
+        // Server sends email and returns JSON
+        const response = await api.post(`/applications/${id}/export`, { sendToEmail: true });
+        return { ok: response.data.success, message: response.data.message };
+      } else {
+        // Server streams a binary xlsx — use fetch directly for blob handling
+        const token = localStorage.getItem("accessToken") ?? "";
+        const baseURL = (api.defaults.baseURL ?? "").replace(/\/$/, "");
+        const fetchRes = await fetch(`${baseURL}/applications/${id}/export`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({ sendToEmail: false }),
+          credentials: "include",
+        });
+        if (!fetchRes.ok) return { ok: false, message: "Export failed" };
+        const blob = await fetchRes.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `NCCC_Application_${id}.xlsx`;
+        a.click();
+        URL.revokeObjectURL(url);
+        return { ok: true };
+      }
+    } catch {
+      return { ok: false, message: "Export failed" };
+    }
+  },
   clearCurrentApplication: () => {
     saveCurrentApplication(null);
     set({ currentApplication: null });
