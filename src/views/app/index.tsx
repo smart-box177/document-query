@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import {
   FileText,
   Calendar,
@@ -15,7 +15,8 @@ import {
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { useApplicationStore } from "@/store/application.store";
+import { api } from "@/config/axios";
+import { toast } from "sonner";
 import {
   Card,
   CardContent,
@@ -39,81 +40,85 @@ import {
 const AppDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const navigate = useNavigate();
-  const { applications, fetchApplications, isLoading } = useApplicationStore();
+  const [isLoading, setIsLoading] = useState(true);
+  const [analyticsData, setAnalyticsData] = useState<{
+    stats: { total: number; pending: number; approved: number; rejected: number };
+    recentApplications: any[];
+  } | null>(null);
 
   useEffect(() => {
-    fetchApplications();
-  }, [fetchApplications]);
-
-  const { stats, recentApplications } = useMemo(() => {
-    let total = 0;
-    let pending = 0;
-    let approved = 0;
-    let rejected = 0;
-
-    applications.forEach((app) => {
-      total++;
-      if (app.status === "SUBMITTED" || app.status === "REVIEWING" || app.status === "REVISION_REQUESTED") pending++;
-      if (app.status === "APPROVED") approved++;
-      if (app.status === "REJECTED") rejected++;
-    });
-
-    const recent = applications.slice(0, 5).map((app) => ({
-      id: app.id || app._id,
-      refNumber: app.sectionA?.referenceNumber || "N/A",
-      applicant: app.sectionA?.operatorOrProjectPromoter || "Unknown",
-      type: app.sectionA?.contractType || "N/A",
-      date: app.updatedAt ? format(new Date(app.updatedAt), "MMM d, yyyy") : "N/A",
-      status: app.status,
-      progress: app.status === "APPROVED" ? 100 : app.status === "REJECTED" ? 0 : app.status === "DRAFT" ? 25 : 75,
-    }));
-
-    return {
-      stats: [
-        {
-          id: "applications",
-          label: "Total Applications",
-          value: total.toString(),
-          change: "Total submitted",
-          trend: "up",
-          icon: FileText,
-          color: "text-blue-600",
-          bgColor: "bg-blue-50 dark:bg-blue-950/20",
-        },
-        {
-          id: "pending",
-          label: "Pending Review",
-          value: pending.toString(),
-          change: "Currently active",
-          trend: "up",
-          icon: Clock,
-          color: "text-yellow-600",
-          bgColor: "bg-yellow-50 dark:bg-yellow-950/20",
-        },
-        {
-          id: "approved",
-          label: "Approved",
-          value: approved.toString(),
-          change: "Successfully processed",
-          trend: "up",
-          icon: CheckCircle2,
-          color: "text-green-600",
-          bgColor: "bg-green-50 dark:bg-green-950/20",
-        },
-        {
-          id: "rejected",
-          label: "Rejected",
-          value: rejected.toString(),
-          change: "Needs attention",
-          trend: "down",
-          icon: AlertCircle,
-          color: "text-red-600",
-          bgColor: "bg-red-50 dark:bg-red-950/20",
-        },
-      ],
-      recentApplications: recent,
+    const fetchAnalytics = async () => {
+      try {
+        setIsLoading(true);
+        const res = await api.get("/applications/analytics");
+        if (res.data.success) {
+          setAnalyticsData(res.data.data);
+        } else {
+          toast.error("Failed to load analytics");
+        }
+      } catch (error) {
+        console.error(error);
+        toast.error("Failed to load analytics data");
+      } finally {
+        setIsLoading(false);
+      }
     };
-  }, [applications]);
+
+    fetchAnalytics();
+  }, []);
+
+  const stats = analyticsData ? [
+    {
+      id: "applications",
+      label: "Total Applications",
+      value: analyticsData.stats.total.toString(),
+      change: "Total submitted",
+      trend: "up",
+      icon: FileText,
+      color: "text-blue-600",
+      bgColor: "bg-blue-50 dark:bg-blue-950/20",
+    },
+    {
+      id: "pending",
+      label: "Pending Review",
+      value: analyticsData.stats.pending.toString(),
+      change: "Currently active",
+      trend: "up",
+      icon: Clock,
+      color: "text-yellow-600",
+      bgColor: "bg-yellow-50 dark:bg-yellow-950/20",
+    },
+    {
+      id: "approved",
+      label: "Approved",
+      value: analyticsData.stats.approved.toString(),
+      change: "Successfully processed",
+      trend: "up",
+      icon: CheckCircle2,
+      color: "text-green-600",
+      bgColor: "bg-green-50 dark:bg-green-950/20",
+    },
+    {
+      id: "rejected",
+      label: "Rejected",
+      value: analyticsData.stats.rejected.toString(),
+      change: "Needs attention",
+      trend: "down",
+      icon: AlertCircle,
+      color: "text-red-600",
+      bgColor: "bg-red-50 dark:bg-red-950/20",
+    },
+  ] : [];
+
+  const recentApplications = analyticsData?.recentApplications.map((app) => ({
+    id: app.id || app._id,
+    refNumber: app.sectionA?.referenceNumber || "N/A",
+    applicant: app.sectionA?.operatorOrProjectPromoter || "Unknown",
+    type: app.sectionA?.contractType || "N/A",
+    date: app.createdAt ? format(new Date(app.createdAt), "MMM d, yyyy") : "N/A",
+    status: app.status,
+    progress: app.status === "APPROVED" ? 100 : app.status === "REJECTED" ? 0 : app.status === "DRAFT" ? 25 : 75,
+  })) || [];
 
   const activityTimeline = [
     {
