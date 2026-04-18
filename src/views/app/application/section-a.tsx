@@ -163,6 +163,7 @@ const SectionA = () => {
               <DatePicker
                 label="Date and Ref Inc Plan Approval"
                 value={field.value || ""}
+                toDate={new Date()}
                 onChange={(val) => {
                   field.onChange(val);
                   field.onBlur();
@@ -214,10 +215,20 @@ const SectionA = () => {
 
         {/* NCDMB Comm Evaluation */}
         <div>
-          <FloatingInput
-            label="Date of and Ref (NCDMB Comm Evaluation Rpt)"
-            aria-invalid={!!errors.dateAndRefNCDMBCommEvaluation}
-            {...register("dateAndRefNCDMBCommEvaluation")}
+          <Controller
+            name="dateAndRefNCDMBCommEvaluation"
+            control={control}
+            render={({ field }) => (
+              <DatePicker
+                label="Date of and Ref (NCDMB Comm Evaluation Rpt)"
+                value={field.value || ""}
+                toDate={new Date()}
+                onChange={(val) => {
+                  field.onChange(val);
+                  field.onBlur();
+                }}
+              />
+            )}
           />
           <FieldError message={errors.dateAndRefNCDMBCommEvaluation?.message} />
         </div>

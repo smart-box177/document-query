@@ -1,26 +1,35 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { format } from "date-fns"
-import { Calendar as CalendarIcon } from "lucide-react"
+import * as React from "react";
+import { format } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
+} from "@/components/ui/popover";
 
 interface DatePickerProps {
   value: string;
   onChange: (value: string) => void;
   label: string;
   placeholder?: string;
+  toDate?: Date;
 }
 
-export function DatePicker({ value, onChange, label, placeholder = "Pick a date" }: DatePickerProps) {
-  const [date, setDate] = React.useState<Date | undefined>(value ? new Date(value) : undefined);
+export function DatePicker({
+  value,
+  onChange,
+  label,
+  placeholder = "Pick a date",
+  toDate,
+}: DatePickerProps) {
+  const [date, setDate] = React.useState<Date | undefined>(
+    value ? new Date(value) : undefined,
+  );
   const [open, setOpen] = React.useState(false);
 
   React.useEffect(() => {
@@ -42,17 +51,20 @@ export function DatePicker({ value, onChange, label, placeholder = "Pick a date"
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0">
-          <Calendar 
-            mode="single" 
-            selected={date} 
+          <Calendar
+            mode="single"
+            selected={date}
+            disabled={toDate ? { after: toDate } : undefined}
             onSelect={(selectedDate) => {
               setDate(selectedDate);
-              onChange(selectedDate ? selectedDate.toISOString().split('T')[0] : '');
+              onChange(
+                selectedDate ? selectedDate.toISOString().split("T")[0] : "",
+              );
               setOpen(false);
-            }} 
+            }}
           />
         </PopoverContent>
       </Popover>
     </div>
-  )
+  );
 }
