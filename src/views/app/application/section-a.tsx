@@ -341,7 +341,7 @@ const SectionA = () => {
           <Label className="text-xs text-muted-foreground ml-1">
             Duration of Contract
           </Label>
-          <div className="flex gap-2 mt-2">
+          <div className="flex mt-2 px-3 items-center rounded-md border border-input overflow-hidden focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50">
             <input
               type="number"
               min="1"
@@ -351,7 +351,7 @@ const SectionA = () => {
                 setDurationAmount(e.target.value);
                 updateDuration(e.target.value, durationUnit);
               }}
-              className="h-12 w-24 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 aria-invalid:border-destructive"
+              className="h-12 w-full bg-transparent px-3 text-sm outline-none border-none"
               aria-invalid={!!errors.contractDuration}
             />
             <Select
@@ -362,7 +362,7 @@ const SectionA = () => {
                 updateDuration(durationAmount, unit);
               }}
             >
-              <SelectTrigger className="h-12 flex-1">
+              <SelectTrigger className="h-12 w-28 border-input shadow-none focus:ring-0">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
