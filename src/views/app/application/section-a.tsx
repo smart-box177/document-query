@@ -193,6 +193,7 @@ const SectionA = () => {
               <DatePicker
                 label="Date of and Ref (NCDMB Tech Evaluation Rpt)"
                 value={field.value || ""}
+                toDate={new Date()}
                 onChange={(val) => {
                   field.onChange(val);
                   field.onBlur();
@@ -260,6 +261,7 @@ const SectionA = () => {
               <DatePicker
                 label="Date of Commencement of Contract"
                 value={field.value || ""}
+                toDate={new Date()}
                 onChange={(val) => {
                   field.onChange(val);
                   field.onBlur();
@@ -287,6 +289,7 @@ const SectionA = () => {
               <DatePicker
                 label="Date of Commencement of Bid"
                 value={field.value || ""}
+                toDate={new Date()}
                 onChange={(val) => {
                   field.onChange(val);
                   field.onBlur();
@@ -306,6 +309,7 @@ const SectionA = () => {
               <DatePicker
                 label="Date of Completion of Contract"
                 value={field.value || ""}
+                toDate={new Date()}
                 onChange={(val) => {
                   field.onChange(val);
                   field.onBlur();
@@ -335,6 +339,7 @@ const SectionA = () => {
               <DatePicker
                 label="Date and Ref (Single Source/ Selective Approval) - Not Applicable"
                 value={field.value || ""}
+                toDate={new Date()}
                 onChange={(val) => {
                   field.onChange(val);
                   field.onBlur();

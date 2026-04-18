@@ -48,7 +48,7 @@ import {
   Share2,
   Trash2,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import type { SearchResult } from "./search-columns";
 import { useBookmarkStore } from "@/store/bookmark.store";
@@ -70,8 +70,23 @@ export function SearchTable<TData extends SearchResult, TValue>({
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
 
-  const { addBookmark, removeBookmark, isBookmarked } = useBookmarkStore();
+  const { addBookmark, removeBookmark, isBookmarked, fetchBookmarks } =
+    useBookmarkStore();
   const { archiveForUser, isArchivedByUser } = useArchiveStore();
+
+  useEffect(() => {
+    fetchBookmarks();
+  }, []);
+
+  const getDisplayTitle = (contract: SearchResult) =>
+    contract.contractTitle ||
+    contract.sectionA?.contractProjectTitle ||
+    "Unknown";
+
+  const getContractNumber = (contract: SearchResult) =>
+    contract.contractNumber ||
+    contract.sectionA?.contractProjectNumber ||
+    "N/A";
 
   const table = useReactTable({
     data,
@@ -99,21 +114,22 @@ export function SearchTable<TData extends SearchResult, TValue>({
   };
 
   const handleCopyContractNumber = (contract: SearchResult) => {
-    navigator.clipboard.writeText(contract.contractNumber);
+    navigator.clipboard.writeText(getContractNumber(contract));
     toast.success("Contract number copied to clipboard");
   };
 
   const handleBookmark = async (contract: SearchResult) => {
+    const title = getDisplayTitle(contract);
     const bookmarked = isBookmarked(contract._id);
     if (bookmarked) {
       const success = await removeBookmark(contract._id);
       if (success) {
-        toast.success(`Removed bookmark: ${contract.contractTitle}`);
+        toast.success(`Removed bookmark: ${title}`);
       }
     } else {
       const success = await addBookmark(contract._id);
       if (success) {
-        toast.success(`Bookmarked: ${contract.contractTitle}`);
+        toast.success(`Bookmarked: ${title}`);
       }
     }
   };
@@ -121,7 +137,7 @@ export function SearchTable<TData extends SearchResult, TValue>({
   const handleArchive = async (contract: SearchResult) => {
     const success = await archiveForUser(contract._id);
     if (success) {
-      toast.success(`Archived: ${contract.contractTitle}`);
+      toast.success(`Archived: ${getDisplayTitle(contract)}`);
       onArchive?.(contract._id);
     } else {
       toast.error("Failed to archive contract");
@@ -151,7 +167,7 @@ export function SearchTable<TData extends SearchResult, TValue>({
 
   const handleDelete = (contract: SearchResult) => {
     // TODO: Implement delete API call with confirmation
-    toast.info(`Delete requested for: ${contract.contractTitle}`);
+    toast.info(`Delete requested for: ${getDisplayTitle(contract)}`);
   };
 
   return (
@@ -194,7 +210,7 @@ export function SearchTable<TData extends SearchResult, TValue>({
                       ? null
                       : flexRender(
                           header.column.columnDef.header,
-                          header.getContext()
+                          header.getContext(),
                         )}
                   </TableHead>
                 ))}
@@ -218,14 +234,16 @@ export function SearchTable<TData extends SearchResult, TValue>({
                           <TableCell key={cell.id} className="px-4 py-3">
                             {flexRender(
                               cell.column.columnDef.cell,
-                              cell.getContext()
+                              cell.getContext(),
                             )}
                           </TableCell>
                         ))}
                       </TableRow>
                     </ContextMenuTrigger>
                     <ContextMenuContent className="w-56">
-                      <ContextMenuItem onClick={() => handleViewDetails(contract)}>
+                      <ContextMenuItem
+                        onClick={() => handleViewDetails(contract)}
+                      >
                         <ExternalLink className="mr-2 h-4 w-4" />
                         View Details
                       </ContextMenuItem>
@@ -239,7 +257,9 @@ export function SearchTable<TData extends SearchResult, TValue>({
                         Copy ID
                         <ContextMenuShortcut>⌘C</ContextMenuShortcut>
                       </ContextMenuItem>
-                      <ContextMenuItem onClick={() => handleCopyContractNumber(contract)}>
+                      <ContextMenuItem
+                        onClick={() => handleCopyContractNumber(contract)}
+                      >
                         <Copy className="mr-2 h-4 w-4" />
                         Copy Contract Number
                       </ContextMenuItem>
@@ -262,7 +282,7 @@ export function SearchTable<TData extends SearchResult, TValue>({
                         )}
                         <ContextMenuShortcut>⌘B</ContextMenuShortcut>
                       </ContextMenuItem>
-                      <ContextMenuItem 
+                      <ContextMenuItem
                         onClick={() => handleArchive(contract)}
                         disabled={archived}
                       >

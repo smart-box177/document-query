@@ -44,7 +44,10 @@ export const useBookmarkStore = create<BookmarkState>()((set, get) => ({
       const { data } = await api.get("/applications/bookmarks");
       if (data.success) {
         set({
-          bookmarks: data.data.bookmarks,
+          bookmarks: data.data.bookmarks.map((b: BookmarkedApplication) => ({
+            ...b,
+            id: b.id?.toString(),
+          })),
           total: data.data.total,
           isLoading: false,
         });
@@ -63,7 +66,9 @@ export const useBookmarkStore = create<BookmarkState>()((set, get) => ({
   addBookmark: async (applicationId: string) => {
     set({ isLoading: true, error: null });
     try {
-      const { data } = await api.post(`/applications/bookmarks/${applicationId}`);
+      const { data } = await api.post(
+        `/applications/bookmarks/${applicationId}`,
+      );
       if (data.success) {
         await get().fetchBookmarks();
         return true;
@@ -72,7 +77,14 @@ export const useBookmarkStore = create<BookmarkState>()((set, get) => ({
         return false;
       }
     } catch (err: unknown) {
-      const error = err as { response?: { data?: { message?: string } } };
+      const error = err as {
+        response?: { status?: number; data?: { message?: string } };
+      };
+      // 400 means already bookmarked — treat as success and sync
+      if (error.response?.status === 400) {
+        await get().fetchBookmarks();
+        return true;
+      }
       set({
         error: error.response?.data?.message || "Failed to add bookmark",
         isLoading: false,
@@ -84,7 +96,9 @@ export const useBookmarkStore = create<BookmarkState>()((set, get) => ({
   removeBookmark: async (applicationId: string) => {
     set({ isLoading: true, error: null });
     try {
-      const { data } = await api.delete(`/applications/bookmarks/${applicationId}`);
+      const { data } = await api.delete(
+        `/applications/bookmarks/${applicationId}`,
+      );
       if (data.success) {
         set((state) => ({
           bookmarks: state.bookmarks.filter((b) => b.id !== applicationId),
@@ -128,7 +142,9 @@ export const useBookmarkStore = create<BookmarkState>()((set, get) => ({
   },
 
   isBookmarked: (applicationId: string) => {
-    return get().bookmarks.some((b) => b.id === applicationId);
+    return get().bookmarks.some(
+      (b) => b.id?.toString() === applicationId?.toString(),
+    );
   },
 
   clearError: () => set({ error: null }),
