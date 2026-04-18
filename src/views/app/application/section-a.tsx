@@ -8,158 +8,373 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useState } from "react";
-import type { ISectionA } from "@/interface/application";
+import { useEffect, useState } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useApplicationFormStore } from "@/store/application-form.store";
 import { Label } from "@/components/ui/label";
+import {
+  sectionASchema,
+  type SectionAFormValues,
+} from "@/schemas/section-a.schema";
+
+const FieldError = ({ message }: { message?: string }) =>
+  message ? (
+    <p className="text-xs text-destructive mt-1 px-1">{message}</p>
+  ) : null;
 
 const SectionA = () => {
   const { formData, updateSectionA } = useApplicationFormStore();
-  const [localData, setLocalData] = useState<ISectionA>(formData.sectionA!);
+  const sectionAData = formData.sectionA;
 
-  const handleChange = (field: keyof ISectionA, value: any) => {
-    const updatedData = { ...localData, [field]: value };
-    setLocalData(updatedData);
-    updateSectionA(updatedData);
+  const {
+    register,
+    control,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm<SectionAFormValues>({
+    resolver: zodResolver(sectionASchema),
+    defaultValues: {
+      contractType: sectionAData?.contractType ?? undefined,
+      currency: sectionAData?.currency ?? undefined,
+      dateAndRefIncPlanApproval: sectionAData?.dateAndRefIncPlanApproval ?? "",
+      operatorOrProjectPromoter: sectionAData?.operatorOrProjectPromoter ?? "",
+      dateAndRefNCDMBTechEvaluation:
+        sectionAData?.dateAndRefNCDMBTechEvaluation ?? "",
+      contractProjectTitle: sectionAData?.contractProjectTitle ?? "",
+      dateAndRefNCDMBCommEvaluation:
+        sectionAData?.dateAndRefNCDMBCommEvaluation ?? "",
+      contractProjectNumber: sectionAData?.contractProjectNumber ?? "",
+      commencementDate: sectionAData?.commencementDate ?? "",
+      bidCommencementDate: sectionAData?.bidCommencementDate ?? "",
+      contractCompletionDate: sectionAData?.contractCompletionDate ?? "",
+      mainContractor: sectionAData?.mainContractor ?? "",
+      singleSourceApprovalDateAndRef:
+        sectionAData?.singleSourceApprovalDateAndRef ?? "",
+      contractDuration: sectionAData?.contractDuration ?? "",
+      subContractors: sectionAData?.subContractors ?? "",
+    },
+    mode: "onTouched",
+  });
+
+  // Parse existing contractDuration (e.g. "12 Months") into amount + unit
+  const parseDuration = (val: string) => {
+    const match = val?.match(/^(\d+)\s*(Days|Weeks|Months|Years)$/i);
+    return match
+      ? { amount: match[1], unit: match[2] as DurationUnit }
+      : { amount: "", unit: "Months" as DurationUnit };
   };
+
+  type DurationUnit = "Days" | "Weeks" | "Months" | "Years";
+  const parsed = parseDuration(sectionAData?.contractDuration ?? "");
+  const [durationAmount, setDurationAmount] = useState(parsed.amount);
+  const [durationUnit, setDurationUnit] = useState<DurationUnit>(parsed.unit);
+
+  const updateDuration = (amount: string, unit: DurationUnit) => {
+    const combined = amount ? `${amount} ${unit}` : "";
+    setValue("contractDuration", combined, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  };
+
+  useEffect(() => {
+    const subscription = watch((data) => {
+      updateSectionA(data);
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, updateSectionA]);
 
   return (
     <div className="flex flex-col gap-8 py-4">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-end">
-        {/* Row 1 equivalent */}
+        {/* Row 1: Contract Type + Currency */}
         <div className="flex gap-4 col-span-1 md:col-span-2 space-x-2">
           <div className="flex-1 space-y-2">
             <Label className="text-xs text-muted-foreground ml-1">
               Contract Type
             </Label>
-            <Select
-              value={localData.contractType || ""}
-              onValueChange={(value) => handleChange("contractType", value)}
-            >
-              <SelectTrigger className="h-12">
-                <SelectValue placeholder="Select Contract Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="CALL-OUT">CALL-OUT</SelectItem>
-                <SelectItem value="NON-CALL-OUT">NON CALL-OUT</SelectItem>
-              </SelectContent>
-            </Select>
+            <Controller
+              name="contractType"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  value={field.value || ""}
+                  onValueChange={(val) => {
+                    field.onChange(val);
+                    field.onBlur();
+                  }}
+                >
+                  <SelectTrigger
+                    className={`h-12 ${errors.contractType ? "border-destructive" : ""}`}
+                  >
+                    <SelectValue placeholder="Select Contract Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="CALL-OUT">CALL-OUT</SelectItem>
+                    <SelectItem value="NON-CALL-OUT">NON CALL-OUT</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            <FieldError message={errors.contractType?.message} />
           </div>
           <div className="flex-1 space-y-2">
             <Label className="text-xs text-muted-foreground ml-1">
               Currency
             </Label>
-            <Select
-              value={localData.currency || ""}
-              onValueChange={(value) => handleChange("currency", value)}
-            >
-              <SelectTrigger className="h-12">
-                <SelectValue placeholder="Select Currency" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="FUSD">FUSD</SelectItem>
-                <SelectItem value="NGN">NGN</SelectItem>
-                <SelectItem value="USD">USD</SelectItem>
-              </SelectContent>
-            </Select>
+            <Controller
+              name="currency"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  value={field.value || ""}
+                  onValueChange={(val) => {
+                    field.onChange(val);
+                    field.onBlur();
+                  }}
+                >
+                  <SelectTrigger
+                    className={`h-12 ${errors.currency ? "border-destructive" : ""}`}
+                  >
+                    <SelectValue placeholder="Select Currency" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="FUSD">FUSD</SelectItem>
+                    <SelectItem value="NGN">NGN</SelectItem>
+                    <SelectItem value="USD">USD</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            <FieldError message={errors.currency?.message} />
           </div>
         </div>
         <div className="hidden lg:block"></div>
         <div className="hidden lg:block"></div>
 
-        {/* Grid Fields */}
-        {/* <FloatingInput
-                     label="Ref. No."
-                     disabled
-                     value={localData.referenceNumber}
-                     onChange={(e) => handleChange('referenceNumber', e.target.value)}
-                 /> */}
-        <DatePicker
-          label="Date and Ref Inc Plan Approval"
-          value={localData.dateAndRefIncPlanApproval}
-          onChange={(value) => handleChange("dateAndRefIncPlanApproval", value)}
-        />
+        {/* Date and Ref Inc Plan Approval */}
+        <div>
+          <Controller
+            name="dateAndRefIncPlanApproval"
+            control={control}
+            render={({ field }) => (
+              <DatePicker
+                label="Date and Ref Inc Plan Approval"
+                value={field.value || ""}
+                onChange={(val) => {
+                  field.onChange(val);
+                  field.onBlur();
+                }}
+              />
+            )}
+          />
+          <FieldError message={errors.dateAndRefIncPlanApproval?.message} />
+        </div>
 
-        <FloatingInput
-          label="Name of Operator / Project Promoter"
-          value={localData.operatorOrProjectPromoter}
-          onChange={(e) =>
-            handleChange("operatorOrProjectPromoter", e.target.value)
-          }
-        />
-        <DatePicker
-          label="Date of and Ref (NCDMB Tech Evaluation Rpt)"
-          value={localData.dateAndRefNCDMBTechEvaluation}
-          onChange={(value) => handleChange("dateAndRefNCDMBTechEvaluation", value)}
-        />
-        <FloatingInput
-          label="Contract / Project Title"
-          value={localData.contractProjectTitle}
-          onChange={(e) => handleChange("contractProjectTitle", e.target.value)}
-        />
-        <FloatingInput
-          label="Date of and Ref (NCDMB Comm Evaluation Rpt)"
-          value={localData.dateAndRefNCDMBCommEvaluation}
-          onChange={(e) =>
-            handleChange("dateAndRefNCDMBCommEvaluation", e.target.value)
-          }
-        />
+        {/* Operator / Project Promoter */}
+        <div>
+          <FloatingInput
+            label="Name of Operator / Project Promoter"
+            aria-invalid={!!errors.operatorOrProjectPromoter}
+            {...register("operatorOrProjectPromoter")}
+          />
+          <FieldError message={errors.operatorOrProjectPromoter?.message} />
+        </div>
+
+        {/* NCDMB Tech Evaluation */}
+        <div>
+          <Controller
+            name="dateAndRefNCDMBTechEvaluation"
+            control={control}
+            render={({ field }) => (
+              <DatePicker
+                label="Date of and Ref (NCDMB Tech Evaluation Rpt)"
+                value={field.value || ""}
+                onChange={(val) => {
+                  field.onChange(val);
+                  field.onBlur();
+                }}
+              />
+            )}
+          />
+          <FieldError message={errors.dateAndRefNCDMBTechEvaluation?.message} />
+        </div>
+
+        {/* Contract Title */}
+        <div>
+          <FloatingInput
+            label="Contract / Project Title"
+            aria-invalid={!!errors.contractProjectTitle}
+            {...register("contractProjectTitle")}
+          />
+          <FieldError message={errors.contractProjectTitle?.message} />
+        </div>
+
+        {/* NCDMB Comm Evaluation */}
+        <div>
+          <FloatingInput
+            label="Date of and Ref (NCDMB Comm Evaluation Rpt)"
+            aria-invalid={!!errors.dateAndRefNCDMBCommEvaluation}
+            {...register("dateAndRefNCDMBCommEvaluation")}
+          />
+          <FieldError message={errors.dateAndRefNCDMBCommEvaluation?.message} />
+        </div>
+
+        {/* 1% NCDF — auto-calculated, disabled */}
         <FloatingInput
           label="1% NCDF: Being the sum of one percent of contract awarded"
           disabled
-          value={localData.onePercentNCDF}
-          onChange={(e) => handleChange("onePercentNCDF", e.target.value)}
+          value={sectionAData?.onePercentNCDF ?? ""}
+          onChange={() => {}}
         />
 
-        <FloatingInput
-          label="Contract / Project Number"
-          value={localData.contractProjectNumber}
-          onChange={(e) =>
-            handleChange("contractProjectNumber", e.target.value)
-          }
-        />
-        <DatePicker
-          label="Date of Commencement of Contract"
-          value={localData.commencementDate}
-          onChange={(value) => handleChange("commencementDate", value)}
-        />
+        {/* Contract / Project Number */}
+        <div>
+          <FloatingInput
+            label="Contract / Project Number"
+            aria-invalid={!!errors.contractProjectNumber}
+            {...register("contractProjectNumber")}
+          />
+          <FieldError message={errors.contractProjectNumber?.message} />
+        </div>
+
+        {/* Date of Commencement of Contract */}
+        <div>
+          <Controller
+            name="commencementDate"
+            control={control}
+            render={({ field }) => (
+              <DatePicker
+                label="Date of Commencement of Contract"
+                value={field.value || ""}
+                onChange={(val) => {
+                  field.onChange(val);
+                  field.onBlur();
+                }}
+              />
+            )}
+          />
+          <FieldError message={errors.commencementDate?.message} />
+        </div>
+
+        {/* NCDMB HCD Training Budget — auto-calculated, disabled */}
         <FloatingInput
           label="NCDMB HCD Training Budget (% of TCV)"
           disabled
-          value={localData.ncdmbHcdTrainingBudgetPercent}
-          onChange={(e) =>
-            handleChange("ncdmbHcdTrainingBudgetPercent", e.target.value)
-          }
+          value={sectionAData?.ncdmbHcdTrainingBudgetPercent ?? ""}
+          onChange={() => {}}
         />
 
-        <DatePicker
-          label="Date of Commencement of Bid"
-          value={localData.bidCommencementDate}
-          onChange={(value) => handleChange("bidCommencementDate", value)}
-        />
-        <FloatingInput
-          label="Date of Completion of Contract"
-          value={localData.contractCompletionDate}
-          onChange={(e) =>
-            handleChange("contractCompletionDate", e.target.value)
-          }
-        />
-        <FloatingInput
-          label="Main Contractor"
-          value={localData.mainContractor}
-          onChange={(e) => handleChange("mainContractor", e.target.value)}
-        />
+        {/* Date of Commencement of Bid */}
+        <div>
+          <Controller
+            name="bidCommencementDate"
+            control={control}
+            render={({ field }) => (
+              <DatePicker
+                label="Date of Commencement of Bid"
+                value={field.value || ""}
+                onChange={(val) => {
+                  field.onChange(val);
+                  field.onBlur();
+                }}
+              />
+            )}
+          />
+          <FieldError message={errors.bidCommencementDate?.message} />
+        </div>
 
-        <DatePicker
-          label="Date and Ref (Single Source/ Selective Approval) - Not Applicable"
-          value={localData.singleSourceApprovalDateAndRef}
-          onChange={(value) => handleChange("singleSourceApprovalDateAndRef", value)}
-        />
-        <FloatingInput
-          label="Duration of Contract"
-          value={localData.contractDuration}
-          onChange={(e) => handleChange("contractDuration", e.target.value)}
-        />
+        {/* Date of Completion of Contract */}
+        <div>
+          <Controller
+            name="contractCompletionDate"
+            control={control}
+            render={({ field }) => (
+              <DatePicker
+                label="Date of Completion of Contract"
+                value={field.value || ""}
+                onChange={(val) => {
+                  field.onChange(val);
+                  field.onBlur();
+                }}
+              />
+            )}
+          />
+          <FieldError message={errors.contractCompletionDate?.message} />
+        </div>
+
+        {/* Main Contractor */}
+        <div>
+          <FloatingInput
+            label="Main Contractor"
+            aria-invalid={!!errors.mainContractor}
+            {...register("mainContractor")}
+          />
+          <FieldError message={errors.mainContractor?.message} />
+        </div>
+
+        {/* Single Source / Selective Approval */}
+        <div>
+          <Controller
+            name="singleSourceApprovalDateAndRef"
+            control={control}
+            render={({ field }) => (
+              <DatePicker
+                label="Date and Ref (Single Source/ Selective Approval) - Not Applicable"
+                value={field.value || ""}
+                onChange={(val) => {
+                  field.onChange(val);
+                  field.onBlur();
+                }}
+              />
+            )}
+          />
+          <FieldError
+            message={errors.singleSourceApprovalDateAndRef?.message}
+          />
+        </div>
+
+        {/* Duration of Contract */}
+        <div>
+          <Label className="text-xs text-muted-foreground ml-1">
+            Duration of Contract
+          </Label>
+          <div className="flex gap-2 mt-2">
+            <input
+              type="number"
+              min="1"
+              placeholder="e.g. 12"
+              value={durationAmount}
+              onChange={(e) => {
+                setDurationAmount(e.target.value);
+                updateDuration(e.target.value, durationUnit);
+              }}
+              className="h-12 w-24 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 aria-invalid:border-destructive"
+              aria-invalid={!!errors.contractDuration}
+            />
+            <Select
+              value={durationUnit}
+              onValueChange={(val) => {
+                const unit = val as DurationUnit;
+                setDurationUnit(unit);
+                updateDuration(durationAmount, unit);
+              }}
+            >
+              <SelectTrigger className="h-12 flex-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Days">Days</SelectItem>
+                <SelectItem value="Weeks">Weeks</SelectItem>
+                <SelectItem value="Months">Months</SelectItem>
+                <SelectItem value="Years">Years</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <FieldError message={errors.contractDuration?.message} />
+        </div>
 
         <div className="hidden lg:block"></div>
 
@@ -167,10 +382,11 @@ const SectionA = () => {
         <div className="flex flex-col gap-2 relative">
           <FloatingInput
             label="Sub-Contractor(s)"
-            value={localData.subContractors}
-            onChange={(e) => handleChange("subContractors", e.target.value)}
+            aria-invalid={!!errors.subContractors}
+            {...register("subContractors")}
           />
-          <p className="text-[10px] text-muted-foreground leading-tight px-1  -bottom-10 left-0 max-w-125">
+          <FieldError message={errors.subContractors?.message} />
+          <p className="text-[10px] text-muted-foreground leading-tight px-1 left-0 max-w-125">
             In line with the statutory requirement of the NOGICD Act 2010,
             Tenderer shall deduct 1% NCDF for every subcontract to be issued on
             this contract and remit same to NCDMB. Failure to remit the said 1%
@@ -179,32 +395,30 @@ const SectionA = () => {
           </p>
         </div>
 
-        {/* Total Fields - Bottom Row */}
+        {/* Total Fields — auto-calculated, disabled */}
         <FloatingInput
           label="Total NC Spend"
           disabled
-          value={localData.totalNCPercentSpend}
-          onChange={(e) => handleChange("totalNCPercentSpend", e.target.value)}
+          value={sectionAData?.totalNCPercentSpend ?? ""}
+          onChange={() => {}}
         />
         <FloatingInput
           label="Total Contract Value"
           disabled
-          value={localData.totalContractValue}
-          onChange={(e) => handleChange("totalContractValue", e.target.value)}
+          value={sectionAData?.totalContractValue ?? ""}
+          onChange={() => {}}
         />
         <FloatingInput
           label="Total NC% Manhours"
           disabled
-          value={localData.totalNCPercentManhours}
-          onChange={(e) =>
-            handleChange("totalNCPercentManhours", e.target.value)
-          }
+          value={sectionAData?.totalNCPercentManhours ?? ""}
+          onChange={() => {}}
         />
         <FloatingInput
           label="Total NC Value"
           disabled
-          value={localData.totalNCValue}
-          onChange={(e) => handleChange("totalNCValue", e.target.value)}
+          value={sectionAData?.totalNCValue ?? ""}
+          onChange={() => {}}
         />
       </div>
     </div>
