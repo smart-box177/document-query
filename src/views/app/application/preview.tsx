@@ -1,4 +1,4 @@
-import { useApplicationFormStore } from "@/store/application-form.store";
+import { useApplicationFormContext } from "@/context/application-form.context";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { CheckCircle2Icon, AlertCircleIcon } from "lucide-react";
@@ -12,7 +12,7 @@ const DataRow = ({ label, value }: { label: string; value: string | number | nul
 );
 
 const ApplicationPreview = ({ data }: { data?: IApplication }) => {
-  const { formData: storeData } = useApplicationFormStore();
+  const { formData: storeData } = useApplicationFormContext();
   const formData: Partial<IApplication> = data ?? storeData;
   const { sectionA, sectionB, sectionC } = formData;
 

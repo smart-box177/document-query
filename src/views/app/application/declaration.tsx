@@ -4,7 +4,7 @@ import { DatePicker } from "@/components/date-picker";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import type { IApplication } from "@/interface/application";
-import { useApplicationFormStore } from "@/store/application-form.store";
+import { useApplicationFormContext } from "@/context/application-form.context";
 import { useAuthStore } from "@/store/auth.store";
 import { api } from "@/config/axios";
 import { toast } from "sonner";
@@ -81,7 +81,7 @@ const SignatureBlock = ({ label, userSignatureUrl, signedUrl, isSigning, onSign 
 };
 
 const Declaration = () => {
-  const { formData, updateDeclaration } = useApplicationFormStore();
+  const { formData, updateDeclaration } = useApplicationFormContext();
   const { user } = useAuthStore();
 
   const [signingOp, setSigningOp] = useState(false);

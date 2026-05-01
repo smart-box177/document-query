@@ -11,7 +11,7 @@ import {
 import { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useApplicationFormStore } from "@/store/application-form.store";
+import { useApplicationFormContext } from "@/context/application-form.context";
 import { Label } from "@/components/ui/label";
 import {
   sectionASchema,
@@ -24,7 +24,7 @@ const FieldError = ({ message }: { message?: string }) =>
   ) : null;
 
 const SectionA = () => {
-  const { formData, updateSectionA } = useApplicationFormStore();
+  const { formData, updateSectionA } = useApplicationFormContext();
   const sectionAData = formData.sectionA;
 
   const {
@@ -57,6 +57,8 @@ const SectionA = () => {
     },
     mode: "onTouched",
   });
+
+  const totalNCSpend = (parseFloat(sectionAData?.totalNCValue ?? "0") / (parseFloat(sectionAData?.totalContractValue ?? "0") || 1)) * 100;
 
   // Parse existing contractDuration (e.g. "12 Months") into amount + unit
   const parseDuration = (val: string) => {
@@ -236,7 +238,7 @@ const SectionA = () => {
 
         {/* 1% NCDF — auto-calculated, disabled */}
         <FloatingInput
-          label="1% NCDF: Being the sum of one percent of contract awarded"
+          label="1% NCDF"
           disabled
           value={sectionAData?.onePercentNCDF ?? ""}
           onChange={() => {}}
@@ -415,7 +417,7 @@ const SectionA = () => {
         <FloatingInput
           label="Total NC Spend"
           disabled
-          value={sectionAData?.totalNCPercentSpend ?? ""}
+          value={totalNCSpend.toFixed(2) + "%"}
           onChange={() => {}}
         />
         <FloatingInput

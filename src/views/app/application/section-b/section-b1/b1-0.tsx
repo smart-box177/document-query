@@ -11,7 +11,7 @@ import {
     DrawerClose
 } from '@/components/ui/drawer'
 import { FloatingInput } from '@/components/ui/floating-input'
-import { useApplicationFormStore } from '@/store/application-form.store'
+import { useApplicationFormContext } from '@/context/application-form.context'
 
 interface PersonnelRecord {
     id: string
@@ -127,7 +127,7 @@ const CellInput = ({
 }
 
 const SectionB10 = () => {
-    const { formData, updateSectionB } = useApplicationFormStore()
+    const { formData, updateSectionB } = useApplicationFormContext()
     const [records, setRecords] = useState<PersonnelRecord[]>(
         formData.sectionB?.b1?.b1_0 ? [formData.sectionB.b1.b1_0] : []
     )

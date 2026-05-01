@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, Filter, MoreHorizontalIcon, FileSpreadsheet, Mail, Download } from "lucide-react";
 import { DataTable } from "./contracts/data-table";
 import { useApplicationStore } from "@/store/application.store";
-import { useApplicationFormStore } from "@/store/application-form.store";
+import { useApplicationFormContext } from "@/context/application-form.context";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -71,7 +71,7 @@ const Query = () => {
 
   const {
     formData,
-  } = useApplicationFormStore();
+  } = useApplicationFormContext();
 
   const hasLocalDraft = Object.keys(formData).length > 1;
 

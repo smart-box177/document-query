@@ -20,7 +20,7 @@ import {
     TableHeader,
     TableRow
 } from '@/components/ui/table'
-import { useApplicationFormStore } from '@/store/application-form.store'
+import { useApplicationFormContext } from '@/context/application-form.context'
 
 interface OtherServicesRecord {
     id: string
@@ -126,7 +126,7 @@ const CellInput = ({
 }
 
 const SectionB5 = () => {
-    const { formData, updateSectionB } = useApplicationFormStore()
+    const { formData, updateSectionB } = useApplicationFormContext()
     const [open, setOpen] = useState(false)
     const [newRecord, setNewRecord] = useState<Omit<OtherServicesRecord, 'id'>>(emptyRecord())
     const idCounter = useRef(0)

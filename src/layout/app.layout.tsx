@@ -51,6 +51,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { useAuthStore } from "@/store/auth.store";
+import { ApplicationFormProvider } from "@/context/application-form.context";
 import {
   useBookmarkStore,
   type BookmarkedApplication,
@@ -142,6 +143,7 @@ const AppLayout = () => {
   const breadcrumbs = getBreadcrumbs();
 
   return (
+    <ApplicationFormProvider>
     <div className="flex h-screen">
       <aside className="w-50 border-r bg-muted/30 flex flex-col">
         <div className="p-4 border-b">
@@ -350,6 +352,7 @@ const AppLayout = () => {
         </main>
       </div>
     </div>
+    </ApplicationFormProvider>
   );
 };
 

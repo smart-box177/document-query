@@ -7,7 +7,7 @@ import {
     TableHeader,
     TableRow
 } from '@/components/ui/table'
-import { useApplicationFormStore } from '@/store/application-form.store'
+import { useApplicationFormContext } from '@/context/application-form.context'
 
 interface HCDTrainingRecord {
     id: string
@@ -46,7 +46,7 @@ const CellInput = ({
 )
 
 const SectionC1 = () => {
-    const { formData, updateSectionC } = useApplicationFormStore()
+    const { formData, updateSectionC } = useApplicationFormContext()
     const [records, setRecords] = useState<HCDTrainingRecord[]>(
         formData.sectionC?.c1 ? [formData.sectionC.c1] : [emptyRecord()]
     )

@@ -15,7 +15,7 @@ import {
 import { FileTextIcon, GraduationCapIcon, ListIcon, PlusIcon, EyeIcon, PenLineIcon } from "lucide-react";
 import { Badge } from "@/components/reui/badge";
 import { useApplicationStore } from "@/store/application.store";
-import { useApplicationFormStore } from "@/store/application-form.store";
+import { useApplicationFormContext } from "@/context/application-form.context";
 import { toast } from "sonner";
 import {
   Sheet,
@@ -91,7 +91,7 @@ const NewApplicationSubmission = () => {
     fetchApplicationById,
   } = useApplicationStore();
 
-  const { formData, resetForm, loadDraft } = useApplicationFormStore();
+  const { formData, resetForm, loadDraft } = useApplicationFormContext();
 
   // When navigated to /new-application/:id, load the draft into the form
   useEffect(() => {
