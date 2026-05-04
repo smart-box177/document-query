@@ -27,13 +27,17 @@ export function DatePicker({
   placeholder = "Pick a date",
   toDate,
 }: DatePickerProps) {
-  const [date, setDate] = React.useState<Date | undefined>(
-    value ? new Date(value) : undefined,
-  );
+  const parseDate = (v: string): Date | undefined => {
+    if (!v) return undefined;
+    const d = new Date(v);
+    return isNaN(d.getTime()) ? undefined : d;
+  };
+
+  const [date, setDate] = React.useState<Date | undefined>(() => parseDate(value));
   const [open, setOpen] = React.useState(false);
 
   React.useEffect(() => {
-    setDate(value ? new Date(value) : undefined);
+    setDate(parseDate(value));
   }, [value]);
 
   return (
